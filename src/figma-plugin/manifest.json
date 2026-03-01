@@ -1,0 +1,19 @@
+{
+  "name": "Figma Design Agent",
+  "id": "figma-design-agent-plugin",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "permissions": ["teamlibrary"],
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "devAllowedDomains": [
+      "http://localhost:8767",
+      "ws://localhost:8767"
+    ]
+  },
+  "documentAccess": "dynamic-page",
+  "enableProposedApi": true,
+  "enablePrivatePluginApi": true
+}

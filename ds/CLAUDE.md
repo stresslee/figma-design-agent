@@ -161,7 +161,7 @@ INSTANCE_SWAP properties use **component node IDs** (e.g. `"12:3822"`), NOT comp
   - Endpoint: `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent`
   - Header: `X-goog-api-key: {API_KEY}`
   - Body: `{"contents":[{"parts":[{"text":"..."}]}],"generationConfig":{"responseModalities":["IMAGE","TEXT"]}}`
-  - API Key: `AIzaSyDkXdVjlrTXDDIoHvO-VNp9fUul7UDfy4E`
+  - API Key: Settings UI에서 설정 (src/main/settings-store.ts에 저장됨)
   - 응답: `candidates[0].content.parts[].inlineData.data` (base64 PNG)
 - **3x 해상도 필수:** 모든 그래픽 이미지는 **Figma 노드 사이즈의 3배**로 생성 후, 원래 크기의 노드에 `FILL`로 적용. Figma가 자동으로 축소하여 고해상도 렌더링. 예: 36×36 노드 → 108×108 이미지 생성, 361×180 배너 → 1083×540 이미지 생성
 - **크기 맞추기:** Gemini 출력 비율이 타겟과 다를 수 있음 → PIL로 center-crop 후 `img.resize((W*3, H*3), Image.LANCZOS)` 적용 (3x 해상도)
@@ -269,7 +269,7 @@ Gemini API (나노바나나프로) → 로컬 저장 (assets/generated/) → rem
 ```
 
 ### 사용법
-- **API Key**: `AIzaSyDkXdVjlrTXDDIoHvO-VNp9fUul7UDfy4E`
+- **API Key**: Settings UI에서 설정 (앱 헤더 기어 아이콘 → Gemini API Key 입력)
 - **모델**: `nano-banana-pro-preview` ← 반드시 이 모델 사용 (실제 작동 확인)
 - **API Header**: `X-goog-api-key` 헤더로 키 전달 (Authorization Bearer 방식 아님)
 - **저장 경로**: `assets/generated/` 디렉토리에 PNG로 저장

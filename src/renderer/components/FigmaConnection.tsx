@@ -25,26 +25,48 @@ export function FigmaConnection({ status, onJoinChannel }: Props) {
     }
   };
 
-  const statusColor = status.status === 'connected' ? '#22c55e' : '#ef4444';
+  const statusColor =
+    status.status === 'connected'
+      ? '#22c55e'
+      : status.status === 'connecting'
+        ? '#fbbf24'
+        : '#ef4444';
+
+  const statusLabel =
+    status.status === 'connected'
+      ? `Figma: ${status.documentName || status.channel || 'connected'}`
+      : status.status === 'connecting'
+        ? 'Figma: connecting...'
+        : 'Figma: disconnected';
+
+  const isDisconnected = status.status === 'disconnected' || status.status === 'error';
 
   return (
     <div style={styles.container}>
       {/* Status indicator */}
       <button
         style={styles.statusButton}
-        onClick={() => setShowInput(!showInput)}
-        title={status.channel ? `Channel: ${status.channel}` : 'Click to connect'}
+        onClick={() => isDisconnected && setShowInput(!showInput)}
+        title={
+          status.status === 'connected'
+            ? `Channel: ${status.channel}`
+            : status.status === 'connecting'
+              ? 'Waiting for plugin join...'
+              : 'Click to manually connect'
+        }
       >
-        <span style={{ ...styles.dot, background: statusColor }} />
-        <span style={styles.statusText}>
-          {status.status === 'connected'
-            ? `Figma: ${status.channel || 'connected'}`
-            : 'Figma: disconnected'}
-        </span>
+        <span
+          style={{
+            ...styles.dot,
+            background: statusColor,
+            ...(status.status === 'connecting' ? styles.dotPulse : {}),
+          }}
+        />
+        <span style={styles.statusText}>{statusLabel}</span>
       </button>
 
-      {/* Channel input dropdown */}
-      {showInput && (
+      {/* Manual channel input — only when disconnected (fallback) */}
+      {showInput && isDisconnected && (
         <div style={styles.dropdown}>
           <input
             style={styles.input}
@@ -89,6 +111,10 @@ const styles: Record<string, React.CSSProperties> = {
     height: '6px',
     borderRadius: '50%',
     flexShrink: 0,
+  },
+  dotPulse: {
+    animation: 'none', // CSS animations not supported in inline styles
+    opacity: 0.7,
   },
   statusText: {
     whiteSpace: 'nowrap' as const,

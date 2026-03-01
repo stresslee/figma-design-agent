@@ -11,7 +11,6 @@ import sharp from 'sharp';
 import { writeFile, mkdir, readFile } from 'fs/promises';
 import { join, dirname } from 'path';
 
-const GEMINI_API_KEY = 'AIzaSyDkXdVjlrTXDDIoHvO-VNp9fUul7UDfy4E';
 const GEMINI_MODEL = 'gemini-3-pro-image-preview';
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
@@ -47,13 +46,24 @@ export interface ImageResult {
 
 export class ImageGenerator {
   private outputDir: string;
+  private apiKey: string;
 
-  constructor(outputDir: string) {
+  constructor(outputDir: string, apiKey: string = '') {
     this.outputDir = outputDir;
+    this.apiKey = apiKey;
+  }
+
+  /** Update the API key at runtime */
+  setApiKey(key: string): void {
+    this.apiKey = key;
   }
 
   /** Generate an image using Gemini API, process with sharp, return base64 */
   async generate(request: ImageRequest): Promise<ImageResult> {
+    if (!this.apiKey) {
+      throw new Error('Gemini API key not configured. Set it in Settings.');
+    }
+
     const targetWidth = request.figmaWidth * 3;
     const targetHeight = request.figmaHeight * 3;
     const style = request.style || DEFAULT_STYLE;
@@ -85,7 +95,7 @@ export class ImageGenerator {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-goog-api-key': GEMINI_API_KEY,
+        'X-goog-api-key': this.apiKey,
       },
       body: JSON.stringify({
         contents: [{ parts }],

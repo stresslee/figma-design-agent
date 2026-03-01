@@ -6,6 +6,7 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC_CHANNELS } from '../shared/types';
+import type { ClaudeCodeStatus } from '../shared/types';
 
 export interface ElectronAPI {
   // Agent
@@ -21,6 +22,21 @@ export interface ElectronAPI {
 
   // DS
   getDesignTokens: () => Promise<unknown>;
+
+  // Claude Code (primary)
+  getClaudeCodeStatus: () => Promise<ClaudeCodeStatus>;
+  claudeCodeLogin: () => Promise<{ success: boolean; error?: string }>;
+
+  // Claude API (legacy fallback)
+  getClaudeApiStatus: () => Promise<{ hasKey: boolean; maskedKey: string }>;
+  setClaudeApiKey: (key: string) => Promise<{ success: boolean; error?: string }>;
+  validateClaudeApiKey: (key: string) => Promise<{ valid: boolean; error?: string }>;
+
+  openExternal: (url: string) => void;
+
+  // Settings
+  getGeminiKey: () => Promise<{ hasKey: boolean; maskedKey: string }>;
+  setGeminiKey: (key: string) => Promise<{ success: boolean; error?: string }>;
 
   // App
   onError: (callback: (error: string) => void) => () => void;
@@ -61,6 +77,36 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // DS
   getDesignTokens: () => {
     return ipcRenderer.invoke(IPC_CHANNELS.DS_GET_TOKENS);
+  },
+
+  // Claude Code
+  getClaudeCodeStatus: () => {
+    return ipcRenderer.invoke(IPC_CHANNELS.CLAUDE_CODE_STATUS);
+  },
+  claudeCodeLogin: () => {
+    return ipcRenderer.invoke(IPC_CHANNELS.CLAUDE_CODE_LOGIN);
+  },
+
+  // Claude API (legacy)
+  getClaudeApiStatus: () => {
+    return ipcRenderer.invoke(IPC_CHANNELS.CLAUDE_API_STATUS);
+  },
+  setClaudeApiKey: (key: string) => {
+    return ipcRenderer.invoke(IPC_CHANNELS.CLAUDE_API_SET_KEY, key);
+  },
+  validateClaudeApiKey: (key: string) => {
+    return ipcRenderer.invoke(IPC_CHANNELS.CLAUDE_API_VALIDATE, key);
+  },
+  openExternal: (url: string) => {
+    ipcRenderer.send('shell:open-external', url);
+  },
+
+  // Settings
+  getGeminiKey: () => {
+    return ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_GEMINI_KEY);
+  },
+  setGeminiKey: (key: string) => {
+    return ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_SET_GEMINI_KEY, key);
   },
 
   // App

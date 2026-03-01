@@ -4,6 +4,7 @@ export default defineConfig({
   entry: {
     'main/index': 'src/main/index.ts',
     'preload/index': 'src/preload/index.ts',
+    'main/figma-mcp-server': 'src/main/figma-mcp-server.ts',
   },
   format: ['cjs'],
   outDir: 'out',

@@ -49,9 +49,9 @@ export class FigmaWSServer extends EventEmitter {
       });
 
       this.wss.on('connection', (socket) => {
-        console.log('[FigmaWS] Plugin connected');
+        console.log('[FigmaWS] Plugin WebSocket connected, waiting for join...');
         this.pluginSocket = socket;
-        this.emitConnectionState('connected');
+        this.emitConnectionState('connecting');
 
         socket.on('message', (data) => {
           this.handleMessage(data.toString());
@@ -169,6 +169,36 @@ export class FigmaWSServer extends EventEmitter {
   private handleMessage(rawData: string): void {
     try {
       const json = JSON.parse(rawData);
+
+      // Handle ping (heartbeat from plugin)
+      if (json.type === 'ping') {
+        return;
+      }
+
+      // Handle join from plugin (auto-connect flow)
+      if (json.type === 'join') {
+        const channel = json.channel as string;
+        this.currentChannel = channel;
+        const documentName = (json.documentName as string) || channel.replace('auto-', '');
+        console.log(`[FigmaWS] Plugin joined channel: ${channel} (document: ${documentName})`);
+
+        // Send acknowledgment (format the plugin expects)
+        if (this.pluginSocket && this.pluginSocket.readyState === WebSocket.OPEN) {
+          this.pluginSocket.send(JSON.stringify({
+            type: 'system',
+            channel: channel,
+            message: { result: true },
+          }));
+        }
+
+        this.emit('connection-change', {
+          status: 'connected',
+          channel,
+          documentName,
+        } satisfies FigmaConnectionState);
+
+        return;
+      }
 
       // Handle progress updates
       if (json.type === 'progress_update') {

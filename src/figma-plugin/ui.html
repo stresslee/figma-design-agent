@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Figma Design Agent</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 16px;
+        color: #e0e0e0;
+        background-color: #1e1e1e;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .header h1 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+        color: #fff;
+      }
+      .status-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+      .status-row.connected {
+        background-color: #1a472a;
+        color: #4ade80;
+      }
+      .status-row.disconnected {
+        background-color: #471a1a;
+        color: #ff9999;
+      }
+      .status-row.connecting {
+        background-color: #3d3520;
+        color: #fbbf24;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .dot.green { background: #4ade80; }
+      .dot.red { background: #ef4444; }
+      .dot.yellow { background: #fbbf24; animation: pulse 1.5s ease-in-out infinite; }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+      .info {
+        font-size: 11px;
+        color: #999;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Figma Design Agent</h1>
+      </div>
+      <div id="status-row" class="status-row disconnected">
+        <span id="status-dot" class="dot red"></span>
+        <span id="status-text">Disconnected</span>
+      </div>
+      <p id="info-text" class="info">Waiting for Electron app on :8767...</p>
+    </div>
+
+    <script>
+      // === State ===
+      const state = {
+        connected: false,
+        socket: null,
+        channel: null,
+        documentId: null,
+        documentName: null,
+        pendingRequests: new Map(),
+        heartbeatInterval: null,
+        reconnectTimer: null,
+        reconnectAttempts: 0,
+        maxReconnectAttempts: 10,
+        intentionalDisconnect: false,
+      };
+
+      const SERVER_PORT = 8767;
+
+      // === UI Elements ===
+      const statusRow = document.getElementById("status-row");
+      const statusDot = document.getElementById("status-dot");
+      const statusText = document.getElementById("status-text");
+      const infoText = document.getElementById("info-text");
+
+      // === UI Update ===
+      function updateUI(statusClass, dotClass, text, info) {
+        statusRow.className = "status-row " + statusClass;
+        statusDot.className = "dot " + dotClass;
+        statusText.textContent = text;
+        if (info) infoText.textContent = info;
+      }
+
+      // === Heartbeat ===
+      function startHeartbeat() {
+        stopHeartbeat();
+        state.heartbeatInterval = setInterval(() => {
+          if (state.socket && state.socket.readyState === WebSocket.OPEN) {
+            state.socket.send(JSON.stringify({ type: "ping" }));
+          }
+        }, 30000);
+      }
+
+      function stopHeartbeat() {
+        if (state.heartbeatInterval) {
+          clearInterval(state.heartbeatInterval);
+          state.heartbeatInterval = null;
+        }
+      }
+
+      // === Reconnect ===
+      function scheduleReconnect() {
+        if (state.intentionalDisconnect) return;
+        if (state.reconnectAttempts >= state.maxReconnectAttempts) {
+          updateUI("disconnected", "red", "Reconnect failed", "Max attempts reached. Reopen plugin to retry.");
+          state.reconnectAttempts = 0;
+          return;
+        }
+        state.reconnectAttempts++;
+        const delay = Math.min(3000 * state.reconnectAttempts, 15000);
+        updateUI(
+          "connecting", "yellow",
+          `Reconnecting (${state.reconnectAttempts}/${state.maxReconnectAttempts})...`,
+          `Next attempt in ${delay / 1000}s`
+        );
+        state.reconnectTimer = setTimeout(() => {
+          connectToServer();
+        }, delay);
+      }
+
+      function cancelReconnect() {
+        if (state.reconnectTimer) {
+          clearTimeout(state.reconnectTimer);
+          state.reconnectTimer = null;
+        }
+        state.reconnectAttempts = 0;
+      }
+
+      // === WebSocket Connection ===
+      function connectToServer() {
+        try {
+          if (state.connected && state.socket) return;
+
+          updateUI("connecting", "yellow", "Connecting...", `Connecting to ws://localhost:${SERVER_PORT}`);
+
+          state.socket = new WebSocket(`ws://localhost:${SERVER_PORT}`);
+
+          state.socket.onopen = () => {
+            // Use document ID as channel, or generate fallback
+            const channelName = state.documentId
+              ? `auto-${state.documentId}`
+              : `auto-${Date.now().toString(36)}`;
+            state.channel = channelName;
+
+            state.reconnectAttempts = 0;
+            cancelReconnect();
+            startHeartbeat();
+
+            // Send join message (same protocol as existing plugin)
+            state.socket.send(
+              JSON.stringify({
+                type: "join",
+                channel: channelName,
+                documentName: state.documentName || "Unknown",
+              })
+            );
+          };
+
+          state.socket.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+
+              // Handle join acknowledgment
+              if (data.type === "system") {
+                if (data.message && data.message.result) {
+                  state.connected = true;
+                  state.intentionalDisconnect = false;
+                  const docLabel = state.documentName || state.channel;
+                  updateUI("connected", "green", "Connected", `Document: ${docLabel}`);
+
+                  // Notify plugin code
+                  parent.postMessage(
+                    { pluginMessage: { type: "notify", message: `Connected to Figma Design Agent` } },
+                    "*"
+                  );
+                }
+              } else if (data.type === "error") {
+                console.error("Server error:", data.message);
+                updateUI("disconnected", "red", "Error", data.message);
+                state.socket.close();
+              }
+
+              // Route commands and responses
+              handleSocketMessage(data);
+            } catch (error) {
+              console.error("Error parsing message:", error);
+            }
+          };
+
+          state.socket.onclose = () => {
+            state.connected = false;
+            state.socket = null;
+            stopHeartbeat();
+            if (!state.intentionalDisconnect && state.channel) {
+              scheduleReconnect();
+            } else {
+              updateUI("disconnected", "red", "Disconnected", "Electron app disconnected");
+            }
+          };
+
+          state.socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+            state.connected = false;
+            state.socket = null;
+            stopHeartbeat();
+          };
+        } catch (error) {
+          console.error("Connection error:", error);
+          updateUI("disconnected", "red", "Connection error", error.message || "Unknown error");
+        }
+      }
+
+      // === Command Queue (from existing plugin — prevents concurrent execution) ===
+      const commandQueue = [];
+      let isProcessingCommand = false;
+
+      async function processCommandQueue() {
+        if (isProcessingCommand || commandQueue.length === 0) return;
+        isProcessingCommand = true;
+
+        const { id, command, params } = commandQueue.shift();
+        try {
+          parent.postMessage(
+            {
+              pluginMessage: {
+                type: "execute-command",
+                id: id,
+                command: command,
+                params: params,
+              },
+            },
+            "*"
+          );
+        } catch (error) {
+          sendErrorResponse(id, error.message || "Error executing command");
+          isProcessingCommand = false;
+          processCommandQueue();
+        }
+      }
+
+      function onCommandComplete() {
+        isProcessingCommand = false;
+        processCommandQueue();
+      }
+
+      // === Handle messages from WebSocket (commands from Electron) ===
+      function handleSocketMessage(payload) {
+        const data = payload.message;
+        if (!data) return;
+
+        // If it's a response to a pending request
+        if (data.id && state.pendingRequests.has(data.id)) {
+          const { resolve, reject } = state.pendingRequests.get(data.id);
+          state.pendingRequests.delete(data.id);
+          if (data.error) {
+            reject(new Error(data.error));
+          } else {
+            resolve(data.result);
+          }
+          return;
+        }
+
+        // If it's a new command — enqueue
+        if (data.command) {
+          commandQueue.push({ id: data.id, command: data.command, params: data.params });
+          processCommandQueue();
+        }
+      }
+
+      // === Send responses back to WebSocket (to Electron) ===
+      function sendSuccessResponse(id, result) {
+        if (!state.connected || !state.socket) return;
+        state.socket.send(
+          JSON.stringify({
+            id,
+            type: "message",
+            channel: state.channel,
+            message: { id, result },
+          })
+        );
+      }
+
+      function sendErrorResponse(id, errorMessage) {
+        if (!state.connected || !state.socket) return;
+        state.socket.send(
+          JSON.stringify({
+            id,
+            type: "message",
+            channel: state.channel,
+            message: { id, error: errorMessage },
+          })
+        );
+      }
+
+      // === Send progress updates to WebSocket ===
+      function sendProgressUpdateToServer(progressData) {
+        if (!state.connected || !state.socket) return;
+        state.socket.send(
+          JSON.stringify({
+            id: progressData.commandId,
+            type: "progress_update",
+            channel: state.channel,
+            message: {
+              id: progressData.commandId,
+              type: "progress_update",
+              data: progressData,
+            },
+          })
+        );
+      }
+
+      // === Listen for messages from plugin code.js ===
+      window.onmessage = (event) => {
+        const message = event.data.pluginMessage;
+        if (!message) return;
+
+        switch (message.type) {
+          case "auto-connect":
+            // Received document info from code.js — initiate connection
+            state.documentId = message.documentId || null;
+            state.documentName = message.documentName || null;
+            if (!state.connected) {
+              connectToServer();
+            }
+            break;
+          case "command-result":
+            sendSuccessResponse(message.id, message.result);
+            onCommandComplete();
+            break;
+          case "command-error":
+            sendErrorResponse(message.id, message.error);
+            onCommandComplete();
+            break;
+          case "command_progress":
+            sendProgressUpdateToServer(message);
+            break;
+        }
+      };
+    </script>
+  </body>
+</html>

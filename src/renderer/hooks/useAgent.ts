@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { ChatMessage, AgentState, FigmaConnectionState, AgentEvent } from '../../shared/types';
+import type { ChatMessage, AgentState, FigmaConnectionState, AgentEvent, ClaudeCodeStatus } from '../../shared/types';
 
 // Access the preload-exposed API
 declare global {
@@ -13,6 +13,16 @@ declare global {
       getFigmaStatus: () => Promise<FigmaConnectionState>;
       onFigmaStatus: (callback: (status: FigmaConnectionState) => void) => () => void;
       getDesignTokens: () => Promise<unknown>;
+      // Claude Code (primary)
+      getClaudeCodeStatus: () => Promise<ClaudeCodeStatus>;
+      claudeCodeLogin: () => Promise<{ success: boolean; error?: string }>;
+      // Claude API (legacy fallback)
+      getClaudeApiStatus: () => Promise<{ hasKey: boolean; maskedKey: string }>;
+      setClaudeApiKey: (key: string) => Promise<{ success: boolean; error?: string }>;
+      validateClaudeApiKey: (key: string) => Promise<{ valid: boolean; error?: string }>;
+      openExternal: (url: string) => void;
+      getGeminiKey: () => Promise<{ hasKey: boolean; maskedKey: string }>;
+      setGeminiKey: (key: string) => Promise<{ success: boolean; error?: string }>;
       onError: (callback: (error: string) => void) => () => void;
     };
   }

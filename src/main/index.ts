@@ -4,20 +4,40 @@
  * Wires up all components:
  * - BrowserWindow with React renderer
  * - WebSocket server for Figma plugin
- * - Agent Orchestrator with embedded MCP tools
+ * - Tool Bridge Server for MCP ↔ Electron communication
+ * - Agent Orchestrator with Claude Agent SDK or API key fallback
  * - IPC handlers for renderer communication
  */
 
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'path';
+import { execFile } from 'child_process';
 import { FigmaWSServer } from './figma-ws-server';
 import { buildToolRegistry } from './figma-mcp-embedded';
 import { registerDSLookupTools } from './ds-lookup-tools';
 import { AgentOrchestrator } from './agent-orchestrator';
+import { ToolBridgeServer } from './tool-bridge-server';
 import { ImageGenerator } from './image-generator';
+import { getGeminiApiKey, setGeminiApiKey, getAnthropicApiKey, setAnthropicApiKey } from './settings-store';
 import { setProjectRoot, getDesignTokens } from '../shared/ds-data';
 import { IPC_CHANNELS } from '../shared/types';
-import type { FigmaConnectionState } from '../shared/types';
+import type { FigmaConnectionState, ClaudeCodeStatus } from '../shared/types';
+
+// ============================================================
+// Global error handlers — prevent EPIPE crashes from subprocess pipes
+// ============================================================
+
+process.on('uncaughtException', (err) => {
+  if ((err as NodeJS.ErrnoException).code === 'EPIPE') {
+    console.error('[Main] EPIPE error (subprocess pipe closed):', err.message);
+    return; // Don't crash the app
+  }
+  console.error('[Main] Uncaught exception:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Main] Unhandled rejection:', reason);
+});
 
 // ============================================================
 // Configuration
@@ -35,7 +55,44 @@ const ASSETS_DIR = join(PROJECT_ROOT, 'assets', 'generated');
 let mainWindow: BrowserWindow | null = null;
 let figmaWS: FigmaWSServer;
 let orchestrator: AgentOrchestrator | null = null;
+let toolBridge: ToolBridgeServer;
 let imageGenerator: ImageGenerator;
+
+// Cached Claude Code status
+let claudeCodeStatusCache: ClaudeCodeStatus | null = null;
+
+// ============================================================
+// Claude Code Detection
+// ============================================================
+
+/** Check if Claude Code CLI is installed and authenticated */
+async function checkClaudeCodeStatus(): Promise<ClaudeCodeStatus> {
+  return new Promise((resolve) => {
+    execFile('claude', ['--version'], (error) => {
+      if (error) {
+        resolve({ installed: false, authenticated: false });
+        return;
+      }
+
+      // Claude Code is installed, check auth
+      execFile('claude', ['auth', 'status'], (authError, stdout, stderr) => {
+        const output = (stdout || '') + (stderr || '');
+        if (authError || output.includes('not logged in') || output.includes('Not authenticated')) {
+          resolve({ installed: true, authenticated: false });
+          return;
+        }
+
+        // Extract plan info if available
+        const planMatch = output.match(/plan[:\s]+([\w\s]+)/i);
+        resolve({
+          installed: true,
+          authenticated: true,
+          plan: planMatch?.[1]?.trim(),
+        });
+      });
+    });
+  });
+}
 
 // ============================================================
 // App lifecycle
@@ -55,8 +112,16 @@ app.whenReady().then(async () => {
 
   console.log(`[Main] Registered ${tools.size} tools`);
 
-  // Initialize image generator
-  imageGenerator = new ImageGenerator(ASSETS_DIR);
+  // Start Tool Bridge Server (for MCP server communication)
+  toolBridge = new ToolBridgeServer(tools);
+  await toolBridge.start();
+
+  // Initialize image generator with saved API key
+  imageGenerator = new ImageGenerator(ASSETS_DIR, getGeminiApiKey());
+
+  // Check Claude Code status
+  claudeCodeStatusCache = await checkClaudeCodeStatus();
+  console.log(`[Main] Claude Code: installed=${claudeCodeStatusCache.installed}, authenticated=${claudeCodeStatusCache.authenticated}`);
 
   // Create window
   createWindow();
@@ -71,6 +136,7 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => {
+  toolBridge?.stop();
   figmaWS?.stop();
   app.quit();
 });
@@ -124,19 +190,26 @@ function setupIPC(tools: Map<string, import('../shared/types').ToolDefinition>):
   // --- Agent ---
 
   ipcMain.on(IPC_CHANNELS.AGENT_SEND_MESSAGE, async (event, message: string) => {
-    // Get API key from environment
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      mainWindow?.webContents.send(IPC_CHANNELS.APP_ERROR, 'ANTHROPIC_API_KEY not set');
+    // Determine mode: Agent SDK (Claude Code) or Direct API
+    const useAgentSdk = claudeCodeStatusCache?.installed && claudeCodeStatusCache?.authenticated;
+    const apiKey = getAnthropicApiKey();
+
+    if (!useAgentSdk && !apiKey) {
+      mainWindow?.webContents.send(IPC_CHANNELS.APP_ERROR,
+        'Claude Code가 설치되어 있지 않거나 인증되지 않았습니다. Settings에서 로그인하거나 API 키를 설정해주세요.'
+      );
       return;
     }
 
-    // Create orchestrator if needed
+    console.log(`[Main] Mode: ${useAgentSdk ? 'Agent SDK (subscription)' : 'Direct API (key)'}`);
+
+    // Create orchestrator if needed, or if mode changed
     if (!orchestrator) {
       orchestrator = new AgentOrchestrator({
-        apiKey,
         tools,
         projectRoot: PROJECT_ROOT,
+        useAgentSdk: !!useAgentSdk,
+        apiKey: useAgentSdk ? undefined : apiKey,
       });
 
       // Forward events to renderer
@@ -203,6 +276,96 @@ function setupIPC(tools: Map<string, import('../shared/types').ToolDefinition>):
       return getDesignTokens();
     } catch (error) {
       return { error: error instanceof Error ? error.message : String(error) };
+    }
+  });
+
+  // --- Claude Code ---
+
+  ipcMain.handle(IPC_CHANNELS.CLAUDE_CODE_STATUS, async () => {
+    // Refresh status
+    claudeCodeStatusCache = await checkClaudeCodeStatus();
+    return claudeCodeStatusCache;
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLAUDE_CODE_LOGIN, async () => {
+    return new Promise<{ success: boolean; error?: string }>((resolve) => {
+      execFile('claude', ['login'], (error, stdout, stderr) => {
+        if (error) {
+          resolve({ success: false, error: error.message });
+          return;
+        }
+        // Refresh status after login
+        checkClaudeCodeStatus().then((status) => {
+          claudeCodeStatusCache = status;
+          // Reset orchestrator to pick up new auth
+          orchestrator = null;
+          resolve({ success: status.authenticated });
+        });
+      });
+    });
+  });
+
+  // --- Claude API (legacy fallback) ---
+
+  ipcMain.handle(IPC_CHANNELS.CLAUDE_API_STATUS, async () => {
+    const key = getAnthropicApiKey();
+    return {
+      hasKey: !!key,
+      maskedKey: key ? key.slice(0, 8) + '...' + key.slice(-4) : '',
+    };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLAUDE_API_SET_KEY, async (_event, key: string) => {
+    try {
+      setAnthropicApiKey(key);
+      // Reset orchestrator so it picks up new key
+      orchestrator = null;
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : String(error) };
+    }
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLAUDE_API_VALIDATE, async (_event, key: string) => {
+    try {
+      const Anthropic = (await import('@anthropic-ai/sdk')).default;
+      const client = new Anthropic({ apiKey: key });
+      await client.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1,
+        messages: [{ role: 'user', content: 'hi' }],
+      });
+      return { valid: true };
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes('401') || msg.includes('authentication') || msg.includes('invalid')) {
+        return { valid: false, error: 'Invalid API key' };
+      }
+      return { valid: true };
+    }
+  });
+
+  // Open external URL
+  ipcMain.on('shell:open-external', (_event, url: string) => {
+    shell.openExternal(url);
+  });
+
+  // --- Settings ---
+
+  ipcMain.handle(IPC_CHANNELS.SETTINGS_GET_GEMINI_KEY, async () => {
+    const key = getGeminiApiKey();
+    if (!key) return { hasKey: false, maskedKey: '' };
+    const masked = key.slice(0, 4) + '...' + key.slice(-4);
+    return { hasKey: true, maskedKey: masked };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SETTINGS_SET_GEMINI_KEY, async (_event, key: string) => {
+    try {
+      setGeminiApiKey(key);
+      imageGenerator.setApiKey(key);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : String(error) };
     }
   });
 }

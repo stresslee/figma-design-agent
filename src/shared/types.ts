@@ -68,6 +68,19 @@ export const IPC_CHANNELS = {
   DS_GET_TOKENS: 'ds:get-tokens',
   DS_TOKENS_RESULT: 'ds:tokens-result',
 
+  // Settings
+  SETTINGS_GET_GEMINI_KEY: 'settings:get-gemini-key',
+  SETTINGS_SET_GEMINI_KEY: 'settings:set-gemini-key',
+
+  // Claude Code
+  CLAUDE_CODE_STATUS: 'claude:code-status',
+  CLAUDE_CODE_LOGIN: 'claude:code-login',
+
+  // Claude API (legacy fallback)
+  CLAUDE_API_STATUS: 'claude:api-status',
+  CLAUDE_API_SET_KEY: 'claude:api-set-key',
+  CLAUDE_API_VALIDATE: 'claude:api-validate',
+
   // App
   APP_READY: 'app:ready',
   APP_ERROR: 'app:error',
@@ -134,6 +147,14 @@ export interface ImageGenerateResult {
   base64: string;
   width: number;
   height: number;
+}
+
+// --- Claude Code Status ---
+
+export interface ClaudeCodeStatus {
+  installed: boolean;
+  authenticated: boolean;
+  plan?: string;
 }
 
 // --- System Prompt Builder ---

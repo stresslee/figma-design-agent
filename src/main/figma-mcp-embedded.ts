@@ -588,10 +588,24 @@ export function buildToolRegistry(figmaWS: FigmaWSServer): Map<string, ToolDefin
     return { results, refMap };
   });
 
-  reg('batch_build_screen', 'Build a complete screen from a blueprint tree', {
+  reg('batch_build_screen', `Build a complete Figma screen from a single JSON tree. Creates all nodes recursively in one call.
+
+Node types and their properties:
+- frame: x, y, width, height, name, fill({r,g,b,a}), stroke({r,g,b,a,weight}), cornerRadius, autoLayout({layoutMode,paddingTop,paddingBottom,paddingLeft,paddingRight,paddingHorizontal,paddingVertical,padding,itemSpacing,primaryAxisAlignItems,counterAxisAlignItems,layoutWrap}), layoutSizingHorizontal(FILL|HUG|FIXED), layoutSizingVertical(FILL|HUG|FIXED), effects([{type,color,offset,radius,spread}]), imageFill({url,scaleMode}), clipsContent, children[]
+- text: x, y, name, text, fontSize, fontWeight(100-900), fontFamily("Pretendard"), fontColor({r,g,b,a}), textAlignHorizontal(LEFT|CENTER|RIGHT), textAutoResize(WIDTH_AND_HEIGHT|HEIGHT|TRUNCATE), lineHeight, letterSpacing, layoutSizingHorizontal, layoutSizingVertical
+- rectangle: x, y, width, height, name, fill, stroke, strokeWeight, cornerRadius, layoutSizingHorizontal, layoutSizingVertical, imageFill
+- ellipse: x, y, width, height, name, fill, stroke, layoutSizingHorizontal, layoutSizingVertical
+- instance: x, y, name, componentKey (REQUIRED — from lookup_variant or pre-loaded keys), width, height, layoutSizingHorizontal, layoutSizingVertical, textOverrides({suffix: text})
+- clone: name, sourceNodeId (REQUIRED), width, height, layoutSizingHorizontal, layoutSizingVertical
+
+textOverrides (instance only): { "suffix": "new text" } — Sets text on instance children using Suffix Map.
+imageFill: { url: "https://...", scaleMode?: "FILL"|"FIT" } — Downloads and applies image as fill.
+layoutSizingHorizontal/Vertical: FILL to stretch to parent, HUG to fit content, FIXED for explicit size.
+Colors: { r: 0-1, g: 0-1, b: 0-1, a?: 0-1 }
+Root frame supports: autoLayout, cornerRadius, fill.`, {
     type: 'object',
     properties: {
-      blueprint: { type: 'object', description: 'Root node blueprint with children tree' }
+      blueprint: { type: 'object', description: 'Root node blueprint with children tree. Include name, width, height, fill, and children array.' }
     },
     required: ['blueprint']
   }, async (params) => {

@@ -2,6 +2,7 @@ import React from 'react';
 import { ChatPanel } from './components/ChatPanel';
 import { AgentStatus } from './components/AgentStatus';
 import { FigmaConnection } from './components/FigmaConnection';
+import { SettingsPanel } from './components/SettingsPanel';
 import { useAgent } from './hooks/useAgent';
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
           <h1 style={styles.title}>Figma Design Agent</h1>
         </div>
         <div style={styles.headerRight}>
+          <SettingsPanel figmaStatus={figmaStatus} />
           <FigmaConnection
             status={figmaStatus}
             onJoinChannel={joinChannel}
