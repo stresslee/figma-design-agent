@@ -62,9 +62,6 @@ export function ChatPanel({ messages, onSendMessage, isLoading }: Props) {
               ...(msg.role === 'user' ? styles.userMessage : styles.assistantMessage),
             }}
           >
-            <div style={styles.messageRole}>
-              {msg.role === 'user' ? 'You' : 'Agent'}
-            </div>
             <div style={styles.messageContent}>
               {msg.content}
             </div>
@@ -177,14 +174,6 @@ const styles: Record<string, React.CSSProperties> = {
     alignSelf: 'flex-start',
     background: '#1e1e1e',
     color: '#e0e0e0',
-  },
-  messageRole: {
-    fontSize: '11px',
-    fontWeight: 600,
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
-    opacity: 0.6,
-    marginBottom: '4px',
   },
   messageContent: {
     whiteSpace: 'pre-wrap' as const,

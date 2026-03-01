@@ -5592,10 +5592,8 @@ async function batchBuildScreen(params) {
       if (spec.textAlignHorizontal) node.textAlignHorizontal = spec.textAlignHorizontal;
       if (spec.textAlignVertical) node.textAlignVertical = spec.textAlignVertical;
 
-      // Text auto resize
-      if (spec.textAutoResize) {
-        node.textAutoResize = spec.textAutoResize;
-      }
+      // Text auto resize — default to WIDTH_AND_HEIGHT so text doesn't wrap vertically
+      node.textAutoResize = spec.textAutoResize || "WIDTH_AND_HEIGHT";
 
       // Line height
       if (spec.lineHeight !== undefined) {
