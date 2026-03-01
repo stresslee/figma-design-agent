@@ -110,14 +110,56 @@ app.whenReady().then(async () => {
   const tools = buildToolRegistry(figmaWS);
   registerDSLookupTools(tools);
 
+  // Initialize image generator with saved API key
+  imageGenerator = new ImageGenerator(ASSETS_DIR, getGeminiApiKey());
+
+  // Register generate_image tool (Gemini API → base64 → set_image_fill)
+  tools.set('generate_image', {
+    name: 'generate_image',
+    description: 'Generate an image using Gemini AI and apply it as fill to a Figma node. Use for logos, illustrations, icons, hero images.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        prompt: { type: 'string', description: 'Image description (e.g. "minimal app logo, letter M, purple gradient")' },
+        nodeId: { type: 'string', description: 'Figma node ID to apply the image fill to' },
+        width: { type: 'number', description: 'Target width in Figma pixels (default: 120)' },
+        height: { type: 'number', description: 'Target height in Figma pixels (default: 120)' },
+        style: { type: 'string', description: 'Optional style override' },
+      },
+      required: ['prompt', 'nodeId'],
+    },
+    handler: async (params) => {
+      const prompt = params.prompt as string;
+      const nodeId = params.nodeId as string;
+      const width = (params.width as number) || 120;
+      const height = (params.height as number) || 120;
+      const style = params.style as string | undefined;
+
+      // Generate image via Gemini
+      const result = await imageGenerator.generate({
+        prompt,
+        figmaWidth: width,
+        figmaHeight: height,
+        style,
+        outputName: `gen_${Date.now()}`,
+      });
+
+      // Apply as image fill to the Figma node
+      await figmaWS.sendCommand('set_image_fill', {
+        nodeId,
+        imageData: result.base64,
+        scaleMode: 'FILL',
+      });
+
+      return { success: true, nodeId, width: result.width, height: result.height };
+    },
+  });
+
   console.log(`[Main] Registered ${tools.size} tools`);
 
   // Start Tool Bridge Server (for MCP server communication)
   toolBridge = new ToolBridgeServer(tools);
   await toolBridge.start();
-
-  // Initialize image generator with saved API key
-  imageGenerator = new ImageGenerator(ASSETS_DIR, getGeminiApiKey());
 
   // Check Claude Code status
   claudeCodeStatusCache = await checkClaudeCodeStatus();

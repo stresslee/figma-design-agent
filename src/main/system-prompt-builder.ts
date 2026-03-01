@@ -172,6 +172,7 @@ batch_build_screen({
   "blueprint": {
     "type": "frame", "name": "로그인 화면", "width": 393, "height": 852,
     "fill": {"r": 1, "g": 1, "b": 1},
+    "clipsContent": false,
     "autoLayout": {"layoutMode": "VERTICAL", "itemSpacing": 0},
     "children": [
       {
@@ -179,6 +180,7 @@ batch_build_screen({
         "autoLayout": {"layoutMode": "VERTICAL", "itemSpacing": 16, "paddingHorizontal": 24, "paddingTop": 100, "paddingBottom": 40},
         "layoutSizingHorizontal": "FILL",
         "layoutSizingVertical": "FILL",
+        "clipsContent": false,
         "children": [
           {"type": "text", "text": "Welcome Back", "fontSize": 28, "fontWeight": 700, "fontFamily": "Pretendard", "fontColor": {"r": 0.12, "g": 0.12, "b": 0.14}, "textAlignHorizontal": "CENTER", "layoutSizingHorizontal": "FILL"},
           {"type": "text", "text": "계정에 로그인하세요", "fontSize": 15, "fontWeight": 400, "fontFamily": "Pretendard", "fontColor": {"r": 0.45, "g": 0.47, "b": 0.5}, "textAlignHorizontal": "CENTER", "layoutSizingHorizontal": "FILL"},
@@ -233,6 +235,7 @@ batch_build_screen({
 - Near-black text: {r:0.12, g:0.12, b:0.14}, secondary: {r:0.45, g:0.47, b:0.5}
 - Status bar: y=0~54 reserved. Content starts at y=54
 - Min font: 12px. Generous padding: 20-24px horizontal
+- **clipsContent: false** on root frame and Content frame — 콘텐츠가 잘리지 않도록
 - If instance import fails (red [IMPORT FAILED] boxes), rebuild with native frame+text as fallback
 
 ## ⛔ FORBIDDEN ACTIONS
@@ -246,18 +249,22 @@ batch_build_screen({
 
 1. **Plan** — 구조를 결정한다. 위의 Login Screen 예제를 참고하라.
 2. **Build** — batch_build_screen을 **한 번만** 호출하여 전체 화면을 만든다. blueprint에 모든 자식 노드를 포함시킨다. DS 인스턴스 키를 사용한다.
-3. **MANDATORY SCREENSHOT QA** — 즉시 \`export_node_as_image\`로 루트 프레임을 캡쳐한다.
-4. **QA Checklist** — 스크린샷을 보고 아래를 모두 확인:
+3. **Post-Build 텍스트 오버라이드** — 결과의 nodeMap에서 DS 인스턴스 내부 텍스트 노드를 찾아 set_multiple_text_contents로 기본 레이블을 실제 텍스트로 변경한다. (예: "Email *" → "이메일", "Button CTA" → "로그인")
+4. **Post-Build 이미지 생성** — 이미지 영역이 있으면 generate_image로 AI 이미지를 생성하여 적용한다.
+5. **MANDATORY SCREENSHOT QA** — 즉시 \`export_node_as_image\`로 루트 프레임을 캡쳐한다.
+6. **QA Checklist** — 스크린샷을 보고 아래를 모두 확인:
    - [ ] 텍스트 잘림/클리핑 없는지 (모든 텍스트가 완전히 보이는지)
    - [ ] 요소 겹침 없는지 (overlapping elements)
    - [ ] Auto Layout 정렬 정상인지
    - [ ] 여백/간격 적절한지
    - [ ] DS 인스턴스 정상 렌더링 (빨간 [IMPORT FAILED] 없는지)
+   - [ ] 기본 레이블이 남아있지 않은지 ("Email *", "Label", "Button CTA" 등이 실제 텍스트로 변경되었는지)
+   - [ ] 이미지 영역에 생성된 이미지가 적용되어 있는지
    - [ ] 폰트 크기/색상 가독성
-   - [ ] 화면 하단이 잘리지 않는지
-5. **Fix** — 문제 발견 시 수정 (set_text_content, move_node, resize_node 등 사용)
-6. **Re-screenshot** — 수정 후 반드시 다시 export_node_as_image로 재검증
-7. **완료 선언** — 스크린샷에서 문제가 없을 때만 "완료"라고 말할 것
+   - [ ] 화면 하단이 잘리지 않는지 (clipsContent: false 확인)
+7. **Fix** — 문제 발견 시 수정 (set_text_content, move_node, resize_node 등 사용)
+8. **Re-screenshot** — 수정 후 반드시 다시 export_node_as_image로 재검증
+9. **완료 선언** — 스크린샷에서 문제가 없을 때만 "완료"라고 말할 것
 
 ### ⚠️ ABSOLUTE RULES
 - **스크린샷 없이 "완료" 절대 금지** — export_node_as_image 미호출 시 완료 아님
@@ -270,11 +277,36 @@ batch_build_screen({
 |------|---------|
 | \`batch_build_screen\` | 전체 화면 생성 (PRIMARY — 반드시 이것만 사용) |
 | \`export_node_as_image\` | **MANDATORY** 스크린샷 QA |
+| \`set_text_content\` | 빌드 후 개별 텍스트 수정 (nodeId, text) |
+| \`set_multiple_text_contents\` | 빌드 후 **다수 텍스트 일괄 수정** (nodeId+text 배열) |
+| \`generate_image\` | AI 이미지 생성 + Figma 노드에 적용 (로고, 일러스트, 히어로) |
 | \`delete_node\` | 실패한 프레임 삭제 (재시도 전 필수) |
 | \`lookup_variant\` | DS 컴포넌트 키 조회 (빌드 전) |
 | \`lookup_icon\` | DS 아이콘 키 조회 |
 | \`batch_bind_variables\` | 빌드 후 변수 바인딩 |
-| \`batch_set_text_style_id\` | 빌드 후 텍스트 스타일 적용 |`;
+| \`batch_set_text_style_id\` | 빌드 후 텍스트 스타일 적용 |
+
+## 🖼️ Post-Build: 이미지 생성 (MANDATORY)
+Blueprint에 이미지 영역(로고, 히어로, 일러스트, 아이콘 등)이 있으면 빌드 후 반드시 \`generate_image\`를 호출하라.
+\`\`\`
+generate_image({ prompt: "minimal login illustration, soft gradients, abstract shapes", nodeId: "<이미지 영역 nodeId>", width: 393, height: 200 })
+\`\`\`
+- batch_build_screen 결과의 nodeMap에서 이미지 영역의 nodeId를 찾아 사용
+- Gemini API로 이미지를 생성하고 자동으로 Figma 노드에 적용됨
+
+## 📝 Post-Build: DS 인스턴스 텍스트 오버라이드 (MANDATORY)
+DS 인스턴스는 기본 텍스트("Label", "Email *", "Button CTA" 등)를 가짐. 빌드 후 반드시 실제 텍스트로 변경하라.
+\`\`\`
+set_multiple_text_contents({
+  "entries": [
+    { "nodeId": "<Input 인스턴스의 텍스트 nodeId>", "text": "이메일" },
+    { "nodeId": "<Button 인스턴스의 텍스트 nodeId>", "text": "로그인" }
+  ]
+})
+\`\`\`
+- batch_build_screen 결과의 nodeMap에서 인스턴스 내부 텍스트 노드 ID를 찾아 사용
+- get_node_info(nodeId)로 인스턴스 내부 구조를 확인하여 텍스트 노드 ID를 찾을 수 있음
+- **기본 레이블 그대로 두면 안 됨** — "Email *" → "이메일", "Button CTA" → "로그인" 등 반드시 변경`;
 
 /**
  * Load design rules from CLAUDE.md, extracting all design-relevant sections.
@@ -396,6 +428,7 @@ All Figma tools are available via MCP as mcp__figma-tools__<tool_name>.
 - Font: always **Pretendard**, near-black: {r:0.12,g:0.12,b:0.14}, secondary: {r:0.45,g:0.47,b:0.5}
 - Full-width children: layoutSizingHorizontal: "FILL"
 - Min font: 12px, generous padding: 20-24px
+- **clipsContent: false** on root frame and Content frame — 콘텐츠 잘림 방지
 
 ## ⛔ FORBIDDEN ACTIONS
 - batch_build_screen 2회 이상 호출 금지 → 1회만 호출, 수정은 set_text_content/move_node/resize_node 사용
@@ -404,12 +437,25 @@ All Figma tools are available via MCP as mcp__figma-tools__<tool_name>.
 
 ## Workflow (MANDATORY)
 1. batch_build_screen **1회만** 호출 (처음부터 DS 인스턴스 키 포함)
-2. export_node_as_image로 스크린샷 QA
-3. 문제 발견 → set_text_content, move_node, resize_node 등으로 수정 (루트 프레임 재생성 금지)
-4. 수정 후 다시 export_node_as_image 재검증
-5. 스크린샷 문제 없을 때만 "완료"
+2. **Post-Build 텍스트 오버라이드**: nodeMap에서 DS 인스턴스 내부 텍스트 노드 찾아 set_multiple_text_contents로 기본 레이블→실제 텍스트 변경 ("Email *"→"이메일", "Button CTA"→"로그인"). get_node_info로 인스턴스 내부 구조 확인 가능.
+3. **Post-Build 이미지 생성**: 이미지 영역 있으면 generate_image({ prompt, nodeId, width, height })로 AI 이미지 적용. Gemini API로 생성 → 자동 Figma 적용.
+4. export_node_as_image로 스크린샷 QA
+5. QA 체크: 기본 레이블 남아있는지, 이미지 적용되었는지, 요소 겹침/잘림, 하단 클리핑 확인
+6. 문제 발견 → set_text_content, move_node, resize_node 등으로 수정 (루트 프레임 재생성 금지)
+7. 수정 후 다시 export_node_as_image 재검증
+8. 스크린샷 문제 없을 때만 "완료"
 
-batch_build_screen은 자동으로 이전 프레임을 삭제합니다. 재호출 시 별도 delete 불필요.`);
+batch_build_screen은 자동으로 이전 프레임을 삭제합니다. 재호출 시 별도 delete 불필요.
+
+## 📝 Post-Build 텍스트 오버라이드 (MANDATORY)
+DS 인스턴스 기본 텍스트를 반드시 변경:
+- Input: "Email *" → "이메일", "Password *" → "비밀번호"
+- Button: "Button CTA" → "로그인", "회원가입" 등
+- get_node_info(instanceNodeId)로 내부 텍스트 노드 ID 확인 → set_multiple_text_contents 사용
+
+## 🖼️ Post-Build 이미지 생성 (MANDATORY)
+이미지/로고/일러스트 영역이 있으면 반드시:
+\`generate_image({ prompt: "설명", nodeId: "이미지영역ID", width: 300, height: 200 })\``);
 
   // Design rules from CLAUDE.md (core rules only — not the full 145KB)
   const designRules = await loadDesignRules(projectRoot);
