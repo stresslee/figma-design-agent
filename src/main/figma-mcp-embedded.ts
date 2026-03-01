@@ -29,6 +29,7 @@ export function buildToolRegistry(figmaWS: FigmaWSServer): Map<string, ToolDefin
     return figmaWS.sendCommand(command, params, timeoutMs);
   }
 
+
   // ============================================================
   // Document Tools
   // ============================================================
@@ -609,11 +610,34 @@ Root frame supports: autoLayout, cornerRadius, fill.`, {
     },
     required: ['blueprint']
   }, async (params) => {
+    // Auto-cleanup: delete ALL existing top-level nodes on current page before building
+    // This prevents frame accumulation across retries and sessions
+    try {
+      const docInfo = await cmd('get_document_info') as Record<string, unknown>;
+      const children = docInfo?.children as Array<{ id: string; name: string; type: string }> | undefined;
+      if (children && children.length > 0) {
+        console.log(`[batch_build_screen] Cleaning ${children.length} existing top-level nodes before build`);
+        for (const child of children) {
+          try {
+            await cmd('delete_node', { nodeId: child.id });
+            console.log(`[batch_build_screen] Deleted: ${child.name} (${child.id})`);
+          } catch (e) {
+            console.warn(`[batch_build_screen] Failed to delete ${child.name}:`, e);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[batch_build_screen] Failed to clean up existing nodes:', e);
+    }
+
     // Pre-fetch images in the blueprint tree
     const blueprint = params.blueprint as Record<string, unknown>;
     const nodes = blueprint.children ? [blueprint] : [blueprint];
     await prefetchImages(nodes);
-    return cmd('batch_build_screen', params, 300000); // 5 min timeout
+
+    const result = await cmd('batch_build_screen', params, 300000); // 5 min timeout
+    console.log(`[batch_build_screen] Build complete:`, JSON.stringify(result).slice(0, 200));
+    return result;
   });
 
   reg('batch_bind_variables', 'Bind variables to multiple nodes at once', {

@@ -5547,9 +5547,8 @@ async function batchBuildScreen(params) {
         if (al.layoutWrap) node.layoutWrap = al.layoutWrap;
       }
 
-      // Layout sizing
-      if (spec.layoutSizingHorizontal) node.layoutSizingHorizontal = spec.layoutSizingHorizontal;
-      if (spec.layoutSizingVertical) node.layoutSizingVertical = spec.layoutSizingVertical;
+      // Layout sizing — DEFERRED until after appendChild (FILL requires auto-layout parent)
+      // See "Apply deferred layoutSizing" block below
 
       // Clip content
       if (spec.clipsContent !== undefined) node.clipsContent = spec.clipsContent;
@@ -5610,9 +5609,7 @@ async function batchBuildScreen(params) {
         node.letterSpacing = { value: spec.letterSpacing, unit: "PIXELS" };
       }
 
-      // Layout sizing for text in auto-layout
-      if (spec.layoutSizingHorizontal) node.layoutSizingHorizontal = spec.layoutSizingHorizontal;
-      if (spec.layoutSizingVertical) node.layoutSizingVertical = spec.layoutSizingVertical;
+      // Layout sizing — DEFERRED until after appendChild
 
     } else if (nodeType === "rectangle") {
       node = figma.createRectangle();
@@ -5626,8 +5623,7 @@ async function batchBuildScreen(params) {
         }];
       }
       if (spec.cornerRadius !== undefined) node.cornerRadius = spec.cornerRadius;
-      if (spec.layoutSizingHorizontal) node.layoutSizingHorizontal = spec.layoutSizingHorizontal;
-      if (spec.layoutSizingVertical) node.layoutSizingVertical = spec.layoutSizingVertical;
+      // Layout sizing — DEFERRED until after appendChild
 
     } else if (nodeType === "ellipse") {
       node = figma.createEllipse();
@@ -5704,13 +5700,7 @@ async function batchBuildScreen(params) {
         } catch (_) {}
       }
 
-      // Apply layoutSizing to instances (was missing before)
-      if (node && spec.layoutSizingHorizontal) node.layoutSizingHorizontal = spec.layoutSizingHorizontal;
-      if (node && spec.layoutSizingVertical) node.layoutSizingVertical = spec.layoutSizingVertical;
-      if (node && spec.layoutSizing) {
-        if (spec.layoutSizing.horizontal) node.layoutSizingHorizontal = spec.layoutSizing.horizontal;
-        if (spec.layoutSizing.vertical) node.layoutSizingVertical = spec.layoutSizing.vertical;
-      }
+      // Layout sizing — DEFERRED until after appendChild
     } else {
       // Default: frame
       node = figma.createFrame();
@@ -5723,11 +5713,25 @@ async function batchBuildScreen(params) {
     if (spec.y !== undefined) node.y = spec.y;
     if (spec.visible === false) node.visible = false;
 
-    // Append to parent
+    // Append to parent FIRST (layoutSizing requires being in an auto-layout parent)
     if (parentNode) {
       parentNode.appendChild(node);
     } else {
       figma.currentPage.appendChild(node);
+    }
+
+    // Apply deferred layoutSizing AFTER appendChild
+    // FILL/HUG only works on children of auto-layout frames
+    try {
+      if (spec.layoutSizingHorizontal) node.layoutSizingHorizontal = spec.layoutSizingHorizontal;
+      if (spec.layoutSizingVertical) node.layoutSizingVertical = spec.layoutSizingVertical;
+      if (spec.layoutSizing) {
+        if (spec.layoutSizing.horizontal) node.layoutSizingHorizontal = spec.layoutSizing.horizontal;
+        if (spec.layoutSizing.vertical) node.layoutSizingVertical = spec.layoutSizing.vertical;
+      }
+    } catch (lsErr) {
+      // Silently ignore if parent is not auto-layout (FILL not applicable)
+      console.warn(`[batch_build] layoutSizing skipped for ${spec.name || nodeType}: ${lsErr.message}`);
     }
 
     // Track in nodeMap

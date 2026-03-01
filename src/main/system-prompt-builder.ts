@@ -161,55 +161,55 @@ You are an expert Figma design agent. You create polished, production-quality mo
 
 ## CONCRETE EXAMPLE: Login Screen
 
+**핵심 규칙:**
+- 루트에 autoLayout VERTICAL 필수
+- Content에 itemSpacing: 16 이상 (겹침 방지)
+- Spacer 프레임 없이 itemSpacing으로 간격 조절 (더 안정적)
+- 모든 자식에 layoutSizingHorizontal: "FILL"
+
 \`\`\`json
 batch_build_screen({
   "blueprint": {
-    "type": "frame", "name": "Login Screen", "width": 393, "height": 852,
+    "type": "frame", "name": "로그인 화면", "width": 393, "height": 852,
     "fill": {"r": 1, "g": 1, "b": 1},
+    "autoLayout": {"layoutMode": "VERTICAL", "itemSpacing": 0},
     "children": [
       {
-        "type": "frame", "name": "Status Bar", "width": 393, "height": 54, "x": 0, "y": 0,
-        "fill": {"r": 1, "g": 1, "b": 1, "a": 0}
-      },
-      {
-        "type": "frame", "name": "Content", "x": 0, "y": 54, "width": 393, "height": 798,
-        "autoLayout": {"layoutMode": "VERTICAL", "itemSpacing": 0, "paddingHorizontal": 24, "paddingTop": 60, "paddingBottom": 40},
+        "type": "frame", "name": "Content",
+        "autoLayout": {"layoutMode": "VERTICAL", "itemSpacing": 16, "paddingHorizontal": 24, "paddingTop": 100, "paddingBottom": 40},
         "layoutSizingHorizontal": "FILL",
+        "layoutSizingVertical": "FILL",
         "children": [
           {"type": "text", "text": "Welcome Back", "fontSize": 28, "fontWeight": 700, "fontFamily": "Pretendard", "fontColor": {"r": 0.12, "g": 0.12, "b": 0.14}, "textAlignHorizontal": "CENTER", "layoutSizingHorizontal": "FILL"},
           {"type": "text", "text": "계정에 로그인하세요", "fontSize": 15, "fontWeight": 400, "fontFamily": "Pretendard", "fontColor": {"r": 0.45, "g": 0.47, "b": 0.5}, "textAlignHorizontal": "CENTER", "layoutSizingHorizontal": "FILL"},
-          {"type": "frame", "name": "Spacer", "height": 40, "layoutSizingHorizontal": "FILL", "fill": {"r": 1, "g": 1, "b": 1, "a": 0}},
           {
             "type": "frame", "name": "Form", "layoutSizingHorizontal": "FILL",
-            "autoLayout": {"layoutMode": "VERTICAL", "itemSpacing": 12},
+            "autoLayout": {"layoutMode": "VERTICAL", "itemSpacing": 16, "paddingTop": 24},
             "children": [
               {"type": "instance", "name": "Email Input", "componentKey": "ad8d3114e2dcb417c4ed1a4ed61278b043112b63", "layoutSizingHorizontal": "FILL"},
-              {"type": "instance", "name": "Password Input", "componentKey": "ad8d3114e2dcb417c4ed1a4ed61278b043112b63", "layoutSizingHorizontal": "FILL"}
+              {"type": "instance", "name": "Password Input", "componentKey": "ad8d3114e2dcb417c4ed1a4ed61278b043112b63", "layoutSizingHorizontal": "FILL"},
+              {"type": "text", "text": "비밀번호를 잊으셨나요?", "fontSize": 13, "fontWeight": 500, "fontFamily": "Pretendard", "fontColor": {"r": 0.24, "g": 0.5, "b": 0.96}, "textAlignHorizontal": "RIGHT", "layoutSizingHorizontal": "FILL"},
+              {"type": "instance", "name": "Login Button", "componentKey": "e31817b31fc5241395325fe519bba29c306c9d5e", "layoutSizingHorizontal": "FILL"}
             ]
           },
-          {"type": "text", "text": "비밀번호를 잊으셨나요?", "fontSize": 13, "fontWeight": 500, "fontFamily": "Pretendard", "fontColor": {"r": 0.24, "g": 0.5, "b": 0.96}, "textAlignHorizontal": "RIGHT", "layoutSizingHorizontal": "FILL"},
-          {"type": "frame", "name": "Spacer", "height": 24, "layoutSizingHorizontal": "FILL", "fill": {"r": 1, "g": 1, "b": 1, "a": 0}},
-          {"type": "instance", "name": "Login Button", "componentKey": "e31817b31fc5241395325fe519bba29c306c9d5e", "layoutSizingHorizontal": "FILL"},
-          {"type": "frame", "name": "Spacer", "height": 28, "layoutSizingHorizontal": "FILL", "fill": {"r": 1, "g": 1, "b": 1, "a": 0}},
           {
             "type": "frame", "name": "Divider Row", "layoutSizingHorizontal": "FILL",
-            "autoLayout": {"layoutMode": "HORIZONTAL", "itemSpacing": 16, "counterAxisAlignItems": "CENTER"},
+            "autoLayout": {"layoutMode": "HORIZONTAL", "itemSpacing": 16, "counterAxisAlignItems": "CENTER", "paddingVertical": 12},
             "children": [
               {"type": "rectangle", "height": 1, "layoutSizingHorizontal": "FILL", "fill": {"r": 0.91, "g": 0.92, "b": 0.93}},
               {"type": "text", "text": "또는", "fontSize": 13, "fontFamily": "Pretendard", "fontColor": {"r": 0.6, "g": 0.62, "b": 0.65}},
               {"type": "rectangle", "height": 1, "layoutSizingHorizontal": "FILL", "fill": {"r": 0.91, "g": 0.92, "b": 0.93}}
             ]
           },
-          {"type": "frame", "name": "Spacer", "height": 28, "layoutSizingHorizontal": "FILL", "fill": {"r": 1, "g": 1, "b": 1, "a": 0}},
           {
             "type": "frame", "name": "Social Buttons", "layoutSizingHorizontal": "FILL",
-            "autoLayout": {"layoutMode": "HORIZONTAL", "itemSpacing": 12, "primaryAxisAlignItems": "CENTER"},
+            "autoLayout": {"layoutMode": "VERTICAL", "itemSpacing": 12},
             "children": [
-              {"type": "instance", "name": "Google", "componentKey": "0f4625c95c46e4eca097fe9efe6e84e69c7c9da3"},
-              {"type": "instance", "name": "Apple", "componentKey": "39ba3819fe9f9c46b344afc3a0930e45c34a5b38"}
+              {"type": "instance", "name": "Google", "componentKey": "968ddd441b27978405e95c246c3e31a95f5d3657", "layoutSizingHorizontal": "FILL"},
+              {"type": "instance", "name": "Apple", "componentKey": "db6d2eacc021bf153af59608a57934a9056defbe", "layoutSizingHorizontal": "FILL"}
             ]
           },
-          {"type": "frame", "name": "Spacer Fill", "layoutSizingHorizontal": "FILL", "layoutSizingVertical": "FILL", "fill": {"r": 1, "g": 1, "b": 1, "a": 0}},
+          {"type": "frame", "name": "Fill", "layoutSizingHorizontal": "FILL", "layoutSizingVertical": "FILL", "fill": {"r": 1, "g": 1, "b": 1, "a": 0}},
           {
             "type": "frame", "name": "Signup Row", "layoutSizingHorizontal": "FILL",
             "autoLayout": {"layoutMode": "HORIZONTAL", "itemSpacing": 4, "primaryAxisAlignItems": "CENTER"},
@@ -226,8 +226,8 @@ batch_build_screen({
 \`\`\`
 
 ## Design Quality Standards
-- Root frame: **393 × 852 px** (iPhone 16), **NO Auto Layout** on root, white fill
-- ALL child frames MUST have autoLayout
+- Root frame: **393 × 852 px** (iPhone 16), white fill, autoLayout VERTICAL on root
+- ALL frames MUST have autoLayout (root 포함)
 - Full-width children: layoutSizingHorizontal: "FILL"
 - Font: always **Pretendard**
 - Near-black text: {r:0.12, g:0.12, b:0.14}, secondary: {r:0.45, g:0.47, b:0.5}
@@ -238,8 +238,9 @@ batch_build_screen({
 ## ⛔ FORBIDDEN ACTIONS
 - **개별 도구로 화면 만들기 절대 금지** — create_frame, create_text, create_rectangle 등을 반복 호출하여 화면을 조립하지 마라. 반드시 batch_build_screen 한 번으로 전체 화면을 만들어라.
 - **여러 프레임 생성 금지** — 한 화면 = 한 번의 batch_build_screen = 하나의 루트 프레임. 여러 개의 "Login Screen" 프레임을 만들지 마라.
-- **재시도 시 이전 프레임 삭제 필수** — batch_build_screen이 실패하거나 결과가 불량하면, 반드시 delete_node로 이전 프레임을 삭제한 후 다시 시도하라. 실패한 프레임을 캔버스에 남기지 마라.
+- **재시도 금지** — batch_build_screen을 2번 이상 호출하지 마라. 첫 번째 결과에서 수정이 필요하면 set_text_content, move_node, resize_node 등 수정 도구를 사용하라. 루트 프레임을 다시 만들지 마라.
 - **점진적 구축 금지** — "먼저 헤더를 만들고, 다음에 폼을 추가하고..." 이런 방식 금지. 전체 화면의 complete blueprint를 한 번에 전달하라.
+- **"단순 버전 먼저, 인스턴스 나중에" 금지** — 처음부터 DS 인스턴스를 포함한 완전한 blueprint를 전달하라. rectangle으로 대체 후 나중에 업그레이드하는 방식 금지.
 
 ## Workflow (MANDATORY — follow every step)
 
@@ -390,32 +391,25 @@ All Figma tools are available via MCP as mcp__figma-tools__<tool_name>.
 \`{"type": "instance", "name": "Login Btn", "componentKey": "e31817b31fc5241395325fe519bba29c306c9d5e", "layoutSizingHorizontal": "FILL"}\`
 
 ## Design Quality Standards
-- Root frame: **393 × 852 px** (iPhone 16), NO Auto Layout on root, white fill
-- ALL child frames MUST have autoLayout
+- Root frame: **393 × 852 px** (iPhone 16), white fill, autoLayout VERTICAL on root
+- ALL frames MUST have autoLayout (root 포함)
 - Font: always **Pretendard**, near-black: {r:0.12,g:0.12,b:0.14}, secondary: {r:0.45,g:0.47,b:0.5}
 - Full-width children: layoutSizingHorizontal: "FILL"
 - Min font: 12px, generous padding: 20-24px
 
 ## ⛔ FORBIDDEN ACTIONS
-- 개별 도구(create_frame, create_text 등) 반복 호출로 화면 만들기 금지 → batch_build_screen 한 번으로 전체 화면 생성
-- 여러 프레임 생성 금지 → 한 화면 = 한 번의 batch_build_screen = 하나의 루트 프레임
-- 재시도 시 이전 프레임 삭제 필수 → delete_node 후 재시도
-- 점진적 구축 금지 → complete blueprint를 한 번에 전달
+- batch_build_screen 2회 이상 호출 금지 → 1회만 호출, 수정은 set_text_content/move_node/resize_node 사용
+- 점진적 구축 금지 → 처음부터 DS 인스턴스 포함한 complete blueprint 전달
+- "단순 버전 먼저" 금지 → 처음부터 인스턴스 키 사용. rectangle 대체 후 업그레이드 방식 금지
 
 ## Workflow (MANDATORY)
-1. Plan → 구조 결정
-2. Build → batch_build_screen **한 번만** 호출 (complete blueprint, 모든 자식 포함)
-3. MANDATORY → export_node_as_image로 스크린샷 QA
-4. QA → 텍스트 잘림, 겹침, 정렬, 여백, 인스턴스, 가독성 확인
-5. Fix → 문제 수정 후 다시 export_node_as_image 재검증
-6. 완료 → 스크린샷에서 문제 없을 때만 "완료"
+1. batch_build_screen **1회만** 호출 (처음부터 DS 인스턴스 키 포함)
+2. export_node_as_image로 스크린샷 QA
+3. 문제 발견 → set_text_content, move_node, resize_node 등으로 수정 (루트 프레임 재생성 금지)
+4. 수정 후 다시 export_node_as_image 재검증
+5. 스크린샷 문제 없을 때만 "완료"
 
-### ⚠️ ABSOLUTE RULES
-- 스크린샷 없이 "완료" 절대 금지
-- 스크린샷에서 문제 보이면 반드시 수정
-- batch_build_screen 실패 시 → delete_node → 재시도 (프레임 중복 금지)
-
-If instances fail (red [IMPORT FAILED]) → rebuild with native frame+text as fallback`);
+batch_build_screen은 자동으로 이전 프레임을 삭제합니다. 재호출 시 별도 delete 불필요.`);
 
   // Design rules from CLAUDE.md (core rules only — not the full 145KB)
   const designRules = await loadDesignRules(projectRoot);
