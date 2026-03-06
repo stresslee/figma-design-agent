@@ -3,160 +3,176 @@
  *
  * These tools don't need Figma plugin connection.
  * They read from local DS files directly.
+ *
+ * All lookups are merged into a single batch_ds_lookup tool
+ * to avoid multiple Claude API round-trips.
  */
 
-import { getIcons, getVariants, getDesignTokens } from '../shared/ds-data';
+import { getIcons, getVariants, getDesignTokens, getTokenMap } from '../shared/ds-data';
 import type { ToolDefinition } from '../shared/types';
 
 /**
  * Register DS Lookup tools into the tool registry
  */
 export function registerDSLookupTools(tools: Map<string, ToolDefinition>): void {
-  // lookup_icon
-  tools.set('lookup_icon', {
-    name: 'lookup_icon',
-    description: 'Look up icon name → componentId from DS icon library. Returns up to 20 matching icons.',
+  tools.set('batch_ds_lookup', {
+    name: 'batch_ds_lookup',
+    description: `Batch lookup for DS components, icons, tokens, and text styles in a SINGLE call.
+⚠️ batch_build_screen already resolves component/icon names automatically — this tool is usually UNNECESSARY.
+Only use when you need to explore what components/icons/tokens are available BEFORE building.
+Pass multiple queries across all categories at once to avoid repeated calls.`,
     inputSchema: {
       type: 'object',
       properties: {
-        query: { type: 'string', description: 'Icon name to search (e.g. "arrow", "check", "close")' }
+        components: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Component name (e.g. "Button", "Input")' },
+              variantFilter: { type: 'string', description: 'Optional variant filter (e.g. "Size=md")' },
+            },
+            required: ['query'],
+          },
+          description: 'Component variant lookups',
+        },
+        icons: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Icon name queries (e.g. ["arrow", "check", "bell"])',
+        },
+        tokens: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Token name (e.g. "bg-primary")' },
+              category: { type: 'string', enum: ['colors', 'spacing', 'radius', 'typography', 'layout', 'width'] },
+            },
+            required: ['query'],
+          },
+          description: 'Design token lookups',
+        },
+        textStyles: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Text/effect style name queries (e.g. ["Text sm", "Heading"])',
+        },
       },
-      required: ['query']
     },
     handler: async (params) => {
-      const query = (params.query as string).toLowerCase();
-      const icons = getIcons();
-      const matches: Array<{ name: string; componentId: string }> = [];
+      const result: Record<string, unknown> = {};
 
-      for (const [name, componentId] of Object.entries(icons)) {
-        if (name.toLowerCase().includes(query)) {
-          matches.push({ name, componentId });
-          if (matches.length >= 20) break;
-        }
+      // Components
+      const componentQueries = params.components as Array<{ query: string; variantFilter?: string }> | undefined;
+      if (componentQueries?.length) {
+        const variants = getVariants();
+        result.components = componentQueries.map(({ query, variantFilter }) => {
+          const q = query.toLowerCase();
+          const matches = variants.filter((v) => v.name.toLowerCase().includes(q)).slice(0, 5);
+          return matches.map((m) => {
+            let filteredVariants = m.variants;
+            if (variantFilter) {
+              const fl = variantFilter.toLowerCase();
+              const filtered: Record<string, string> = {};
+              for (const [key, val] of Object.entries(m.variants)) {
+                if (key.toLowerCase().includes(fl)) filtered[key] = val;
+              }
+              filteredVariants = filtered;
+            }
+            return {
+              name: m.name,
+              setKey: m.setKey,
+              variantCount: Object.keys(filteredVariants).length,
+              variants: filteredVariants,
+            };
+          });
+        });
       }
 
-      return { count: matches.length, icons: matches };
-    }
-  });
-
-  // lookup_variant
-  tools.set('lookup_variant', {
-    name: 'lookup_variant',
-    description: 'Look up component variants from DS (ds-1-variants.jsonl). Returns setKey and variant key mappings. Use the returned componentKey values in batch_build_screen instance nodes.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'Component name to search (e.g. "Button", "Input field", "Checkbox", "Social button")' },
-        variantFilter: { type: 'string', description: 'Optional filter within variant keys (e.g. "Size=md" to only show medium variants, "Hierarchy=Primary" for primary buttons)' }
-      },
-      required: ['query']
-    },
-    handler: async (params) => {
-      const query = (params.query as string).toLowerCase();
-      const variantFilter = params.variantFilter as string | undefined;
-      const variants = getVariants();
-      const matches = variants
-        .filter((v) => v.name.toLowerCase().includes(query))
-        .slice(0, 5);
-
-      const results = matches.map((m) => {
-        let filteredVariants = m.variants;
-        if (variantFilter) {
-          const filterLower = variantFilter.toLowerCase();
-          const filtered: Record<string, string> = {};
-          for (const [key, val] of Object.entries(m.variants)) {
-            if (key.toLowerCase().includes(filterLower)) {
-              filtered[key] = val;
+      // Icons
+      const iconQueries = params.icons as string[] | undefined;
+      if (iconQueries?.length) {
+        const icons = getIcons();
+        result.icons = iconQueries.map((query) => {
+          const q = query.toLowerCase();
+          const matches: Array<{ name: string; componentId: string }> = [];
+          for (const [name, componentId] of Object.entries(icons)) {
+            if (name.toLowerCase().includes(q)) {
+              matches.push({ name, componentId });
+              if (matches.length >= 10) break;
             }
           }
-          filteredVariants = filtered;
-        }
-        return {
-          name: m.name,
-          setKey: m.setKey,
-          variantCount: Object.keys(filteredVariants).length,
-          variants: filteredVariants,
-        };
-      });
-
-      return { count: results.length, components: results };
-    }
-  });
-
-  // lookup_design_token
-  tools.set('lookup_design_token', {
-    name: 'lookup_design_token',
-    description: 'Look up design token name → value. Searches colors, spacing, radius, typography.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'Token name to search (e.g. "bg-primary", "spacing-4")' },
-        category: {
-          type: 'string',
-          enum: ['colors', 'spacing', 'radius', 'typography', 'layout', 'width'],
-          description: 'Optional: limit search to specific category'
-        }
-      },
-      required: ['query']
-    },
-    handler: async (params) => {
-      const query = (params.query as string).toLowerCase();
-      const category = params.category as string | undefined;
-      const tokens = getDesignTokens();
-
-      const results: Array<{ token: string; value: string; category: string }> = [];
-
-      const categories = category
-        ? { [category]: tokens[category as keyof typeof tokens] }
-        : tokens;
-
-      for (const [cat, items] of Object.entries(categories)) {
-        if (cat === 'textStyles' || cat === 'effectStyles') continue;
-        if (!Array.isArray(items)) continue;
-
-        for (const item of items) {
-          if ('token' in item && (item as { token: string }).token.toLowerCase().includes(query)) {
-            results.push({
-              token: (item as { token: string }).token,
-              value: (item as { value: string }).value,
-              category: cat,
-            });
-            if (results.length >= 50) break;
-          }
-        }
-        if (results.length >= 50) break;
+          return { query, matches };
+        });
       }
 
-      return { count: results.length, tokens: results };
-    }
-  });
+      // Tokens (searchable by Figma path or CSS variable name)
+      const tokenQueries = params.tokens as Array<{ query: string; category?: string }> | undefined;
+      if (tokenQueries?.length) {
+        const tokens = getDesignTokens();
+        const tokenMap = getTokenMap();
+        result.tokens = tokenQueries.map(({ query, category }) => {
+          const q = query.toLowerCase();
+          const matches: Array<{ token: string; value: string; category: string; cssVar?: string }> = [];
 
-  // lookup_text_style
-  tools.set('lookup_text_style', {
-    name: 'lookup_text_style',
-    description: 'Look up text style name → Style ID for set_text_style_id binding.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'Text style name to search (e.g. "Text sm", "Heading")' }
-      },
-      required: ['query']
+          // Search by CSS variable name in TOKEN_MAP.json
+          if (q.startsWith('--') && Object.keys(tokenMap).length > 0) {
+            for (const [cssVar, entry] of Object.entries(tokenMap)) {
+              if (cssVar.toLowerCase().includes(q)) {
+                matches.push({
+                  token: entry.figmaPath,
+                  value: entry.value,
+                  category: entry.type?.toLowerCase() || 'unknown',
+                  cssVar,
+                });
+                if (matches.length >= 20) break;
+              }
+            }
+          }
+
+          // Search by Figma path in DESIGN_TOKENS.md
+          const categories = category
+            ? { [category]: tokens[category as keyof typeof tokens] }
+            : tokens;
+          for (const [cat, items] of Object.entries(categories)) {
+            if (cat === 'textStyles' || cat === 'effectStyles') continue;
+            if (!Array.isArray(items)) continue;
+            for (const item of items) {
+              if ('token' in item) {
+                const t = item as { token: string; value: string; cssVar?: string };
+                if (t.token.toLowerCase().includes(q) || (t.cssVar && t.cssVar.toLowerCase().includes(q))) {
+                  matches.push({
+                    token: t.token,
+                    value: t.value,
+                    category: cat,
+                    cssVar: t.cssVar,
+                  });
+                  if (matches.length >= 20) break;
+                }
+              }
+            }
+            if (matches.length >= 20) break;
+          }
+          return { query, matches };
+        });
+      }
+
+      // Text/Effect styles
+      const styleQueries = params.textStyles as string[] | undefined;
+      if (styleQueries?.length) {
+        const tokens = getDesignTokens();
+        result.textStyles = styleQueries.map((query) => {
+          const q = query.toLowerCase();
+          return {
+            query,
+            textStyles: tokens.textStyles.filter((s) => s.name.toLowerCase().includes(q)),
+            effectStyles: tokens.effectStyles.filter((s) => s.name.toLowerCase().includes(q)),
+          };
+        });
+      }
+
+      return result;
     },
-    handler: async (params) => {
-      const query = (params.query as string).toLowerCase();
-      const tokens = getDesignTokens();
-
-      const textMatches = tokens.textStyles.filter((s) =>
-        s.name.toLowerCase().includes(query)
-      );
-      const effectMatches = tokens.effectStyles.filter((s) =>
-        s.name.toLowerCase().includes(query)
-      );
-
-      return {
-        textStyles: textMatches,
-        effectStyles: effectMatches,
-      };
-    }
   });
 }

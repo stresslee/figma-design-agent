@@ -21,6 +21,17 @@ export interface AgentEvent {
   data: unknown;
 }
 
+// --- Attachment Types ---
+
+export interface AttachmentData {
+  type: 'image' | 'document';
+  mediaType: string; // e.g. 'image/png', 'text/plain'
+  base64: string; // base64-encoded file data (images) or empty string (documents)
+  name: string; // original file name
+  size: number; // file size in bytes
+  textContent?: string; // extracted text content (documents only)
+}
+
 // --- Chat Types ---
 
 export interface ChatMessage {
@@ -30,6 +41,7 @@ export interface ChatMessage {
   timestamp: number;
   agentId?: string;
   toolCalls?: ToolCallInfo[];
+  attachments?: AttachmentData[];
 }
 
 export interface ToolCallInfo {
@@ -43,11 +55,14 @@ export interface ToolCallInfo {
 
 export type FigmaConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
+export type InputMode = 'terminal' | 'app';
+
 export interface FigmaConnectionState {
   status: FigmaConnectionStatus;
   channel: string | null;
   pluginVersion?: string;
   documentName?: string;
+  inputMode?: InputMode;
 }
 
 // --- IPC Channel Names ---
@@ -67,6 +82,7 @@ export const IPC_CHANNELS = {
   // Design system
   DS_GET_TOKENS: 'ds:get-tokens',
   DS_TOKENS_RESULT: 'ds:tokens-result',
+  DS_CACHE_STATUS: 'ds:cache-status',
 
   // Settings
   SETTINGS_GET_GEMINI_KEY: 'settings:get-gemini-key',
@@ -81,10 +97,25 @@ export const IPC_CHANNELS = {
   CLAUDE_API_SET_KEY: 'claude:api-set-key',
   CLAUDE_API_VALIDATE: 'claude:api-validate',
 
+  // Pipeline
+  PIPELINE_STEP: 'pipeline:step',
+  PIPELINE_COMPLETE: 'pipeline:complete',
+
   // App
   APP_READY: 'app:ready',
   APP_ERROR: 'app:error',
+  FIGMA_INPUT_MODE: 'figma:input-mode',
 } as const;
+
+// --- DS Cache Status ---
+
+export interface DSCacheStatus {
+  status: 'idle' | 'caching' | 'done' | 'error';
+  total: number;
+  cached: number;
+  failed: number;
+  elapsed?: number;
+}
 
 // --- Figma WebSocket Types (from existing MCP server) ---
 
@@ -121,6 +152,8 @@ export interface ToolDefinition {
   description: string;
   inputSchema: Record<string, unknown>;
   handler: (params: Record<string, unknown>) => Promise<unknown>;
+  /** Per-tool timeout hint (ms). Used by MCP HTTP server and Agent orchestrator. */
+  timeoutMs?: number;
 }
 
 // --- Streaming Parser Types ---
@@ -155,6 +188,18 @@ export interface ClaudeCodeStatus {
   installed: boolean;
   authenticated: boolean;
   plan?: string;
+}
+
+// --- Pipeline Types (shared for IPC) ---
+
+export type PipelineStepName = 'blueprint' | 'resolve' | 'build' | 'image' | 'variables' | 'qa' | 'fix';
+
+export interface PipelineStepEvent {
+  step: number;
+  name: PipelineStepName;
+  status: 'pending' | 'running' | 'done' | 'error' | 'skipped';
+  detail?: string;
+  duration?: number;
 }
 
 // --- System Prompt Builder ---

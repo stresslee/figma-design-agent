@@ -61,7 +61,6 @@ export function SettingsPanel({ figmaStatus }: Props) {
       const result = await window.electronAPI?.claudeCodeLogin();
       if (result?.success) {
         setClaudeMode('code-connected');
-        // Refresh status
         const status = await window.electronAPI?.getClaudeCodeStatus();
         if (status) setClaudeCodeStatus(status);
       } else {
@@ -207,7 +206,7 @@ export function SettingsPanel({ figmaStatus }: Props) {
               </div>
             </div>
 
-            {/* Claude Code: Not logged in → Login button */}
+            {/* Claude Code: Not logged in */}
             {claudeMode === 'code-not-auth' && (
               <div style={styles.inputSection}>
                 <button
@@ -225,7 +224,7 @@ export function SettingsPanel({ figmaStatus }: Props) {
               </div>
             )}
 
-            {/* Claude Code: Not installed → Install instructions + API key fallback */}
+            {/* Claude Code: Not installed */}
             {claudeMode === 'code-not-installed' && (
               <div style={styles.inputSection}>
                 <div style={{ fontSize: '11px', color: '#888', marginBottom: '8px' }}>
@@ -279,6 +278,9 @@ export function SettingsPanel({ figmaStatus }: Props) {
                 )}
               </div>
             )}
+
+            {/* Section: Image Generation */}
+            <div style={{ ...styles.sectionLabel, marginTop: '16px' }}>Image Generation</div>
 
             {/* Gemini Card */}
             <div style={{

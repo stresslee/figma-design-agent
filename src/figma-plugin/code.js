@@ -6,6 +6,25 @@ const state = {
   serverPort: 8767, // Fixed port for Figma Design Agent
 };
 
+// ★ Component Cache — persists across builds for instant lookups
+const componentCache = new Map(); // componentKey → ComponentNode
+
+// Get component from cache (O(1)) or import as fallback
+async function getCachedComponent(componentKey) {
+  if (componentCache.has(componentKey)) {
+    return componentCache.get(componentKey);
+  }
+  // Fallback: single import
+  try {
+    const comp = await figma.importComponentByKeyAsync(componentKey);
+    componentCache.set(componentKey, comp);
+    return comp;
+  } catch (e) {
+    console.warn(`[cache] Import failed for ${componentKey}: ${e.message}`);
+    return null;
+  }
+}
+
 // Helper function for progress updates
 function sendProgressUpdate(commandId, commandType, status, progress, totalItems, processedItems, message, payload = null) {
   const update = {
@@ -105,6 +124,8 @@ function updateSettings(settings) {
 // Handle commands from UI
 async function handleCommand(command, params) {
   switch (command) {
+    case "ping_check":
+      return { ok: true, timestamp: Date.now() };
     case "get_document_info":
       return await getDocumentInfo();
     case "get_selection":
@@ -261,6 +282,10 @@ async function handleCommand(command, params) {
       return await batchSetTextStyleId(params);
     case "batch_build_screen":
       return await batchBuildScreen(params);
+    case "pre_cache_components":
+      return await preCacheAllComponents(params);
+    case "clear_component_cache":
+      return clearComponentCache();
     case "batch_execute":
       return await batchExecute(params);
     default:
@@ -273,6 +298,26 @@ async function handleCommand(command, params) {
 async function getDocumentInfo() {
   await figma.currentPage.loadAsync();
   const page = figma.currentPage;
+  // Return ALL pages in the document, not just the current one
+  // Note: other pages may not be loaded, so avoid accessing .children on them
+  const allPages = [];
+  for (const p of figma.root.children) {
+    try {
+      await p.loadAsync();
+      allPages.push({
+        id: p.id,
+        name: p.name,
+        childCount: p.children.length,
+      });
+    } catch (e) {
+      // If page can't be loaded, still include it with childCount -1
+      allPages.push({
+        id: p.id,
+        name: p.name,
+        childCount: -1,
+      });
+    }
+  }
   return {
     name: page.name,
     id: page.id,
@@ -287,13 +332,7 @@ async function getDocumentInfo() {
       name: page.name,
       childCount: page.children.length,
     },
-    pages: [
-      {
-        id: page.id,
-        name: page.name,
-        childCount: page.children.length,
-      },
-    ],
+    pages: allPages,
   };
 }
 
@@ -332,6 +371,11 @@ function collectNodeInfo(node, maxDepth, currentDepth) {
     type: node.type,
     visible: node.visible,
   };
+
+  // Parent ID (needed for hero image escalation etc.)
+  if (node.parent) {
+    info.parentId = node.parent.id;
+  }
 
   // Position & size
   if ("x" in node) info.x = node.x;
@@ -1403,53 +1447,12 @@ async function createComponentInstance(params) {
   try {
     console.log(`Looking for component with key: ${componentKey}...`);
 
-    let component = null;
-
-    // Try to find the component locally first (faster than import)
-    try {
-      // First check current page (fastest)
-      const currentPageComponents = figma.currentPage.findAllWithCriteria({
-        types: ["COMPONENT"]
-      });
-      component = currentPageComponents.find(c => c.key === componentKey);
-
-      if (!component) {
-        // Load all pages and search entire document
-        console.log(`Not on current page, searching all pages...`);
-        await figma.loadAllPagesAsync();
-        const allComponents = figma.root.findAllWithCriteria({
-          types: ["COMPONENT"]
-        });
-        component = allComponents.find(c => c.key === componentKey);
-      }
-
-      if (component) {
-        console.log(`Found component locally: ${component.name}`);
-      }
-    } catch (findError) {
-      console.log(`Error searching locally: ${findError.message}`);
-    }
-
-    // If not found locally, try importing (for remote/team library components)
+    // ★ Use component cache for fast lookup
+    let component = await getCachedComponent(componentKey);
     if (!component) {
-      console.log(`Component not found locally, trying import...`);
-
-      let timeoutId;
-      const timeoutPromise = new Promise((_, reject) => {
-        timeoutId = setTimeout(() => {
-          reject(new Error("Timeout while importing component (10s). The component may be in a team library you don't have access to."));
-        }, 10000);
-      });
-
-      const importPromise = figma.importComponentByKeyAsync(componentKey);
-
-      component = await Promise.race([importPromise, timeoutPromise])
-        .finally(() => {
-          clearTimeout(timeoutId);
-        });
+      throw new Error(`Component not found: ${componentKey}. It may be in a team library you don't have access to.`);
     }
-
-    console.log(`Component ready, creating instance...`);
+    console.log(`Component ready: ${component.name}`);
 
     // Create instance and set properties in a separate try block to handle errors specifically from this step
     try {
@@ -2071,7 +2074,7 @@ const setCharactersWithSmartMatchFont = async (
 
 // Add the cloneNode function implementation
 async function cloneNode(params) {
-  const { nodeId, x, y } = params || {};
+  const { nodeId, x, y, targetParentId } = params || {};
 
   if (!nodeId) {
     throw new Error("Missing nodeId parameter");
@@ -2094,8 +2097,15 @@ async function cloneNode(params) {
     clone.y = y;
   }
 
-  // Add the clone to the same parent as the original node
-  if (node.parent) {
+  // Add the clone to target parent if specified, else same parent as original, else current page
+  if (targetParentId) {
+    const targetParent = await figma.getNodeByIdAsync(targetParentId);
+    if (targetParent && "appendChild" in targetParent) {
+      targetParent.appendChild(clone);
+    } else {
+      figma.currentPage.appendChild(clone);
+    }
+  } else if (node.parent) {
     node.parent.appendChild(clone);
   } else {
     figma.currentPage.appendChild(clone);
@@ -2814,13 +2824,17 @@ async function setAutoLayout(params) {
     // Configure item spacing
     if (itemSpacing !== undefined) node.itemSpacing = itemSpacing;
 
-    // Configure alignment
+    // Configure alignment (with validation to prevent Figma API errors)
     if (primaryAxisAlignItems !== undefined) {
-      node.primaryAxisAlignItems = primaryAxisAlignItems;
+      const vp = ["MIN", "CENTER", "MAX", "SPACE_BETWEEN"];
+      const pv = String(primaryAxisAlignItems).toUpperCase().replace(/-/g, "_");
+      node.primaryAxisAlignItems = vp.includes(pv) ? pv : "MIN";
     }
 
     if (counterAxisAlignItems !== undefined) {
-      node.counterAxisAlignItems = counterAxisAlignItems;
+      const vc = ["MIN", "CENTER", "MAX", "BASELINE"];
+      const cv = String(counterAxisAlignItems).toUpperCase().replace(/-/g, "_");
+      node.counterAxisAlignItems = vc.includes(cv) ? cv : "MIN";
     }
 
     // Configure wrap
@@ -5416,8 +5430,98 @@ async function batchSetTextStyleId(params) {
 // batch_build_screen — Build entire screen from blueprint tree
 // ============================================================
 
+// Collect all unique componentKeys from a blueprint tree
+function collectComponentKeys(spec, keys = new Set()) {
+  if (spec.componentKey) keys.add(spec.componentKey);
+  if (spec.children) spec.children.forEach(child => collectComponentKeys(child, keys));
+  return keys;
+}
+
+// Batch pre-import components into cache (parallel)
+async function preCacheComponents(keys) {
+  const uncachedKeys = [...keys].filter(k => !componentCache.has(k));
+  if (uncachedKeys.length === 0) {
+    console.log(`[cache] All ${keys.size} components already cached`);
+    return;
+  }
+
+  console.log(`[cache] Pre-importing ${uncachedKeys.length} components (${componentCache.size} already cached)...`);
+  const startTime = Date.now();
+
+  const results = await Promise.allSettled(
+    uncachedKeys.map(async (key) => {
+      try {
+        const comp = await figma.importComponentByKeyAsync(key);
+        componentCache.set(key, comp);
+        return { key, success: true };
+      } catch (e) {
+        console.warn(`[cache] Import failed for ${key}: ${e.message}`);
+        return { key, success: false };
+      }
+    })
+  );
+
+  const succeeded = results.filter(r => r.status === "fulfilled" && r.value.success).length;
+  const elapsed = Date.now() - startTime;
+  console.log(`[cache] Pre-cached ${succeeded}/${uncachedKeys.length} in ${elapsed}ms (total cache: ${componentCache.size})`);
+}
+
+// ★ Clear component cache (called on app restart to pick up DS updates)
+function clearComponentCache() {
+  const count = componentCache.size;
+  componentCache.clear();
+  console.log(`[cache] Cleared ${count} cached components`);
+  return { success: true, cleared: count };
+}
+
+// ★ Pre-cache DS components — sequential to avoid Figma API overload
+async function preCacheAllComponents(params) {
+  const { keys } = params || {};
+  if (!Array.isArray(keys) || keys.length === 0) {
+    return { success: true, cached: componentCache.size, message: "No keys provided" };
+  }
+
+  const uncachedKeys = keys.filter(k => !componentCache.has(k));
+  if (uncachedKeys.length === 0) {
+    return { success: true, cached: componentCache.size, newlyCached: 0, failed: 0, skipped: keys.length, failedKeys: [], elapsed: 0, message: "All already cached" };
+  }
+
+  console.log(`[pre_cache] Importing ${uncachedKeys.length} components (${keys.length - uncachedKeys.length} already cached)...`);
+  const startTime = Date.now();
+  let succeeded = 0;
+  const failedKeys = [];
+
+  // Sequential import — Figma API doesn't handle massive parallel well
+  for (let i = 0; i < uncachedKeys.length; i++) {
+    try {
+      const comp = await figma.importComponentByKeyAsync(uncachedKeys[i]);
+      componentCache.set(uncachedKeys[i], comp);
+      succeeded++;
+    } catch (e) {
+      failedKeys.push(uncachedKeys[i]);
+    }
+    // Progress log every 50
+    if ((i + 1) % 50 === 0) {
+      console.log(`[pre_cache] Progress: ${i + 1}/${uncachedKeys.length} (${succeeded} OK, ${failedKeys.length} fail)`);
+    }
+  }
+
+  const elapsed = Date.now() - startTime;
+  console.log(`[pre_cache] Done: ${succeeded} cached, ${failedKeys.length} failed in ${elapsed}ms (total: ${componentCache.size})`);
+
+  return {
+    success: true,
+    cached: componentCache.size,
+    newlyCached: succeeded,
+    failed: failedKeys.length,
+    failedKeys,
+    elapsed,
+    message: `Pre-cached ${succeeded} components in ${elapsed}ms`,
+  };
+}
+
 async function batchBuildScreen(params) {
-  const { blueprint, commandId } = params || {};
+  const { blueprint, commandId, parentId } = params || {};
   if (!blueprint) throw new Error("Missing blueprint parameter");
 
   const nodeMap = {}; // name → figma node id
@@ -5431,21 +5535,33 @@ async function batchBuildScreen(params) {
   }
   countNodes(blueprint);
 
+  // ★ Pre-cache: batch-import all needed components before building
+  const neededKeys = collectComponentKeys(blueprint);
+  if (neededKeys.size > 0) {
+    await preCacheComponents(neededKeys);
+  }
+
   // Map common font weights to Figma font styles
   function getFontStyle(weight) {
     switch (weight) {
       case 100: return "Thin";
-      case 200: return "Extra Light";
+      case 200: return "ExtraLight";
       case 300: return "Light";
       case 400: return "Regular";
       case 500: return "Medium";
-      case 600: return "Semi Bold";
+      case 600: return "SemiBold";
       case 700: return "Bold";
-      case 800: return "Extra Bold";
+      case 800: return "ExtraBold";
       case 900: return "Black";
       default: return "Regular";
     }
   }
+  // Alternative style names (some fonts use spaces, others don't)
+  var FONT_STYLE_ALTS = {
+    "SemiBold": "Semi Bold", "Semi Bold": "SemiBold",
+    "ExtraLight": "Extra Light", "Extra Light": "ExtraLight",
+    "ExtraBold": "Extra Bold", "Extra Bold": "ExtraBold",
+  };
 
   // Preload fonts used in the blueprint
   const fontsToLoad = new Set();
@@ -5465,8 +5581,15 @@ async function batchBuildScreen(params) {
     const font = JSON.parse(fontStr);
     fontPromises.push(
       loadFontWithTimeout(font).catch(err => {
+        // Try alternative style name (SemiBold vs Semi Bold, etc.)
+        var alt = FONT_STYLE_ALTS[font.style];
+        if (alt) {
+          return loadFontWithTimeout({ family: font.family, style: alt }).catch(err2 => {
+            console.warn(`Font load failed: ${font.family} ${font.style}/${alt}`, err2);
+            return loadFontWithTimeout({ family: "Inter", style: "Regular" });
+          });
+        }
         console.warn(`Font load failed: ${font.family} ${font.style}`, err);
-        // Fallback to Inter Regular
         return loadFontWithTimeout({ family: "Inter", style: "Regular" });
       })
     );
@@ -5493,6 +5616,9 @@ async function batchBuildScreen(params) {
           },
           opacity: spec.fill.a !== undefined ? parseFloat(spec.fill.a) : 1,
         }];
+      } else if (!spec.imageFill) {
+        // Clear default white fill on container frames (no explicit fill, no image)
+        node.fills = [];
       }
 
       // Stroke
@@ -5542,8 +5668,17 @@ async function batchBuildScreen(params) {
           node.paddingTop = al.paddingVertical;
           node.paddingBottom = al.paddingVertical;
         }
-        if (al.primaryAxisAlignItems) node.primaryAxisAlignItems = al.primaryAxisAlignItems;
-        if (al.counterAxisAlignItems) node.counterAxisAlignItems = al.counterAxisAlignItems;
+        // Validate alignment values before assignment (prevent Figma API errors)
+        const validPrimary = ["MIN", "CENTER", "MAX", "SPACE_BETWEEN"];
+        const validCounter = ["MIN", "CENTER", "MAX", "BASELINE"];
+        if (al.primaryAxisAlignItems) {
+          const v = String(al.primaryAxisAlignItems).toUpperCase().replace(/-/g, "_");
+          node.primaryAxisAlignItems = validPrimary.includes(v) ? v : "MIN";
+        }
+        if (al.counterAxisAlignItems) {
+          const v = String(al.counterAxisAlignItems).toUpperCase().replace(/-/g, "_");
+          node.counterAxisAlignItems = validCounter.includes(v) ? v : "MIN";
+        }
         if (al.layoutWrap) node.layoutWrap = al.layoutWrap;
       }
 
@@ -5565,18 +5700,33 @@ async function batchBuildScreen(params) {
       node = figma.createText();
       const family = spec.fontFamily || "Pretendard";
       const weight = spec.fontWeight || 400;
+      var styleName = getFontStyle(weight);
       try {
-        node.fontName = { family, style: getFontStyle(weight) };
+        node.fontName = { family, style: styleName };
         if (spec.fontSize) node.fontSize = parseInt(spec.fontSize);
       } catch (e) {
-        // Fallback
-        try {
-          node.fontName = { family: "Inter", style: "Regular" };
-          if (spec.fontSize) node.fontSize = parseInt(spec.fontSize);
-        } catch (e2) { /* ignore */ }
+        // Try alternative style name (SemiBold vs Semi Bold, etc.)
+        var altStyle = FONT_STYLE_ALTS[styleName];
+        var fontSet = false;
+        if (altStyle) {
+          try {
+            node.fontName = { family, style: altStyle };
+            if (spec.fontSize) node.fontSize = parseInt(spec.fontSize);
+            fontSet = true;
+          } catch (e2) { /* alt also failed */ }
+        }
+        if (!fontSet) {
+          try {
+            node.fontName = { family: "Inter", style: "Regular" };
+            if (spec.fontSize) node.fontSize = parseInt(spec.fontSize);
+          } catch (e3) { /* ignore */ }
+        }
       }
 
-      setCharacters(node, spec.text || spec.characters || "");
+      // Convert <br> to soft line break (U+2028) for Figma text
+      var rawText = spec.text || spec.characters || "";
+      var processedText = rawText.replace(/<br\s*\/?>/gi, "\u2028");
+      setCharacters(node, processedText);
 
       // Text color
       if (spec.fontColor || spec.fill) {
@@ -5637,30 +5787,9 @@ async function batchBuildScreen(params) {
     } else if (nodeType === "instance" && spec.componentKey) {
       let component = null;
       try {
-        // 1. Search locally first (current page → all pages)
-        try {
-          const currentPageComponents = figma.currentPage.findAllWithCriteria({ types: ["COMPONENT"] });
-          component = currentPageComponents.find(c => c.key === spec.componentKey);
-          if (!component) {
-            await figma.loadAllPagesAsync();
-            const allComponents = figma.root.findAllWithCriteria({ types: ["COMPONENT"] });
-            component = allComponents.find(c => c.key === spec.componentKey);
-          }
-        } catch (findErr) {
-          console.warn(`[batch_build] Local search failed: ${findErr.message}`);
-        }
-
-        // 2. If not found locally, try remote import with timeout
-        if (!component) {
-          let timeoutId;
-          const timeoutPromise = new Promise((_, reject) => {
-            timeoutId = setTimeout(() => reject(new Error("Import timeout (10s)")), 10000);
-          });
-          component = await Promise.race([
-            figma.importComponentByKeyAsync(spec.componentKey),
-            timeoutPromise,
-          ]).finally(() => clearTimeout(timeoutId));
-        }
+        // ★ Use pre-cached component (O(1) lookup, pre-imported at build start)
+        component = await getCachedComponent(spec.componentKey);
+        if (!component) throw new Error(`Component not found in cache or import: ${spec.componentKey}`);
 
         node = component.createInstance();
         if (spec.width && spec.height) node.resize(spec.width, spec.height);
@@ -5673,11 +5802,26 @@ async function batchBuildScreen(params) {
               const textNode = figma.getNodeById(fullId);
               if (textNode && textNode.type === "TEXT") {
                 await figma.loadFontAsync(textNode.fontName);
-                textNode.characters = String(text);
+                textNode.characters = String(text).replace(/<br\s*\/?>/gi, "\u2028");
               }
             } catch (te) {
               console.warn(`[batch_build] textOverride failed for ${suffix}: ${te.message}`);
             }
+          }
+        }
+        // ★ Auto-text: set primary text if spec.text provided
+        if (spec.text && node && node.type === "INSTANCE") {
+          try {
+            const textNodes = node.findAll(n => n.type === "TEXT");
+            if (textNodes.length > 0) {
+              // Sort by area (largest first) — primary label is usually the biggest
+              textNodes.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+              const primaryText = textNodes[0];
+              await figma.loadFontAsync(primaryText.fontName);
+              primaryText.characters = String(spec.text).replace(/<br\s*\/?>/gi, "\u2028");
+            }
+          } catch (textErr) {
+            console.warn(`[batch_build] Auto-text failed for ${spec.name}: ${textErr.message}`);
           }
         }
       } catch (e) {
@@ -5699,6 +5843,69 @@ async function batchBuildScreen(params) {
       }
 
       // Layout sizing — DEFERRED until after appendChild
+
+    } else if (nodeType === "svg_icon" && spec.svgData) {
+      // Create vector node from SVG string (Untitled UI icons from GitHub)
+      try {
+        node = figma.createNodeFromSvg(spec.svgData);
+        node.name = spec.name || spec.ds1Name || "icon";
+        var iconW = spec.width || 24;
+        var iconH = spec.height || 24;
+        node.resize(iconW, iconH);
+        // Apply icon color by changing all vector children's fills/strokes
+        if (spec.iconColor) {
+          var color = { r: spec.iconColor.r || 0, g: spec.iconColor.g || 0, b: spec.iconColor.b || 0 };
+          var opacity = spec.iconColor.a !== undefined ? spec.iconColor.a : 1;
+          function colorizeVectors(n) {
+            if (n.type === "VECTOR" || n.type === "LINE" || n.type === "STAR" || n.type === "POLYGON" || n.type === "ELLIPSE" || n.type === "RECTANGLE" || n.type === "BOOLEAN_OPERATION") {
+              try {
+                // Untitled UI SVGs use stroke, not fill
+                if (n.strokes && n.strokes.length > 0) {
+                  n.strokes = [{ type: "SOLID", color: color, opacity: opacity }];
+                }
+                if (n.fills && n.fills.length > 0) {
+                  n.fills = [{ type: "SOLID", color: color, opacity: opacity }];
+                }
+              } catch (e) {}
+            }
+            if (n.children) {
+              for (var i = 0; i < n.children.length; i++) {
+                colorizeVectors(n.children[i]);
+              }
+            }
+          }
+          colorizeVectors(node);
+        }
+      } catch (e) {
+        console.error("[batch_build] SVG icon FAILED:", e.message);
+        node = figma.createFrame();
+        node.resize(spec.width || 24, spec.height || 24);
+        node.name = (spec.name || "icon") + " [SVG FAILED]";
+        node.fills = [{ type: "SOLID", color: { r: 1, g: 0.9, b: 0.9 }, opacity: 1 }];
+      }
+
+    } else if (nodeType === "clone" && spec.sourceNodeId) {
+      // Clone an existing node by ID (e.g. Status Bar, icons from icons page)
+      try {
+        const sourceNode = await figma.getNodeByIdAsync(spec.sourceNodeId);
+        if (!sourceNode) throw new Error(`Source node not found: ${spec.sourceNodeId}`);
+        // If source is a Component, create an instance instead of cloning
+        // (cloning a Component produces another master component, not an instance)
+        if (sourceNode.type === "COMPONENT") {
+          node = sourceNode.createInstance();
+        } else {
+          node = sourceNode.clone();
+        }
+        if (spec.width && spec.height) node.resize(spec.width, spec.height);
+      } catch (e) {
+        console.error(`[batch_build] Clone FAILED for sourceNodeId=${spec.sourceNodeId}: ${e.message}`);
+        node = figma.createFrame();
+        node.resize(spec.width || 393, spec.height || 54);
+        node.name = (spec.name || "clone") + " [CLONE FAILED]";
+        node.fills = [{ type: "SOLID", color: { r: 1, g: 0.9, b: 0.9 }, opacity: 1 }];
+      }
+      // Layout sizing — DEFERRED until after appendChild
+
     } else {
       // Default: frame
       node = figma.createFrame();
@@ -5714,6 +5921,12 @@ async function batchBuildScreen(params) {
     // Append to parent FIRST (layoutSizing requires being in an auto-layout parent)
     if (parentNode) {
       parentNode.appendChild(node);
+      // Ensure cloned/instanced nodes participate in auto-layout (not float as absolute)
+      if ((nodeType === "clone" || nodeType === "icon" || nodeType === "svg_icon") && parentNode.layoutMode && parentNode.layoutMode !== "NONE") {
+        try { node.layoutPositioning = "AUTO"; } catch (e) { /* ignore */ }
+        try { node.x = 0; node.y = 0; } catch (e) { /* ignore */ }
+        try { node.constraints = { horizontal: "STRETCH", vertical: "MIN" }; } catch (e) { /* ignore */ }
+      }
     } else {
       figma.currentPage.appendChild(node);
     }
@@ -5721,12 +5934,61 @@ async function batchBuildScreen(params) {
     // Apply deferred layoutSizing AFTER appendChild
     // FILL/HUG only works on children of auto-layout frames
     try {
-      if (spec.layoutSizingHorizontal) node.layoutSizingHorizontal = spec.layoutSizingHorizontal;
-      if (spec.layoutSizingVertical) node.layoutSizingVertical = spec.layoutSizingVertical;
-      if (spec.layoutSizing) {
-        if (spec.layoutSizing.horizontal) node.layoutSizingHorizontal = spec.layoutSizing.horizontal;
-        if (spec.layoutSizing.vertical) node.layoutSizingVertical = spec.layoutSizing.vertical;
+      var hSizing = spec.layoutSizingHorizontal || (spec.layoutSizing && spec.layoutSizing.horizontal);
+      var vSizing = spec.layoutSizingVertical || (spec.layoutSizing && spec.layoutSizing.vertical);
+
+      // Auto-apply HUG/FIXED for auto-layout frames based on explicit dimensions
+      // Without this, frames default to 100x100 FIXED which breaks layout
+      if ((nodeType === "frame" || nodeType === "component") && spec.autoLayout) {
+        if (!hSizing && !spec.layoutSizingHorizontal) {
+          hSizing = spec.width ? "FIXED" : "HUG";
+        }
+        if (!vSizing && !spec.layoutSizingVertical) {
+          vSizing = spec.height ? "FIXED" : "HUG";
+        }
       }
+
+      // ★ Auto-apply FILL on cross-axis for children of auto-layout parents
+      // Mimics CSS flexbox align-items:stretch — the most common mobile layout pattern
+      // In Pencil reference: ALL children of VERTICAL parents have layoutSizingHorizontal: "FILL"
+      if (parentNode && parentNode.layoutMode === "VERTICAL" && !spec.layoutSizingHorizontal) {
+        if (nodeType === "frame" || nodeType === "component" || nodeType === "instance" || nodeType === "rectangle" || nodeType === "clone") {
+          hSizing = "FILL";
+        }
+      }
+
+      // ★ Auto-apply HUG on main-axis for auto-layout children of VERTICAL parents
+      // Sections in VERTICAL parents should HUG content height, NOT be FIXED at blueprint height
+      // The LLM often copies root height (852) to sections, causing massive empty space
+      // Pencil reference: ALL sections use FILL×HUG pattern (never FIXED height)
+      // Exception: if layoutSizingVertical is explicitly set in the blueprint, that takes priority
+      if (parentNode && parentNode.layoutMode === "VERTICAL" && !spec.layoutSizingVertical) {
+        if ((nodeType === "frame" || nodeType === "component") && spec.autoLayout) {
+          vSizing = "HUG";
+        }
+      }
+
+      // Auto-apply FILL to text nodes ONLY in VERTICAL auto-layout parents
+      // VERTICAL parents: text fills parent width (standard cross-axis stretch)
+      // HORIZONTAL parents: MUST NOT use FILL — multiple FILL texts compete for width
+      //   causing each text to shrink to 1-character width → vertical line-break bug
+      if (nodeType === "text" && !hSizing && parentNode && parentNode.layoutMode === "VERTICAL") {
+        hSizing = "FILL";
+      }
+
+      // For text nodes with FILL: must set textAutoResize AFTER layoutSizing
+      // so Figma knows the width is determined by layout, not text content
+      if (nodeType === "text" && hSizing === "FILL") {
+        // First give the text node a wide enough width to avoid character-per-line wrapping
+        node.resize(parentNode ? parentNode.width : 393, node.height);
+        // Set FILL first
+        node.layoutSizingHorizontal = hSizing;
+        // Then force textAutoResize to HEIGHT (width from parent, height auto)
+        node.textAutoResize = "HEIGHT";
+      } else {
+        if (hSizing) node.layoutSizingHorizontal = hSizing;
+      }
+      if (vSizing) node.layoutSizingVertical = vSizing;
     } catch (lsErr) {
       // Silently ignore if parent is not auto-layout (FILL not applicable)
       console.warn(`[batch_build] layoutSizing skipped for ${spec.name || nodeType}: ${lsErr.message}`);
@@ -5756,8 +6018,97 @@ async function batchBuildScreen(params) {
     return node;
   }
 
-  // Build the tree
-  const rootNode = await buildNode(blueprint, null);
+  // ★ parentId support: build section as child of existing parent frame
+  let rootNode;
+  if (parentId) {
+    var existingParent = await figma.getNodeByIdAsync(parentId);
+    if (!existingParent) throw new Error("parentId node not found: " + parentId);
+    if (!("appendChild" in existingParent)) throw new Error("parentId node cannot have children: " + parentId);
+
+    // Build the entire blueprint (section frame + children) as a child of the existing parent
+    // This preserves the section's autoLayout, padding, spacing, etc.
+    var sectionNode = await buildNode(blueprint, existingParent);
+    rootNode = existingParent;
+    console.log("[batch_build] Section build: appended section \"" + (blueprint.name || "unnamed") + "\" (id=" + sectionNode.id + ") to parent " + parentId);
+  } else {
+    // Full build: create new root frame
+    rootNode = await buildNode(blueprint, null);
+  }
+
+  // ★ FORCED Status Bar — 모바일 루트 프레임이면 무조건 삽입 (parentId 없는 최초 빌드만)
+  var isMobileRoot = rootNode.width >= 360 && rootNode.width <= 430 && rootNode.height >= 700;
+  var isFullBuild = !parentId;
+  var alreadyHasStatusBar = false;
+  if (rootNode.children) {
+    for (var si = 0; si < rootNode.children.length; si++) {
+      var childName = rootNode.children[si].name || "";
+      if (childName.toLowerCase().indexOf("status bar") >= 0) { alreadyHasStatusBar = true; break; }
+    }
+  }
+
+  console.log("[batch_build] Status Bar check: isMobileRoot=" + isMobileRoot + " isFullBuild=" + isFullBuild + " alreadyHas=" + alreadyHasStatusBar + " layoutMode=" + rootNode.layoutMode + " w=" + rootNode.width + " h=" + rootNode.height);
+
+  if (isMobileRoot && isFullBuild && !alreadyHasStatusBar) {
+    try {
+      // Find Status Bar component by name across ALL pages (load each page first)
+      var statusBarSource = null;
+      for (var pi = 0; pi < figma.root.children.length; pi++) {
+        var page = figma.root.children[pi];
+        try { await page.loadAsync(); } catch (e) { /* ignore load error */ }
+        var found = page.findOne(function(n) {
+          var nm = (n.name || "").toLowerCase();
+          return (nm === "status bar" || nm === "statusbar" || nm === "status_bar") &&
+            (n.type === "COMPONENT" || n.type === "INSTANCE" || n.type === "FRAME");
+        });
+        if (found) {
+          statusBarSource = found;
+          console.log("[batch_build] Found Status Bar source on page '" + page.name + "': id=" + found.id + " type=" + found.type + " name=" + found.name);
+          break;
+        }
+      }
+      if (statusBarSource) {
+        var sbNode;
+        if (statusBarSource.type === "COMPONENT") {
+          sbNode = statusBarSource.createInstance();
+        } else {
+          sbNode = statusBarSource.clone();
+        }
+        sbNode.name = "Status Bar";
+
+        // Force position to origin BEFORE insertion
+        try { sbNode.x = 0; sbNode.y = 0; } catch (e) { /* ignore */ }
+
+        // Insert as first child (top of auto-layout)
+        if (rootNode.children && rootNode.children.length > 0) {
+          rootNode.insertChild(0, sbNode);
+        } else {
+          rootNode.appendChild(sbNode);
+        }
+
+        // Force auto-layout participation
+        try { sbNode.layoutPositioning = "AUTO"; } catch (e) { console.warn("[batch_build] SB layoutPositioning failed:", e.message); }
+        try { sbNode.layoutSizingHorizontal = "FILL"; } catch (e) { console.warn("[batch_build] SB layoutSizingH failed:", e.message); }
+        try { sbNode.layoutSizingVertical = "HUG"; } catch (e) { /* ignore */ }
+
+        // Force position after insertion
+        try { sbNode.x = 0; sbNode.y = 0; } catch (e) { /* ignore */ }
+
+        // Reset constraints to prevent absolute positioning
+        try {
+          sbNode.constraints = { horizontal: "STRETCH", vertical: "MIN" };
+        } catch (e) { /* ignore */ }
+
+        console.log("[batch_build] FORCED Status Bar INSERTED: layoutPositioning=" + sbNode.layoutPositioning + " x=" + sbNode.x + " y=" + sbNode.y + " w=" + sbNode.width + " h=" + sbNode.height);
+
+        nodeMap["Status Bar"] = sbNode.id;
+        totalNodes++;
+      } else {
+        console.warn("[batch_build] FORCED Status Bar FAILED: no 'Status Bar' component/instance/frame found in ANY page. Pages searched: " + figma.root.children.length);
+      }
+    } catch (e) {
+      console.warn("[batch_build] FORCED Status Bar insert EXCEPTION: " + e.message);
+    }
+  }
 
   // Final progress
   if (commandId) {

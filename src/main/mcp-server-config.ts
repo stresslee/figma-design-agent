@@ -1,29 +1,33 @@
 /**
  * MCP Server Configuration for Agent SDK
  *
- * Generates the mcpServers config that tells Claude Code
- * how to spawn our figma-mcp-server process.
+ * Returns HTTP URL config for the embedded Hono MCP server.
+ * No subprocess spawn needed — Agent SDK connects via HTTP directly.
  */
 
-import { join } from 'path';
-
-/**
- * Get the absolute path to the built figma-mcp-server.js
- * At runtime: out/main/index.js → __dirname = out/main/
- * MCP server: out/main/figma-mcp-server.js
- */
-export function getMcpServerPath(): string {
-  return join(__dirname, 'figma-mcp-server.js');
-}
+const MCP_PORT = 8769;
+const PENCIL_MCP_PORT = 8081;
+const MCP_ENDPOINT = '/mcp';
 
 /**
  * Build the mcpServers config for Agent SDK's query() options
  */
-export function getMcpServersConfig(): Record<string, { command: string; args: string[] }> {
+export function getMcpServersConfig(): Record<string, { type: 'http'; url: string }> {
   return {
     'figma-tools': {
-      command: 'node',
-      args: [getMcpServerPath()],
+      type: 'http',
+      url: `http://127.0.0.1:${MCP_PORT}${MCP_ENDPOINT}`,
+    },
+    'pencil-mcp': {
+      type: 'http',
+      url: `http://127.0.0.1:${PENCIL_MCP_PORT}${MCP_ENDPOINT}`,
     },
   };
 }
+
+/** Pencil MCP 서버 바이너리 경로 + 인자 (index.ts에서 사용) */
+export const PENCIL_MCP_CONFIG = {
+  port: PENCIL_MCP_PORT,
+  binary: '/Users/julee/.cursor/extensions/highagency.pencildev-0.6.28-universal/out/mcp-server-darwin-arm64',
+  args: ['--app', 'cursor', '--http', '--http-port', String(PENCIL_MCP_PORT)],
+};

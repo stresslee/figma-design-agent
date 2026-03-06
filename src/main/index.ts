@@ -11,15 +11,16 @@
 
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'path';
-import { execFile } from 'child_process';
+import { execFile, spawn, ChildProcess } from 'child_process';
 import { FigmaWSServer } from './figma-ws-server';
 import { buildToolRegistry } from './figma-mcp-embedded';
 import { registerDSLookupTools } from './ds-lookup-tools';
 import { AgentOrchestrator } from './agent-orchestrator';
-import { ToolBridgeServer } from './tool-bridge-server';
+import { McpHttpServer } from './mcp-http-server';
 import { ImageGenerator } from './image-generator';
-import { getGeminiApiKey, setGeminiApiKey, getAnthropicApiKey, setAnthropicApiKey } from './settings-store';
-import { setProjectRoot, getDesignTokens } from '../shared/ds-data';
+import { PENCIL_MCP_CONFIG } from './mcp-server-config';
+import { getGeminiApiKey, setGeminiApiKey, getAnthropicApiKey, getDirectApiKey, setAnthropicApiKey } from './settings-store';
+import { setProjectRoot, getDesignTokens, getVariants } from '../shared/ds-data';
 import { IPC_CHANNELS } from '../shared/types';
 import type { FigmaConnectionState, ClaudeCodeStatus } from '../shared/types';
 
@@ -55,8 +56,9 @@ const ASSETS_DIR = join(PROJECT_ROOT, 'assets', 'generated');
 let mainWindow: BrowserWindow | null = null;
 let figmaWS: FigmaWSServer;
 let orchestrator: AgentOrchestrator | null = null;
-let toolBridge: ToolBridgeServer;
+let mcpServer: McpHttpServer;
 let imageGenerator: ImageGenerator;
+let pencilMcpProcess: ChildProcess | null = null;
 
 // Cached Claude Code status
 let claudeCodeStatusCache: ClaudeCodeStatus | null = null;
@@ -95,6 +97,36 @@ async function checkClaudeCodeStatus(): Promise<ClaudeCodeStatus> {
 }
 
 // ============================================================
+// Pencil MCP Server Management
+// ============================================================
+
+function startPencilMcp(): void {
+  try {
+    pencilMcpProcess = spawn(
+      PENCIL_MCP_CONFIG.binary,
+      PENCIL_MCP_CONFIG.args,
+      { stdio: ['pipe', 'pipe', 'pipe'] }
+    );
+    pencilMcpProcess.stdout?.on('data', (d: Buffer) => console.log('[Pencil MCP]', d.toString().trim()));
+    pencilMcpProcess.stderr?.on('data', (d: Buffer) => console.error('[Pencil MCP]', d.toString().trim()));
+    pencilMcpProcess.on('exit', (code) => {
+      console.log(`[Pencil MCP] exited (code=${code})`);
+      pencilMcpProcess = null;
+    });
+    console.log(`[Pencil MCP] Started on port ${PENCIL_MCP_CONFIG.port}`);
+  } catch (e) {
+    console.error('[Pencil MCP] Failed to start:', e);
+  }
+}
+
+function stopPencilMcp(): void {
+  if (pencilMcpProcess) {
+    pencilMcpProcess.kill();
+    pencilMcpProcess = null;
+  }
+}
+
+// ============================================================
 // App lifecycle
 // ============================================================
 
@@ -116,24 +148,62 @@ app.whenReady().then(async () => {
   // Register generate_image tool (Gemini API → base64 → set_image_fill)
   tools.set('generate_image', {
     name: 'generate_image',
-    description: 'Generate an image using Gemini AI and apply it as fill to a Figma node. Use for logos, illustrations, icons, hero images.',
+    description: 'Generate an image using Gemini AI and apply it as fill to a Figma node. For hero/banner: set isHero=true and pass the HERO SECTION FRAME nodeId (NOT a child rectangle). The image fills the entire frame as background. For icons: isHero=false (default), removes background.',
     inputSchema: {
       type: 'object',
       properties: {
         prompt: { type: 'string', description: 'Image description (e.g. "minimal app logo, letter M, purple gradient")' },
-        nodeId: { type: 'string', description: 'Figma node ID to apply the image fill to' },
-        width: { type: 'number', description: 'Target width in Figma pixels (default: 120)' },
-        height: { type: 'number', description: 'Target height in Figma pixels (default: 120)' },
+        nodeId: { type: 'string', description: 'Figma node ID to apply the image fill to. For hero banners, this MUST be the hero section frame itself (NOT a child node).' },
+        isHero: { type: 'boolean', description: 'Set true for hero/banner images. Auto-detects node size from Figma, keeps solid background, forces graphics to right side. Default: false.' },
+        width: { type: 'number', description: 'Target width in Figma pixels. Ignored when isHero=true (auto-detected from node). Default: 120.' },
+        height: { type: 'number', description: 'Target height in Figma pixels. Ignored when isHero=true (auto-detected from node). Default: 120.' },
         style: { type: 'string', description: 'Optional style override' },
       },
       required: ['prompt', 'nodeId'],
     },
     handler: async (params) => {
       const prompt = params.prompt as string;
-      const nodeId = params.nodeId as string;
-      const width = (params.width as number) || 120;
-      const height = (params.height as number) || 120;
+      let targetNodeId = params.nodeId as string;
+      const isHero = (params.isHero as boolean) || false;
       const style = params.style as string | undefined;
+
+      let width = (params.width as number) || 120;
+      let height = (params.height as number) || 120;
+
+      // Hero mode: auto-detect node dimensions, auto-escalate to parent if node is too small
+      if (isHero) {
+        const MIN_HERO_SIZE = 200;
+        try {
+          let nodeInfo = await figmaWS.sendCommand('get_node_info', { nodeId: targetNodeId }) as Record<string, unknown>;
+          let nodeWidth = nodeInfo.width as number;
+          let nodeHeight = nodeInfo.height as number;
+
+          // If node is too small, it's probably a child image placeholder — escalate to parent
+          if (nodeWidth && nodeHeight && (nodeWidth < MIN_HERO_SIZE || nodeHeight < MIN_HERO_SIZE)) {
+            console.warn(`[Main] Hero mode: node ${targetNodeId} is only ${nodeWidth}x${nodeHeight} — too small for hero. Escalating to parent.`);
+            const parentId = nodeInfo.parentId as string;
+            if (parentId) {
+              const parentInfo = await figmaWS.sendCommand('get_node_info', { nodeId: parentId }) as Record<string, unknown>;
+              const parentWidth = parentInfo.width as number;
+              const parentHeight = parentInfo.height as number;
+              if (parentWidth && parentHeight && parentWidth >= MIN_HERO_SIZE) {
+                targetNodeId = parentId;
+                nodeWidth = parentWidth;
+                nodeHeight = parentHeight;
+                console.log(`[Main] Hero mode: escalated to parent ${targetNodeId} (${nodeWidth}x${nodeHeight})`);
+              }
+            }
+          }
+
+          if (nodeWidth && nodeHeight) {
+            width = Math.round(nodeWidth);
+            height = Math.round(nodeHeight);
+            console.log(`[Main] Hero mode: final target ${targetNodeId}, size ${width}x${height}`);
+          }
+        } catch (e) {
+          console.warn('[Main] Failed to get node size for hero, using provided dimensions:', e);
+        }
+      }
 
       // Generate image via Gemini
       const result = await imageGenerator.generate({
@@ -141,25 +211,29 @@ app.whenReady().then(async () => {
         figmaWidth: width,
         figmaHeight: height,
         style,
+        isHero,
         outputName: `gen_${Date.now()}`,
       });
 
-      // Apply as image fill to the Figma node
+      // Apply as image fill to the target node
       await figmaWS.sendCommand('set_image_fill', {
-        nodeId,
+        nodeId: targetNodeId,
         imageData: result.base64,
         scaleMode: 'FILL',
       });
 
-      return { success: true, nodeId, width: result.width, height: result.height };
+      return { success: true, nodeId: targetNodeId, width: result.width, height: result.height, mode: isHero ? 'hero' : 'icon' };
     },
   });
 
   console.log(`[Main] Registered ${tools.size} tools`);
 
-  // Start Tool Bridge Server (for MCP server communication)
-  toolBridge = new ToolBridgeServer(tools);
-  await toolBridge.start();
+  // Start Pencil MCP Server (external binary, HTTP mode)
+  startPencilMcp();
+
+  // Start MCP HTTP Server (Hono + Streamable HTTP Transport)
+  mcpServer = new McpHttpServer(tools, () => figmaWS.inputMode);
+  await mcpServer.start();
 
   // Check Claude Code status
   claudeCodeStatusCache = await checkClaudeCodeStatus();
@@ -171,14 +245,27 @@ app.whenReady().then(async () => {
   // Set up IPC handlers
   setupIPC(tools);
 
-  // Forward Figma connection events
+  // Forward Figma connection events + pre-cache DS components
   figmaWS.on('connection-change', (state: FigmaConnectionState) => {
     mainWindow?.webContents.send(IPC_CHANNELS.FIGMA_STATUS, state);
+
+    // ★ Pre-cache ALL DS components when Figma connects
+    if (state.status === 'connected') {
+      preCacheDSComponents(tools).catch((e) =>
+        console.warn('[Main] DS pre-cache failed:', e)
+      );
+    }
+  });
+
+  figmaWS.on('input-mode-change', (mode: string) => {
+    console.log(`[Main] Input mode changed: ${mode}`);
+    mainWindow?.webContents.send(IPC_CHANNELS.FIGMA_INPUT_MODE, mode);
   });
 });
 
 app.on('window-all-closed', () => {
-  toolBridge?.stop();
+  stopPencilMcp();
+  mcpServer?.stop();
   figmaWS?.stop();
   app.quit();
 });
@@ -190,15 +277,90 @@ app.on('activate', () => {
 });
 
 // ============================================================
+// DS Pre-cache — import ALL DS component variants on Figma connect
+// ============================================================
+
+async function preCacheDSComponents(tools: Map<string, import('../shared/types').ToolDefinition>): Promise<void> {
+  const preCacheTool = tools.get('pre_cache_components');
+  if (!preCacheTool) {
+    console.warn('[Main] pre_cache_components tool not found');
+    return;
+  }
+
+  // Extract ONE representative key per component (first variant = default)
+  // Caching 154 keys is fast; caching all 4716 variants overwhelms Figma API
+  const variants = getVariants();
+  const representativeKeys: string[] = [];
+  for (const entry of variants) {
+    const keys = Object.values(entry.variants);
+    if (keys.length > 0) {
+      representativeKeys.push(keys[0]); // first variant as representative
+    }
+  }
+
+  if (representativeKeys.length === 0) {
+    console.log('[Main] No DS variant keys found, skipping pre-cache');
+    return;
+  }
+
+  // Clear previous cache to pick up DS updates
+  try {
+    await figmaWS.sendCommand('clear_component_cache');
+    console.log('[Main] Cleared plugin component cache');
+  } catch (e) {
+    console.warn('[Main] Failed to clear component cache:', e);
+  }
+
+  console.log(`[Main] Pre-caching ${representativeKeys.length} DS components (1 representative per component)...`);
+  const startTime = Date.now();
+
+  // Notify renderer: caching started
+  mainWindow?.webContents.send(IPC_CHANNELS.DS_CACHE_STATUS, {
+    status: 'caching', total: representativeKeys.length, cached: 0, failed: 0,
+  });
+
+  try {
+    const result = await preCacheTool.handler({ keys: representativeKeys }) as Record<string, unknown>;
+    const elapsed = Date.now() - startTime;
+    console.log(`[Main] DS pre-cache complete in ${elapsed}ms: ${result.newlyCached} cached, ${result.failed} failed`);
+
+    // Notify renderer: caching done
+    mainWindow?.webContents.send(IPC_CHANNELS.DS_CACHE_STATUS, {
+      status: 'done',
+      total: representativeKeys.length,
+      cached: (result.newlyCached as number) || 0,
+      failed: (result.failed as number) || 0,
+      elapsed,
+    });
+
+    // Save failed keys to file for JSONL cleanup
+    const failedKeys = result.failedKeys as string[] | undefined;
+    if (failedKeys && failedKeys.length > 0) {
+      const failedPath = join(PROJECT_ROOT, 'ds', 'failed-keys.json');
+      const { writeFile: writeF } = require('fs/promises');
+      await writeF(failedPath, JSON.stringify(failedKeys, null, 2));
+      console.log(`[Main] Saved ${failedKeys.length} failed keys to ${failedPath}`);
+    }
+  } catch (e) {
+    console.error('[Main] DS pre-cache error:', e);
+
+    // Notify renderer: caching error
+    mainWindow?.webContents.send(IPC_CHANNELS.DS_CACHE_STATUS, {
+      status: 'error', total: representativeKeys.length, cached: 0, failed: 0,
+    });
+  }
+}
+
+// ============================================================
 // Window creation
 // ============================================================
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 800,
-    minHeight: 600,
+    width: 1024,
+    height: 768,
+    minWidth: 200,
+    minHeight: 150,
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       preload: join(__dirname, '..', 'preload', 'index.js'),
@@ -231,19 +393,35 @@ function createWindow(): void {
 function setupIPC(tools: Map<string, import('../shared/types').ToolDefinition>): void {
   // --- Agent ---
 
-  ipcMain.on(IPC_CHANNELS.AGENT_SEND_MESSAGE, async (event, message: string) => {
-    // Determine mode: Agent SDK (Claude Code) or Direct API
-    const useAgentSdk = claudeCodeStatusCache?.installed && claudeCodeStatusCache?.authenticated;
-    const apiKey = getAnthropicApiKey();
+  ipcMain.on(IPC_CHANNELS.AGENT_SEND_MESSAGE, async (event, payload: unknown) => {
+    // Block messages when in terminal mode
+    if (figmaWS.inputMode === 'terminal') {
+      event.sender.send(IPC_CHANNELS.AGENT_EVENT, {
+        type: 'error',
+        message: '현재 터미널 모드입니다. Figma 플러그인에서 앱 모드로 전환하세요.',
+      });
+      return;
+    }
 
-    if (!useAgentSdk && !apiKey) {
+    // Support both legacy string and new { message, attachments } format
+    const message = typeof payload === 'string' ? payload : (payload as Record<string, unknown>).message as string;
+    const attachments = typeof payload === 'string' ? undefined : (payload as Record<string, unknown>).attachments as import('../shared/types').AttachmentData[] | undefined;
+    // Determine mode: Pipeline (Direct API key) or Agent SDK (Claude Code subscription)
+    // Pipeline requires a real API key (not OAuth). OAuth only works via Agent SDK.
+    const directApiKey = getDirectApiKey(); // Real API key only (no OAuth)
+    const fullApiKey = getAnthropicApiKey(); // Includes OAuth fallback
+    const claudeCodeAvailable = claudeCodeStatusCache?.installed && claudeCodeStatusCache?.authenticated;
+    const usePipeline = !!directApiKey; // Pipeline only with real API key
+    const useAgentSdk = !usePipeline && claudeCodeAvailable;
+
+    if (!directApiKey && !claudeCodeAvailable) {
       mainWindow?.webContents.send(IPC_CHANNELS.APP_ERROR,
-        'Claude Code가 설치되어 있지 않거나 인증되지 않았습니다. Settings에서 로그인하거나 API 키를 설정해주세요.'
+        'API 키를 설정하거나 Claude Code에 로그인해주세요. Settings에서 설정할 수 있습니다.'
       );
       return;
     }
 
-    console.log(`[Main] Mode: ${useAgentSdk ? 'Agent SDK (subscription)' : 'Direct API (key)'}`);
+    console.log(`[Main] Mode: ${usePipeline ? 'Pipeline (Direct API)' : useAgentSdk ? 'Agent SDK (subscription)' : 'Direct API (OAuth)'}`);
 
     // Create orchestrator if needed, or if mode changed
     if (!orchestrator) {
@@ -251,7 +429,9 @@ function setupIPC(tools: Map<string, import('../shared/types').ToolDefinition>):
         tools,
         projectRoot: PROJECT_ROOT,
         useAgentSdk: !!useAgentSdk,
-        apiKey: useAgentSdk ? undefined : apiKey,
+        apiKey: usePipeline ? directApiKey : (useAgentSdk ? undefined : fullApiKey),
+        figmaWS,
+        imageGenerator,
       });
 
       // Forward events to renderer
@@ -261,6 +441,11 @@ function setupIPC(tools: Map<string, import('../shared/types').ToolDefinition>):
 
       orchestrator.on('chat-message', (chatMessage) => {
         mainWindow?.webContents.send(IPC_CHANNELS.AGENT_CHAT_UPDATE, chatMessage);
+      });
+
+      // Pipeline events
+      orchestrator.on('pipeline:step', (stepEvent) => {
+        mainWindow?.webContents.send(IPC_CHANNELS.PIPELINE_STEP, stepEvent);
       });
 
       // Initialize with Figma context if connected
@@ -281,7 +466,7 @@ function setupIPC(tools: Map<string, import('../shared/types').ToolDefinition>):
     }
 
     try {
-      await orchestrator.sendMessage(message);
+      await orchestrator.sendMessage(message, attachments);
     } catch (error) {
       mainWindow?.webContents.send(IPC_CHANNELS.APP_ERROR,
         error instanceof Error ? error.message : String(error)

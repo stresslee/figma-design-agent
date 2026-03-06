@@ -6,11 +6,11 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC_CHANNELS } from '../shared/types';
-import type { ClaudeCodeStatus } from '../shared/types';
+import type { ClaudeCodeStatus, DSCacheStatus, PipelineStepEvent, AttachmentData } from '../shared/types';
 
 export interface ElectronAPI {
   // Agent
-  sendMessage: (message: string) => void;
+  sendMessage: (message: string, attachments?: AttachmentData[]) => void;
   cancelAgent: () => void;
   onAgentEvent: (callback: (event: unknown) => void) => () => void;
   onChatUpdate: (callback: (message: unknown) => void) => () => void;
@@ -34,18 +34,25 @@ export interface ElectronAPI {
 
   openExternal: (url: string) => void;
 
+  // DS Cache
+  onDSCacheStatus: (callback: (status: DSCacheStatus) => void) => () => void;
+
+  // Pipeline
+  onPipelineStep: (callback: (event: PipelineStepEvent) => void) => () => void;
+
   // Settings
   getGeminiKey: () => Promise<{ hasKey: boolean; maskedKey: string }>;
   setGeminiKey: (key: string) => Promise<{ success: boolean; error?: string }>;
 
   // App
   onError: (callback: (error: string) => void) => () => void;
+  onInputModeChange: (callback: (mode: string) => void) => () => void;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // Agent
-  sendMessage: (message: string) => {
-    ipcRenderer.send(IPC_CHANNELS.AGENT_SEND_MESSAGE, message);
+  sendMessage: (message: string, attachments?: AttachmentData[]) => {
+    ipcRenderer.send(IPC_CHANNELS.AGENT_SEND_MESSAGE, { message, attachments });
   },
   cancelAgent: () => {
     ipcRenderer.send(IPC_CHANNELS.AGENT_CANCEL);
@@ -101,6 +108,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.send('shell:open-external', url);
   },
 
+  // DS Cache
+  onDSCacheStatus: (callback: (status: DSCacheStatus) => void) => {
+    const handler = (_: unknown, status: DSCacheStatus) => callback(status);
+    ipcRenderer.on(IPC_CHANNELS.DS_CACHE_STATUS, handler);
+    return () => { ipcRenderer.removeListener(IPC_CHANNELS.DS_CACHE_STATUS, handler); };
+  },
+
+  // Pipeline
+  onPipelineStep: (callback: (event: PipelineStepEvent) => void) => {
+    const handler = (_: unknown, event: PipelineStepEvent) => callback(event);
+    ipcRenderer.on(IPC_CHANNELS.PIPELINE_STEP, handler);
+    return () => { ipcRenderer.removeListener(IPC_CHANNELS.PIPELINE_STEP, handler); };
+  },
+
   // Settings
   getGeminiKey: () => {
     return ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_GEMINI_KEY);
@@ -114,5 +135,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const handler = (_: unknown, error: string) => callback(error);
     ipcRenderer.on(IPC_CHANNELS.APP_ERROR, handler);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.APP_ERROR, handler);
+  },
+  onInputModeChange: (callback: (mode: string) => void) => {
+    const handler = (_: unknown, mode: string) => callback(mode);
+    ipcRenderer.on(IPC_CHANNELS.FIGMA_INPUT_MODE, handler);
+    return () => { ipcRenderer.removeListener(IPC_CHANNELS.FIGMA_INPUT_MODE, handler); };
   },
 } satisfies ElectronAPI);

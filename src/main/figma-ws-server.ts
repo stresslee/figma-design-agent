@@ -9,7 +9,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import { EventEmitter } from 'events';
-import type { PendingRequest, FigmaCommand, FigmaConnectionState } from '../shared/types';
+import type { PendingRequest, FigmaCommand, FigmaConnectionState, InputMode } from '../shared/types';
 
 export interface FigmaWSServerEvents {
   'connection-change': (state: FigmaConnectionState) => void;
@@ -22,6 +22,9 @@ export class FigmaWSServer extends EventEmitter {
   private pendingRequests = new Map<string, PendingRequest>();
   private currentChannel: string | null = null;
   private port: number;
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  private lastPongTime: number = 0;
+  private currentInputMode: InputMode = 'app';
 
   constructor(port: number = 8767) {
     super();
@@ -52,6 +55,7 @@ export class FigmaWSServer extends EventEmitter {
         console.log('[FigmaWS] Plugin WebSocket connected, waiting for join...');
         this.pluginSocket = socket;
         this.emitConnectionState('connecting');
+        this.startHeartbeat();
 
         socket.on('message', (data) => {
           this.handleMessage(data.toString());
@@ -59,8 +63,10 @@ export class FigmaWSServer extends EventEmitter {
 
         socket.on('close', (code, reason) => {
           console.log(`[FigmaWS] Plugin disconnected: ${code} ${reason}`);
+          this.stopHeartbeat();
           this.pluginSocket = null;
           this.currentChannel = null;
+          this.currentInputMode = 'app';
           this.emitConnectionState('disconnected');
 
           // Reject all pending requests
@@ -80,6 +86,7 @@ export class FigmaWSServer extends EventEmitter {
 
   /** Stop the WebSocket server */
   stop(): Promise<void> {
+    this.stopHeartbeat();
     return new Promise((resolve) => {
       if (this.pluginSocket) {
         this.pluginSocket.close();
@@ -104,6 +111,10 @@ export class FigmaWSServer extends EventEmitter {
   /** Get current channel */
   get channel(): string | null {
     return this.currentChannel;
+  }
+
+  get inputMode(): InputMode {
+    return this.currentInputMode;
   }
 
   /** Join a Figma document channel */
@@ -170,8 +181,17 @@ export class FigmaWSServer extends EventEmitter {
     try {
       const json = JSON.parse(rawData);
 
-      // Handle ping (heartbeat from plugin)
+      // Handle ping (heartbeat from plugin) — respond with pong
       if (json.type === 'ping') {
+        if (this.pluginSocket && this.pluginSocket.readyState === WebSocket.OPEN) {
+          this.pluginSocket.send(JSON.stringify({ type: 'pong' }));
+        }
+        return;
+      }
+
+      // Handle server_pong (response to our server_ping heartbeat)
+      if (json.type === 'server_pong') {
+        this.lastPongTime = Date.now();
         return;
       }
 
@@ -195,8 +215,20 @@ export class FigmaWSServer extends EventEmitter {
           status: 'connected',
           channel,
           documentName,
+          inputMode: this.currentInputMode,
         } satisfies FigmaConnectionState);
 
+        return;
+      }
+
+      // Handle input mode change from plugin
+      if (json.type === 'set-input-mode') {
+        const mode = json.mode as string;
+        if (mode === 'terminal' || mode === 'app') {
+          this.currentInputMode = mode;
+          console.log(`[FigmaWS] Input mode changed to: ${mode}`);
+          this.emit('input-mode-change', mode);
+        }
         return;
       }
 
@@ -241,6 +273,37 @@ export class FigmaWSServer extends EventEmitter {
       }
     } catch (error) {
       console.error('[FigmaWS] Parse error:', error);
+    }
+  }
+
+  // ── Server-side heartbeat (25s interval) ──
+
+  private startHeartbeat(): void {
+    this.stopHeartbeat();
+    this.lastPongTime = Date.now();
+    this.heartbeatTimer = setInterval(() => {
+      if (this.pluginSocket && this.pluginSocket.readyState === WebSocket.OPEN) {
+        this.pluginSocket.send(JSON.stringify({ type: 'server_ping', ts: Date.now() }));
+      }
+    }, 25_000);
+    console.log('[FigmaWS] Heartbeat started (25s interval)');
+  }
+
+  private stopHeartbeat(): void {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+  }
+
+  /** Full round-trip health check via Figma plugin (5s timeout) */
+  async checkHealth(): Promise<boolean> {
+    if (!this.isConnected) return false;
+    try {
+      const result = await this.sendCommand('ping_check', {}, 5_000) as Record<string, unknown>;
+      return result?.ok === true;
+    } catch {
+      return false;
     }
   }
 

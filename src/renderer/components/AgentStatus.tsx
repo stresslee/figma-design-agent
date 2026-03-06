@@ -1,13 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { AgentState } from '../../shared/types';
 
 interface Props {
   state: AgentState | null;
   onCancel: () => void;
+  taskTiming?: { startedAt: number | null; endedAt: number | null };
 }
 
-export function AgentStatus({ state, onCancel }: Props) {
+function formatTime(ts: number): string {
+  const d = new Date(ts);
+  return d.toLocaleTimeString('ko-KR', { hour12: false });
+}
+
+function formatDuration(ms: number): string {
+  const totalSec = Math.floor(ms / 1000);
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  if (min > 0) return `${min}분 ${sec}초`;
+  return `${sec}초`;
+}
+
+export function AgentStatus({ state, onCancel, taskTiming }: Props) {
   const statusColor = getStatusColor(state?.status);
+  const [elapsed, setElapsed] = useState(0);
+
+  // Live elapsed timer while running
+  useEffect(() => {
+    if (!taskTiming?.startedAt || taskTiming.endedAt) {
+      if (taskTiming?.startedAt && taskTiming.endedAt) {
+        setElapsed(taskTiming.endedAt - taskTiming.startedAt);
+      }
+      return;
+    }
+    const interval = setInterval(() => {
+      setElapsed(Date.now() - taskTiming.startedAt!);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [taskTiming?.startedAt, taskTiming?.endedAt]);
 
   return (
     <div style={styles.container}>
@@ -70,6 +99,33 @@ export function AgentStatus({ state, onCancel }: Props) {
           <span style={styles.idleText}>No agent running</span>
         </div>
       )}
+
+      {/* Task timing (bottom of sidebar) */}
+      {taskTiming?.startedAt && (
+        <div style={styles.timingSection}>
+          <div style={styles.timingHeader}>Timing</div>
+          <div style={styles.timingRow}>
+            <span style={styles.timingLabel}>시작</span>
+            <span style={styles.timingValue}>{formatTime(taskTiming.startedAt)}</span>
+          </div>
+          {taskTiming.endedAt ? (
+            <div style={styles.timingRow}>
+              <span style={styles.timingLabel}>종료</span>
+              <span style={styles.timingValue}>{formatTime(taskTiming.endedAt)}</span>
+            </div>
+          ) : null}
+          <div style={styles.timingRow}>
+            <span style={styles.timingLabel}>소요</span>
+            <span style={{
+              ...styles.timingValue,
+              color: taskTiming.endedAt ? '#22c55e' : '#f59e0b',
+              fontWeight: 600,
+            }}>
+              {formatDuration(elapsed)}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -101,6 +157,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
+    height: '100%',
   },
   header: {
     display: 'flex',
@@ -192,5 +249,35 @@ const styles: Record<string, React.CSSProperties> = {
   idleText: {
     fontSize: '12px',
     color: '#555',
+  },
+  timingSection: {
+    marginTop: 'auto',
+    paddingTop: '12px',
+    borderTop: '1px solid #222',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '6px',
+  },
+  timingHeader: {
+    fontSize: '11px',
+    fontWeight: 600,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
+    color: '#666',
+    marginBottom: '2px',
+  },
+  timingRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  timingLabel: {
+    fontSize: '12px',
+    color: '#666',
+  },
+  timingValue: {
+    fontSize: '12px',
+    color: '#ccc',
+    fontFamily: 'monospace',
   },
 };

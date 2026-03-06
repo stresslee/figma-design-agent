@@ -20,6 +20,13 @@ export interface DesignToken {
   token: string;
   value: string;
   type?: string;
+  cssVar?: string;
+}
+
+export interface TokenMapEntry {
+  figmaPath: string;
+  value: string;
+  type: string;
 }
 
 export interface TextStyleEntry {
@@ -44,6 +51,7 @@ export interface DesignTokens {
 let iconsCache: Record<string, string> | null = null;
 let variantsCache: VariantEntry[] | null = null;
 let tokensCache: DesignTokens | null = null;
+let tokenMapCache: Record<string, TokenMapEntry> | null = null;
 let projectRoot: string | null = null;
 
 /** Set the project root for file resolution */
@@ -111,7 +119,9 @@ function parseTokenTable(lines: string[], startIdx: number): { tokens: DesignTok
   while (i < lines.length && lines[i].startsWith('|')) {
     const cols = lines[i].split('|').map((c) => c.trim()).filter(Boolean);
     if (cols.length >= 2) {
-      tokens.push({ token: cols[0], value: cols[1], type: cols[2] || undefined });
+      const third = cols[2]?.replace(/`/g, '') || undefined;
+      const cssVar = third?.startsWith('--') ? third : undefined;
+      tokens.push({ token: cols[0], value: cols[1], type: cssVar ? undefined : third, cssVar });
     }
     i++;
   }
@@ -169,7 +179,9 @@ export function getDesignTokens(): DesignTokens {
         if (lines[i].startsWith('|') && !lines[i].startsWith('|--') && !lines[i].startsWith('| Token')) {
           const cols = lines[i].split('|').map((c) => c.trim()).filter(Boolean);
           if (cols.length >= 2) {
-            result.colors.push({ token: cols[0], value: cols[1], type: cols[2] || undefined });
+            const third = cols[2]?.replace(/`/g, '') || undefined;
+            const cssVar = third?.startsWith('--') ? third : undefined;
+            result.colors.push({ token: cols[0], value: cols[1], type: cssVar ? undefined : third, cssVar });
           }
         }
         i++;
@@ -202,4 +214,19 @@ export function getDesignTokens(): DesignTokens {
 
   tokensCache = result;
   return tokensCache;
+}
+
+// ─── Token Map (CSS var ↔ Figma path) ───────────────────────────────
+
+export function getTokenMap(): Record<string, TokenMapEntry> {
+  if (tokenMapCache) return tokenMapCache;
+
+  const filePath = path.join(getDsDir(), 'TOKEN_MAP.json');
+  if (!fs.existsSync(filePath)) {
+    return {};
+  }
+
+  const raw = fs.readFileSync(filePath, 'utf-8');
+  tokenMapCache = JSON.parse(raw) as Record<string, TokenMapEntry>;
+  return tokenMapCache;
 }

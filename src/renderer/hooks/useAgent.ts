@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { ChatMessage, AgentState, FigmaConnectionState, AgentEvent, ClaudeCodeStatus } from '../../shared/types';
+import type { ChatMessage, AgentState, FigmaConnectionState, AgentEvent, ClaudeCodeStatus, DSCacheStatus, PipelineStepEvent, AttachmentData } from '../../shared/types';
 
 // Access the preload-exposed API
 declare global {
   interface Window {
     electronAPI: {
-      sendMessage: (message: string) => void;
+      sendMessage: (message: string, attachments?: AttachmentData[]) => void;
       cancelAgent: () => void;
       onAgentEvent: (callback: (event: AgentEvent) => void) => () => void;
       onChatUpdate: (callback: (message: ChatMessage) => void) => () => void;
@@ -21,6 +21,8 @@ declare global {
       setClaudeApiKey: (key: string) => Promise<{ success: boolean; error?: string }>;
       validateClaudeApiKey: (key: string) => Promise<{ valid: boolean; error?: string }>;
       openExternal: (url: string) => void;
+      onDSCacheStatus: (callback: (status: DSCacheStatus) => void) => () => void;
+      onPipelineStep: (callback: (event: PipelineStepEvent) => void) => () => void;
       getGeminiKey: () => Promise<{ hasKey: boolean; maskedKey: string }>;
       setGeminiKey: (key: string) => Promise<{ success: boolean; error?: string }>;
       onError: (callback: (error: string) => void) => () => void;
@@ -36,6 +38,11 @@ export function useAgent() {
     channel: null,
   });
   const [error, setError] = useState<string | null>(null);
+  const [taskTiming, setTaskTiming] = useState<{ startedAt: number | null; endedAt: number | null }>({ startedAt: null, endedAt: null });
+  const [dsCacheStatus, setDSCacheStatus] = useState<DSCacheStatus>({
+    status: 'idle', total: 0, cached: 0, failed: 0,
+  });
+  const [pipelineSteps, setPipelineSteps] = useState<PipelineStepEvent[]>([]);
 
   // Set up event listeners
   useEffect(() => {
@@ -70,9 +77,11 @@ export function useAgent() {
         setAgentState((prev) => prev ? { ...prev, status: 'running', currentAction: `Calling ${data.name}...` } : null);
       } else if (e.type === 'done') {
         setAgentState((prev) => prev ? { ...prev, status: 'done', progress: 100 } : null);
+        setTaskTiming((prev) => ({ ...prev, endedAt: Date.now() }));
       } else if (e.type === 'error') {
         const data = e.data as { error?: string };
         setAgentState((prev) => prev ? { ...prev, status: 'error' } : null);
+        setTaskTiming((prev) => ({ ...prev, endedAt: Date.now() }));
         if (data.error) setError(data.error);
       }
     }));
@@ -80,6 +89,24 @@ export function useAgent() {
     // Figma status
     cleanups.push(api.onFigmaStatus((status) => {
       setFigmaStatus(status as FigmaConnectionState);
+    }));
+
+    // DS cache status
+    cleanups.push(api.onDSCacheStatus((status) => {
+      setDSCacheStatus(status);
+    }));
+
+    // Pipeline step events
+    cleanups.push(api.onPipelineStep((event) => {
+      setPipelineSteps((prev) => {
+        const existing = prev.findIndex((s) => s.name === event.name);
+        if (existing >= 0) {
+          const updated = [...prev];
+          updated[existing] = event;
+          return updated;
+        }
+        return [...prev, event];
+      });
     }));
 
     // Errors
@@ -97,8 +124,13 @@ export function useAgent() {
     };
   }, []);
 
-  const sendMessage = useCallback((message: string) => {
-    window.electronAPI?.sendMessage(message);
+  const sendMessage = useCallback((message: string, attachments?: AttachmentData[]) => {
+    window.electronAPI?.sendMessage(message, attachments);
+
+    // Record start time and reset end time
+    setTaskTiming({ startedAt: Date.now(), endedAt: null });
+    // Reset pipeline steps
+    setPipelineSteps([]);
 
     // Optimistically set agent state
     setAgentState({
@@ -127,7 +159,10 @@ export function useAgent() {
     messages,
     agentState,
     figmaStatus,
+    dsCacheStatus,
+    pipelineSteps,
     error,
+    taskTiming,
     sendMessage,
     cancelAgent,
     joinChannel,

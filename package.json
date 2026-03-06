@@ -10,13 +10,19 @@
     "build:renderer": "vite build --config vite.renderer.config.ts",
     "start": "electron .",
     "typecheck": "tsc --noEmit",
-    "package": "electron-builder"
+    "package": "electron-builder",
+    "bridge": "node out/bridge/index.js",
+    "postinstall": "node scripts/patch-hono-mcp.js"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.63",
     "@anthropic-ai/sdk": "^0.52.0",
+    "@hono/mcp": "^0.2.3",
+    "@hono/node-server": "^1.14.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "@untitledui/icons": "^0.0.21",
     "electron-store": "^10.0.0",
+    "hono": "^4.7.0",
     "jsonrepair": "^3.12.0",
     "sharp": "^0.33.5",
     "uuid": "^11.1.0",

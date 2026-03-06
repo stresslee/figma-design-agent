@@ -1,21 +1,31 @@
 /**
  * Settings Store — JSON file-based persistence
  *
- * Uses app.getPath('userData') + fs instead of electron-store
- * to avoid ESM-only bundling issues with tsup CJS output.
+ * Works in both Electron and standalone Node.js environments.
+ * - Electron: uses app.getPath('userData')
+ * - Standalone: uses ~/.config/figma-bridge/
  */
 
-import { app } from 'electron';
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { execSync } from 'child_process';
 import { join, dirname } from 'path';
+import { homedir } from 'os';
 
 interface SettingsData {
   geminiApiKey?: string;
   anthropicApiKey?: string;
 }
 
-const settingsPath = join(app.getPath('userData'), 'settings.json');
+function getSettingsDir(): string {
+  try {
+    const { app } = require('electron');
+    return app.getPath('userData');
+  } catch {
+    return join(homedir(), '.config', 'figma-bridge');
+  }
+}
+
+const settingsPath = join(getSettingsDir(), 'settings.json');
 
 function readSettings(): SettingsData {
   try {
@@ -43,6 +53,11 @@ export function setGeminiApiKey(key: string): void {
 export function getAnthropicApiKey(): string {
   // Prefer saved key, fall back to env var, then try OAuth token from Claude Code
   return readSettings().anthropicApiKey || process.env.ANTHROPIC_API_KEY || getClaudeOAuthToken() || '';
+}
+
+/** 직접 API 호출 가능한 키만 반환 (OAuth 토큰 제외) */
+export function getDirectApiKey(): string {
+  return readSettings().anthropicApiKey || process.env.ANTHROPIC_API_KEY || '';
 }
 
 // ============================================================

@@ -4,3 +4,8 @@ dist/
 release/
 *.dmg
 *.app
+
+# Generated images
+assets/generated/
+assets/.DS_Store
+assets/reference-images/.DS_Store
