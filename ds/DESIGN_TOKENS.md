@@ -854,3 +854,77 @@
 | width-md | 560 | `--widthMd` |
 | paragraph-max-width | 720 | `--paragraphMaxWidth` |
 | width-xs | 384 | `--widthXs` |
+
+## Text Styles
+
+| Token | Font Family | Font Weight | Font Size | Line Height |
+|-------|-------------|-------------|-----------|-------------|
+| Display 2xl/Regular | Pretendard | Regular | 72 | 90 |
+| Display 2xl/Medium | Pretendard | Medium | 72 | 90 |
+| Display 2xl/Semibold | Pretendard | Semibold | 72 | 90 |
+| Display 2xl/Bold | Pretendard | Bold | 72 | 90 |
+| Display xl/Regular | Pretendard | Regular | 60 | 72 |
+| Display xl/Medium | Pretendard | Medium | 60 | 72 |
+| Display xl/Semibold | Pretendard | Semibold | 60 | 72 |
+| Display xl/Bold | Pretendard | Bold | 60 | 72 |
+| Display lg/Regular | Pretendard | Regular | 48 | 60 |
+| Display lg/Medium | Pretendard | Medium | 48 | 60 |
+| Display lg/Semibold | Pretendard | Semibold | 48 | 60 |
+| Display lg/Bold | Pretendard | Bold | 48 | 60 |
+| Display md/Regular | Pretendard | Regular | 36 | 44 |
+| Display md/Medium | Pretendard | Medium | 36 | 44 |
+| Display md/Semibold | Pretendard | Semibold | 36 | 44 |
+| Display md/Bold | Pretendard | Bold | 36 | 44 |
+| Display sm/Regular | Pretendard | Regular | 30 | 38 |
+| Display sm/Medium | Pretendard | Medium | 30 | 38 |
+| Display sm/Semibold | Pretendard | Semibold | 30 | 38 |
+| Display sm/Bold | Pretendard | Bold | 30 | 38 |
+| Display xs/Regular | Pretendard | Regular | 24 | 32 |
+| Display xs/Medium | Pretendard | Medium | 24 | 32 |
+| Display xs/Semibold | Pretendard | Semibold | 24 | 32 |
+| Display xs/Bold | Pretendard | Bold | 24 | 32 |
+| Text xl/Regular | Pretendard | Regular | 20 | 30 |
+| Text xl/Medium | Pretendard | Medium | 20 | 30 |
+| Text xl/Semibold | Pretendard | Semibold | 20 | 30 |
+| Text xl/Bold | Pretendard | Bold | 20 | 30 |
+| Text lg/Regular | Pretendard | Regular | 18 | 28 |
+| Text lg/Medium | Pretendard | Medium | 18 | 28 |
+| Text lg/Semibold | Pretendard | Semibold | 18 | 28 |
+| Text lg/Bold | Pretendard | Bold | 18 | 28 |
+| Text md/Regular | Pretendard | Regular | 16 | 24 |
+| Text md/Medium | Pretendard | Medium | 16 | 24 |
+| Text md/Semibold | Pretendard | Semibold | 16 | 24 |
+| Text md/Bold | Pretendard | Bold | 16 | 24 |
+| Text sm/Regular | Pretendard | Regular | 14 | 20 |
+| Text sm/Medium | Pretendard | Medium | 14 | 20 |
+| Text sm/Semibold | Pretendard | Semibold | 14 | 20 |
+| Text sm/Bold | Pretendard | Bold | 14 | 20 |
+| Text xs/Regular | Pretendard | Regular | 12 | 18 |
+| Text xs/Medium | Pretendard | Medium | 12 | 18 |
+| Text xs/Semibold | Pretendard | Semibold | 12 | 18 |
+| Text xs/Bold | Pretendard | Bold | 12 | 18 |
+
+## Effects
+
+| Token | Type | Value |
+|-------|------|-------|
+| Shadows/shadow-xs | BOXSHADOW | dropShadow 0,1 blur=2 spread=0 #0a0d120d |
+| Shadows/shadow-xs-skeuomorphic | BOXSHADOW | innerShadow 0,0 blur=0 spread=1 #0a0d122e + innerShadow 0,-2 blur=0 spread=0 #0a0d120d + dropShadow 0,1 blur=2 spread=0 #0a0d120d |
+| Shadows/shadow-sm | BOXSHADOW | dropShadow 0,1 blur=3 spread=0 #0a0d121a + dropShadow 0,1 blur=2 spread=-1 #0a0d121a |
+| Shadows/shadow-md | BOXSHADOW | dropShadow 0,4 blur=6 spread=-1 #0a0d121a + dropShadow 0,2 blur=4 spread=-2 #0a0d120f |
+| Shadows/shadow-lg | BOXSHADOW | dropShadow 0,12 blur=16 spread=-4 #0a0d1214 + dropShadow 0,4 blur=6 spread=-2 #0a0d1208 + dropShadow 0,2 blur=2 spread=-1 #0a0d120a |
+| Shadows/shadow-xl | BOXSHADOW | dropShadow 0,20 blur=24 spread=-4 #0a0d1214 + dropShadow 0,8 blur=8 spread=-4 #0a0d1208 + dropShadow 0,3 blur=3 spread=-1.5 #0a0d120a |
+| Shadows/shadow-2xl | BOXSHADOW | dropShadow 0,24 blur=48 spread=-12 #0a0d122e + dropShadow 0,4 blur=4 spread=-2 #0a0d120a |
+| Shadows/shadow-3xl | BOXSHADOW | dropShadow 0,32 blur=64 spread=-12 #0a0d1224 + dropShadow 0,5 blur=5 spread=-2.5 #0a0d120a |
+| Shadows/Portfolio mockups/shadow-main-centre-md | BOXSHADOW | dropShadow 0,75 blur=150 spread=0 #0a0d1224 |
+| Shadows/Portfolio mockups/shadow-main-centre-lg | BOXSHADOW | dropShadow 0,100 blur=200 spread=0 #0a0d122e |
+| Shadows/Portfolio mockups/shadow-overlay-right-lg | BOXSHADOW | dropShadow -40,40 blur=72 spread=0 #0a0d121f |
+| Shadows/Portfolio mockups/shadow-overlay-left-lg | BOXSHADOW | dropShadow 100,100 blur=150 spread=0 #0a0d121f |
+| Shadows/Portfolio mockups/shadow-grid-md | BOXSHADOW | dropShadow 32,32 blur=64 spread=0 #0a0d1214 |
+| Focus rings/focus-ring | BOXSHADOW | dropShadow 0,0 blur=0 spread=2 #ffffff + dropShadow 0,0 blur=0 spread=4 #7a5af8 |
+| Focus rings/focus-ring-shadow-xs | BOXSHADOW | dropShadow 0,1 blur=2 spread=0 #0a0d120d + dropShadow 0,0 blur=0 spread=2 #ffffff + dropShadow 0,0 blur=0 spread=4 #7a5af8 |
+| Focus rings/focus-ring-shadow-xs-skeuomorphic | BOXSHADOW | innerShadow 0,0 blur=0 spread=1 #0a0d122e + innerShadow 0,-2 blur=0 spread=0 #0a0d120d + dropShadow 0,1 blur=2 spread=0 #0a0d120d + dropShadow 0,0 blur=0 spread=2 #ffffff + dropShadow 0,0 blur=0 spread=4 #7a5af8 |
+| Focus rings/focus-ring-shadow-sm | BOXSHADOW | dropShadow 0,1 blur=3 spread=0 #0a0d121a + dropShadow 0,1 blur=2 spread=0 #0a0d121a + dropShadow 0,0 blur=0 spread=2 #ffffff + dropShadow 0,0 blur=0 spread=4 #7a5af8 |
+| Focus rings/focus-ring-error | BOXSHADOW | dropShadow 0,0 blur=0 spread=2 #ffffff + dropShadow 0,0 blur=0 spread=4 #f04438 |
+| Focus rings/focus-ring-error-shadow-xs | BOXSHADOW | dropShadow 0,1 blur=2 spread=0 #0a0d120d + dropShadow 0,0 blur=0 spread=2 #ffffff + dropShadow 0,0 blur=0 spread=4 #f04438 |
+| Focus rings/focus-ring-error-shadow-xs-skeuomorphic | BOXSHADOW | innerShadow 0,0 blur=0 spread=1 #0a0d122e + innerShadow 0,-2 blur=0 spread=0 #0a0d120d + dropShadow 0,1 blur=2 spread=0 #0a0d120d + dropShadow 0,0 blur=0 spread=2 #ffffff + dropShadow 0,0 blur=0 spread=4 #f04438 |

@@ -31,8 +31,16 @@ export interface TokenMapEntry {
 
 export interface TextStyleEntry {
   name: string;
-  key: string;
-  styleId: string;
+  fontFamily: string;
+  fontWeight: string;
+  fontSize: string;
+  lineHeight: string;
+}
+
+export interface EffectEntry {
+  name: string;
+  type: string;
+  value: string;
 }
 
 export interface DesignTokens {
@@ -41,7 +49,7 @@ export interface DesignTokens {
   radius: DesignToken[];
   typography: DesignToken[];
   textStyles: TextStyleEntry[];
-  effectStyles: TextStyleEntry[];
+  effects: EffectEntry[];
   layout: DesignToken[];
   width: DesignToken[];
 }
@@ -129,28 +137,54 @@ function parseTokenTable(lines: string[], startIdx: number): { tokens: DesignTok
   return { tokens, endIdx: i };
 }
 
-function parseStyleTable(lines: string[], startIdx: number): { styles: TextStyleEntry[]; endIdx: number } {
+function parseTextStyleTable(lines: string[], startIdx: number): { styles: TextStyleEntry[]; endIdx: number } {
   const styles: TextStyleEntry[] = [];
   let i = startIdx;
 
   while (i < lines.length && !lines[i].startsWith('|')) i++;
   if (i >= lines.length) return { styles, endIdx: i };
 
-  i += 2;
+  i += 2; // Skip header + separator
 
   while (i < lines.length && lines[i].startsWith('|')) {
     const cols = lines[i].split('|').map((c) => c.trim()).filter(Boolean);
-    if (cols.length >= 3) {
+    if (cols.length >= 5) {
       styles.push({
         name: cols[0],
-        key: cols[1].replace(/`/g, ''),
-        styleId: cols[2].replace(/`/g, ''),
+        fontFamily: cols[1],
+        fontWeight: cols[2],
+        fontSize: cols[3],
+        lineHeight: cols[4],
       });
     }
     i++;
   }
 
   return { styles, endIdx: i };
+}
+
+function parseEffectTable(lines: string[], startIdx: number): { effects: EffectEntry[]; endIdx: number } {
+  const effects: EffectEntry[] = [];
+  let i = startIdx;
+
+  while (i < lines.length && !lines[i].startsWith('|')) i++;
+  if (i >= lines.length) return { effects, endIdx: i };
+
+  i += 2;
+
+  while (i < lines.length && lines[i].startsWith('|')) {
+    const cols = lines[i].split('|').map((c) => c.trim()).filter(Boolean);
+    if (cols.length >= 3) {
+      effects.push({
+        name: cols[0],
+        type: cols[1],
+        value: cols[2],
+      });
+    }
+    i++;
+  }
+
+  return { effects, endIdx: i };
 }
 
 export function getDesignTokens(): DesignTokens {
@@ -166,7 +200,7 @@ export function getDesignTokens(): DesignTokens {
 
   const result: DesignTokens = {
     colors: [], spacing: [], radius: [], typography: [],
-    textStyles: [], effectStyles: [], layout: [], width: [],
+    textStyles: [], effects: [], layout: [], width: [],
   };
 
   let i = 0;
@@ -196,11 +230,11 @@ export function getDesignTokens(): DesignTokens {
       const p = parseTokenTable(lines, i + 1);
       result.typography = p.tokens; i = p.endIdx;
     } else if (line.startsWith('## Text Styles')) {
-      const p = parseStyleTable(lines, i + 1);
+      const p = parseTextStyleTable(lines, i + 1);
       result.textStyles = p.styles; i = p.endIdx;
-    } else if (line.startsWith('## Effect Styles')) {
-      const p = parseStyleTable(lines, i + 1);
-      result.effectStyles = p.styles; i = p.endIdx;
+    } else if (line.startsWith('## Effects')) {
+      const p = parseEffectTable(lines, i + 1);
+      result.effects = p.effects; i = p.endIdx;
     } else if (line.startsWith('## Layout')) {
       const p = parseTokenTable(lines, i + 1);
       result.layout = p.tokens; i = p.endIdx;

@@ -136,7 +136,7 @@ Pass multiple queries across all categories at once to avoid repeated calls.`,
             ? { [category]: tokens[category as keyof typeof tokens] }
             : tokens;
           for (const [cat, items] of Object.entries(categories)) {
-            if (cat === 'textStyles' || cat === 'effectStyles') continue;
+            if (cat === 'textStyles' || cat === 'effects') continue;
             if (!Array.isArray(items)) continue;
             for (const item of items) {
               if ('token' in item) {
@@ -167,7 +167,7 @@ Pass multiple queries across all categories at once to avoid repeated calls.`,
           return {
             query,
             textStyles: tokens.textStyles.filter((s) => s.name.toLowerCase().includes(q)),
-            effectStyles: tokens.effectStyles.filter((s) => s.name.toLowerCase().includes(q)),
+            effects: tokens.effects.filter((s) => s.name.toLowerCase().includes(q)),
           };
         });
       }
