@@ -79,18 +79,18 @@
 | Colors/Gray neutral/800 | #1f2a37 | `--colors-grayNeutral-800` |
 | Colors/Gray neutral/900 | #111927 | `--colors-grayNeutral-900` |
 | Colors/Gray neutral/950 | #0d121c | `--colors-grayNeutral-950` |
-| Colors/Brand/25 | #fcfaff | `--colors-brand-25` |
-| Colors/Brand/50 | #f9f5ff | `--colors-brand-50` |
-| Colors/Brand/100 | #f4ebff | `--colors-brand-100` |
-| Colors/Brand/200 | #e9d7fe | `--colors-brand-200` |
-| Colors/Brand/300 | #d6bbfb | `--colors-brand-300` |
-| Colors/Brand/400 | #b692f6 | `--colors-brand-400` |
-| Colors/Brand/500 | #9e77ed | `--colors-brand-500` |
-| Colors/Brand/600 | #7f56d9 | `--colors-brand-600` |
-| Colors/Brand/700 | #6941c6 | `--colors-brand-700` |
-| Colors/Brand/800 | #53389e | `--colors-brand-800` |
-| Colors/Brand/900 | #42307d | `--colors-brand-900` |
-| Colors/Brand/950 | #2c1c5f | `--colors-brand-950` |
+| Colors/Brand/25 | #fafaff | `--colors-brand-25` |
+| Colors/Brand/50 | #f4f3ff | `--colors-brand-50` |
+| Colors/Brand/100 | #ebe9fe | `--colors-brand-100` |
+| Colors/Brand/200 | #d9d6fe | `--colors-brand-200` |
+| Colors/Brand/300 | #bdb4fe | `--colors-brand-300` |
+| Colors/Brand/400 | #9b8afb | `--colors-brand-400` |
+| Colors/Brand/500 | #7a5af8 | `--colors-brand-500` |
+| Colors/Brand/600 | #6938ef | `--colors-brand-600` |
+| Colors/Brand/700 | #5925dc | `--colors-brand-700` |
+| Colors/Brand/800 | #4a1fb8 | `--colors-brand-800` |
+| Colors/Brand/900 | #3e1c96 | `--colors-brand-900` |
+| Colors/Brand/950 | #27115f | `--colors-brand-950` |
 | Colors/Error/25 | #fffbfa | `--colors-error-25` |
 | Colors/Error/50 | #fef3f2 | `--colors-error-50` |
 | Colors/Error/100 | #fee4e2 | `--colors-error-100` |
@@ -401,37 +401,37 @@
 | Colors/Text/text-disabled | #717680 | `--colors-text-textDisabled` |
 | Colors/Text/text-secondary_hover | #252b37 | `--colors-text-textSecondaryHover` |
 | Colors/Text/text-tertiary_hover | #414651 | `--colors-text-textTertiaryHover` |
-| Colors/Text/text-brand-secondary (700) | #6941c6 | `--colors-text-textBrandSecondary-700` |
+| Colors/Text/text-brand-secondary (700) | #5925dc | `--colors-text-textBrandSecondary-700` |
 | Colors/Text/text-placeholder | #717680 | `--colors-text-textPlaceholder` |
 | Colors/Text/text-placeholder_subtle | #d5d7da | `--colors-text-textPlaceholderSubtle` |
-| Colors/Text/text-brand-tertiary (600) | #7f56d9 | `--colors-text-textBrandTertiary-600` |
+| Colors/Text/text-brand-tertiary (600) | #6938ef | `--colors-text-textBrandTertiary-600` |
 | Colors/Text/text-quaternary (500) | #717680 | `--colors-text-textQuaternary-500` |
-| Colors/Text/text-brand-primary (900) | #42307d | `--colors-text-textBrandPrimary-900` |
+| Colors/Text/text-brand-primary (900) | #3e1c96 | `--colors-text-textBrandPrimary-900` |
 | Colors/Text/text-primary_on-brand | #ffffff | `--colors-text-textPrimaryOnBrand` |
-| Colors/Text/text-secondary_on-brand | #e9d7fe | `--colors-text-textSecondaryOnBrand` |
-| Colors/Text/text-tertiary_on-brand | #e9d7fe | `--colors-text-textTertiaryOnBrand` |
-| Colors/Text/text-quaternary_on-brand | #d6bbfb | `--colors-text-textQuaternaryOnBrand` |
-| Colors/Text/text-brand-tertiary_alt | #7f56d9 | `--colors-text-textBrandTertiaryAlt` |
+| Colors/Text/text-secondary_on-brand | #d9d6fe | `--colors-text-textSecondaryOnBrand` |
+| Colors/Text/text-tertiary_on-brand | #d9d6fe | `--colors-text-textTertiaryOnBrand` |
+| Colors/Text/text-quaternary_on-brand | #bdb4fe | `--colors-text-textQuaternaryOnBrand` |
+| Colors/Text/text-brand-tertiary_alt | #6938ef | `--colors-text-textBrandTertiaryAlt` |
 | Colors/Text/text-error-primary_hover | #b42318 | `--colors-text-textErrorPrimaryHover` |
 | Colors/Border/border-secondary | #e9eaeb | `--colors-border-borderSecondary` |
 | Colors/Border/border-error_subtle | #fda29b | `--colors-border-borderErrorSubtle` |
 | Colors/Border/border-primary | #d5d7da | `--colors-border-borderPrimary` |
-| Colors/Border/border-brand | #9e77ed | `--colors-border-borderBrand` |
+| Colors/Border/border-brand | #7a5af8 | `--colors-border-borderBrand` |
 | Colors/Border/border-disabled | #d5d7da | `--colors-border-borderDisabled` |
 | Colors/Border/border-error | #f04438 | `--colors-border-borderError` |
 | Colors/Border/border-disabled_subtle | #e9eaeb | `--colors-border-borderDisabledSubtle` |
 | Colors/Border/border-tertiary | #f5f5f5 | `--colors-border-borderTertiary` |
-| Colors/Border/border-brand_alt | #7f56d9 | `--colors-border-borderBrandAlt` |
+| Colors/Border/border-brand_alt | #6938ef | `--colors-border-borderBrandAlt` |
 | Colors/Border/border-secondary_alt | #00000014 | `--colors-border-borderSecondaryAlt` |
 | Colors/Background/bg-primary | #ffffff | `--colors-background-bgPrimary` |
 | Colors/Background/bg-tertiary | #f5f5f5 | `--colors-background-bgTertiary` |
-| Colors/Background/bg-brand-primary | #f9f5ff | `--colors-background-bgBrandPrimary` |
+| Colors/Background/bg-brand-primary | #f4f3ff | `--colors-background-bgBrandPrimary` |
 | Colors/Background/bg-error-secondary | #fee4e2 | `--colors-background-bgErrorSecondary` |
 | Colors/Background/bg-warning-primary | #fffaeb | `--colors-background-bgWarningPrimary` |
 | Colors/Background/bg-warning-secondary | #fef0c7 | `--colors-background-bgWarningSecondary` |
 | Colors/Background/bg-success-primary | #ecfdf3 | `--colors-background-bgSuccessPrimary` |
 | Colors/Background/bg-success-secondary | #dcfae6 | `--colors-background-bgSuccessSecondary` |
-| Colors/Background/bg-brand-solid | #7f56d9 | `--colors-background-bgBrandSolid` |
+| Colors/Background/bg-brand-solid | #6938ef | `--colors-background-bgBrandSolid` |
 | Colors/Background/bg-secondary-solid | #535862 | `--colors-background-bgSecondarySolid` |
 | Colors/Background/bg-error-solid | #d92d20 | `--colors-background-bgErrorSolid` |
 | Colors/Background/bg-warning-solid | #dc6803 | `--colors-background-bgWarningSolid` |
@@ -440,19 +440,19 @@
 | Colors/Background/bg-primary_hover | #fafafa | `--colors-background-bgPrimaryHover` |
 | Colors/Background/bg-disabled | #f5f5f5 | `--colors-background-bgDisabled` |
 | Colors/Background/bg-active | #fafafa | `--colors-background-bgActive` |
-| Colors/Background/bg-brand-solid_hover | #6941c6 | `--colors-background-bgBrandSolidHover` |
+| Colors/Background/bg-brand-solid_hover | #5925dc | `--colors-background-bgBrandSolidHover` |
 | Colors/Background/bg-error-primary | #fef3f2 | `--colors-background-bgErrorPrimary` |
-| Colors/Background/bg-brand-secondary | #f4ebff | `--colors-background-bgBrandSecondary` |
+| Colors/Background/bg-brand-secondary | #ebe9fe | `--colors-background-bgBrandSecondary` |
 | Colors/Background/bg-secondary | #fafafa | `--colors-background-bgSecondary` |
 | Colors/Background/bg-disabled_subtle | #fafafa | `--colors-background-bgDisabledSubtle` |
 | Colors/Background/bg-quaternary | #e9eaeb | `--colors-background-bgQuaternary` |
 | Colors/Background/bg-primary_alt | #ffffff | `--colors-background-bgPrimaryAlt` |
-| Colors/Background/bg-brand-primary_alt | #f9f5ff | `--colors-background-bgBrandPrimaryAlt` |
+| Colors/Background/bg-brand-primary_alt | #f4f3ff | `--colors-background-bgBrandPrimaryAlt` |
 | Colors/Background/bg-secondary_alt | #fafafa | `--colors-background-bgSecondaryAlt` |
 | Colors/Background/bg-overlay | #0a0d12 | `--colors-background-bgOverlay` |
 | Colors/Background/bg-secondary_subtle | #fdfdfd | `--colors-background-bgSecondarySubtle` |
-| Colors/Background/bg-brand-section | #53389e | `--colors-background-bgBrandSection` |
-| Colors/Background/bg-brand-section_subtle | #6941c6 | `--colors-background-bgBrandSectionSubtle` |
+| Colors/Background/bg-brand-section | #4a1fb8 | `--colors-background-bgBrandSection` |
+| Colors/Background/bg-brand-section_subtle | #5925dc | `--colors-background-bgBrandSectionSubtle` |
 | Colors/Background/bg-primary-solid | #0a0d12 | `--colors-background-bgPrimarySolid` |
 | Colors/Background/bg-error-solid_hover | #b42318 | `--colors-background-bgErrorSolidHover` |
 | Colors/Foreground/fg-secondary (700) | #414651 | `--colors-foreground-fgSecondary-700` |
@@ -463,8 +463,8 @@
 | Colors/Foreground/fg-secondary_hover | #252b37 | `--colors-foreground-fgSecondaryHover` |
 | Colors/Foreground/fg-primary (900) | #181d27 | `--colors-foreground-fgPrimary-900` |
 | Colors/Foreground/fg-disabled | #a4a7ae | `--colors-foreground-fgDisabled` |
-| Colors/Foreground/fg-brand-secondary (500) | #9e77ed | `--colors-foreground-fgBrandSecondary-500` |
-| Colors/Foreground/fg-brand-primary (600) | #7f56d9 | `--colors-foreground-fgBrandPrimary-600` |
+| Colors/Foreground/fg-brand-secondary (500) | #7a5af8 | `--colors-foreground-fgBrandSecondary-500` |
+| Colors/Foreground/fg-brand-primary (600) | #6938ef | `--colors-foreground-fgBrandPrimary-600` |
 | Colors/Foreground/fg-quaternary (400) | #a4a7ae | `--colors-foreground-fgQuaternary-400` |
 | Colors/Foreground/fg-quaternary_hover | #717680 | `--colors-foreground-fgQuaternaryHover` |
 | Colors/Foreground/fg-error-primary | #d92d20 | `--colors-foreground-fgErrorPrimary` |
@@ -473,9 +473,9 @@
 | Colors/Foreground/fg-error-secondary | #f04438 | `--colors-foreground-fgErrorSecondary` |
 | Colors/Foreground/fg-tertiary (600) | #535862 | `--colors-foreground-fgTertiary-600` |
 | Colors/Foreground/fg-tertiary_hover | #414651 | `--colors-foreground-fgTertiaryHover` |
-| Colors/Foreground/fg-brand-primary_alt | #7f56d9 | `--colors-foreground-fgBrandPrimaryAlt` |
-| Colors/Foreground/fg-brand-secondary_alt | #9e77ed | `--colors-foreground-fgBrandSecondaryAlt` |
-| Colors/Foreground/fg-brand-secondary_hover | #7f56d9 | `--colors-foreground-fgBrandSecondaryHover` |
+| Colors/Foreground/fg-brand-primary_alt | #6938ef | `--colors-foreground-fgBrandPrimaryAlt` |
+| Colors/Foreground/fg-brand-secondary_alt | #7a5af8 | `--colors-foreground-fgBrandSecondaryAlt` |
+| Colors/Foreground/fg-brand-secondary_hover | #6938ef | `--colors-foreground-fgBrandSecondaryHover` |
 | Colors/Effects/Shadows/shadow-xs | #0a0d120d | `--colors-effects-shadows-shadowXs` |
 | Colors/Effects/Shadows/shadow-sm_02 | #0a0d121a | `--colors-effects-shadows-shadowSm02` |
 | Colors/Effects/Shadows/shadow-lg_01 | #0a0d1214 | `--colors-effects-shadows-shadowLg01` |
@@ -497,7 +497,7 @@
 | Colors/Effects/Portfolio mockups/shadow-main-centre-lg | #0a0d122e | `--colors-effects-portfolioMockups-shadowMainCentreLg` |
 | Colors/Effects/Portfolio mockups/shadow-overlay-lg | #0a0d121f | `--colors-effects-portfolioMockups-shadowOverlayLg` |
 | Colors/Effects/Portfolio mockups/shadow-grid-md | #0a0d1214 | `--colors-effects-portfolioMockups-shadowGridMd` |
-| Colors/Effects/Focus rings/focus-ring | #9e77ed | `--colors-effects-focusRings-focusRing` |
+| Colors/Effects/Focus rings/focus-ring | #7a5af8 | `--colors-effects-focusRings-focusRing` |
 | Colors/Effects/Focus rings/focus-ring-error | #f04438 | `--colors-effects-focusRings-focusRingError` |
 
 ### Component Colors (195 tokens)
@@ -512,26 +512,26 @@
 | Component colors/Utility/Blue/utility-blue-100 | #d1e9ff | `--componentColors-utility-blue-utilityBlue100` |
 | Component colors/Utility/Blue/utility-blue-400 | #53b1fd | `--componentColors-utility-blue-utilityBlue400` |
 | Component colors/Utility/Blue/utility-blue-300 | #84caff | `--componentColors-utility-blue-utilityBlue300` |
-| Component colors/Utility/Brand/utility-brand-600 | #7f56d9 | `--componentColors-utility-brand-utilityBrand600` |
-| Component colors/Utility/Brand/utility-brand-700 | #6941c6 | `--componentColors-utility-brand-utilityBrand700` |
-| Component colors/Utility/Brand/utility-brand-500 | #9e77ed | `--componentColors-utility-brand-utilityBrand500` |
-| Component colors/Utility/Brand/utility-brand-200 | #e9d7fe | `--componentColors-utility-brand-utilityBrand200` |
-| Component colors/Utility/Brand/utility-brand-50 | #f9f5ff | `--componentColors-utility-brand-utilityBrand50` |
-| Component colors/Utility/Brand/utility-brand-100 | #f4ebff | `--componentColors-utility-brand-utilityBrand100` |
-| Component colors/Utility/Brand/utility-brand-400 | #b692f6 | `--componentColors-utility-brand-utilityBrand400` |
-| Component colors/Utility/Brand/utility-brand-50_alt | #f9f5ff | `--componentColors-utility-brand-utilityBrand50Alt` |
-| Component colors/Utility/Brand/utility-brand-100_alt | #f4ebff | `--componentColors-utility-brand-utilityBrand100Alt` |
-| Component colors/Utility/Brand/utility-brand-200_alt | #e9d7fe | `--componentColors-utility-brand-utilityBrand200Alt` |
-| Component colors/Utility/Brand/utility-brand-400_alt | #b692f6 | `--componentColors-utility-brand-utilityBrand400Alt` |
-| Component colors/Utility/Brand/utility-brand-500_alt | #9e77ed | `--componentColors-utility-brand-utilityBrand500Alt` |
-| Component colors/Utility/Brand/utility-brand-600_alt | #7f56d9 | `--componentColors-utility-brand-utilityBrand600Alt` |
-| Component colors/Utility/Brand/utility-brand-700_alt | #6941c6 | `--componentColors-utility-brand-utilityBrand700Alt` |
-| Component colors/Utility/Brand/utility-brand-300 | #d6bbfb | `--componentColors-utility-brand-utilityBrand300` |
-| Component colors/Utility/Brand/utility-brand-900 | #42307d | `--componentColors-utility-brand-utilityBrand900` |
-| Component colors/Utility/Brand/utility-brand-800 | #53389e | `--componentColors-utility-brand-utilityBrand800` |
-| Component colors/Utility/Brand/utility-brand-300_alt | #d6bbfb | `--componentColors-utility-brand-utilityBrand300Alt` |
-| Component colors/Utility/Brand/utility-brand-800_alt | #53389e | `--componentColors-utility-brand-utilityBrand800Alt` |
-| Component colors/Utility/Brand/utility-brand-900_alt | #42307d | `--componentColors-utility-brand-utilityBrand900Alt` |
+| Component colors/Utility/Brand/utility-brand-600 | #6938ef | `--componentColors-utility-brand-utilityBrand600` |
+| Component colors/Utility/Brand/utility-brand-700 | #5925dc | `--componentColors-utility-brand-utilityBrand700` |
+| Component colors/Utility/Brand/utility-brand-500 | #7a5af8 | `--componentColors-utility-brand-utilityBrand500` |
+| Component colors/Utility/Brand/utility-brand-200 | #d9d6fe | `--componentColors-utility-brand-utilityBrand200` |
+| Component colors/Utility/Brand/utility-brand-50 | #f4f3ff | `--componentColors-utility-brand-utilityBrand50` |
+| Component colors/Utility/Brand/utility-brand-100 | #ebe9fe | `--componentColors-utility-brand-utilityBrand100` |
+| Component colors/Utility/Brand/utility-brand-400 | #9b8afb | `--componentColors-utility-brand-utilityBrand400` |
+| Component colors/Utility/Brand/utility-brand-50_alt | #f4f3ff | `--componentColors-utility-brand-utilityBrand50Alt` |
+| Component colors/Utility/Brand/utility-brand-100_alt | #ebe9fe | `--componentColors-utility-brand-utilityBrand100Alt` |
+| Component colors/Utility/Brand/utility-brand-200_alt | #d9d6fe | `--componentColors-utility-brand-utilityBrand200Alt` |
+| Component colors/Utility/Brand/utility-brand-400_alt | #9b8afb | `--componentColors-utility-brand-utilityBrand400Alt` |
+| Component colors/Utility/Brand/utility-brand-500_alt | #7a5af8 | `--componentColors-utility-brand-utilityBrand500Alt` |
+| Component colors/Utility/Brand/utility-brand-600_alt | #6938ef | `--componentColors-utility-brand-utilityBrand600Alt` |
+| Component colors/Utility/Brand/utility-brand-700_alt | #5925dc | `--componentColors-utility-brand-utilityBrand700Alt` |
+| Component colors/Utility/Brand/utility-brand-300 | #bdb4fe | `--componentColors-utility-brand-utilityBrand300` |
+| Component colors/Utility/Brand/utility-brand-900 | #3e1c96 | `--componentColors-utility-brand-utilityBrand900` |
+| Component colors/Utility/Brand/utility-brand-800 | #4a1fb8 | `--componentColors-utility-brand-utilityBrand800` |
+| Component colors/Utility/Brand/utility-brand-300_alt | #bdb4fe | `--componentColors-utility-brand-utilityBrand300Alt` |
+| Component colors/Utility/Brand/utility-brand-800_alt | #4a1fb8 | `--componentColors-utility-brand-utilityBrand800Alt` |
+| Component colors/Utility/Brand/utility-brand-900_alt | #3e1c96 | `--componentColors-utility-brand-utilityBrand900Alt` |
 | Component colors/Utility/Gray/utility-gray-700 | #414651 | `--componentColors-utility-gray-utilityGray700` |
 | Component colors/Utility/Gray/utility-gray-600 | #535862 | `--componentColors-utility-gray-utilityGray600` |
 | Component colors/Utility/Gray/utility-gray-500 | #717680 | `--componentColors-utility-gray-utilityGray500` |
@@ -657,26 +657,26 @@
 | Component colors/Components/Tooltips/tooltip-supporting-text | #d5d7da | `--componentColors-components-tooltips-tooltipSupportingText` |
 | Component colors/Components/Text editor/text-editor-icon-fg | #a4a7ae | `--componentColors-components-textEditor-textEditorIconFg` |
 | Component colors/Components/Text editor/text-editor-icon-fg_active | #717680 | `--componentColors-components-textEditor-textEditorIconFgActive` |
-| Component colors/Components/Icons/Featured icons/featured-icon-light-fg-brand | #7f56d9 | `--componentColors-components-icons-featuredIcons-featuredIconLightFgBrand` |
+| Component colors/Components/Icons/Featured icons/featured-icon-light-fg-brand | #6938ef | `--componentColors-components-icons-featuredIcons-featuredIconLightFgBrand` |
 | Component colors/Components/Icons/Featured icons/featured-icon-light-fg-gray | #717680 | `--componentColors-components-icons-featuredIcons-featuredIconLightFgGray` |
 | Component colors/Components/Icons/Featured icons/featured-icon-light-fg-error | #d92d20 | `--componentColors-components-icons-featuredIcons-featuredIconLightFgError` |
 | Component colors/Components/Icons/Featured icons/featured-icon-light-fg-warning | #dc6803 | `--componentColors-components-icons-featuredIcons-featuredIconLightFgWarning` |
 | Component colors/Components/Icons/Featured icons/featured-icon-light-fg-success | #079455 | `--componentColors-components-icons-featuredIcons-featuredIconLightFgSuccess` |
-| Component colors/Components/Icons/Icons/icon-fg-brand | #7f56d9 | `--componentColors-components-icons-icons-iconFgBrand` |
-| Component colors/Components/Icons/Icons/icon-fg-brand_on-brand | #e9d7fe | `--componentColors-components-icons-icons-iconFgBrandOnBrand` |
-| Component colors/Components/Sliders/slider-handle-border | #7f56d9 | `--componentColors-components-sliders-sliderHandleBorder` |
+| Component colors/Components/Icons/Icons/icon-fg-brand | #6938ef | `--componentColors-components-icons-icons-iconFgBrand` |
+| Component colors/Components/Icons/Icons/icon-fg-brand_on-brand | #d9d6fe | `--componentColors-components-icons-icons-iconFgBrandOnBrand` |
+| Component colors/Components/Sliders/slider-handle-border | #6938ef | `--componentColors-components-sliders-sliderHandleBorder` |
 | Component colors/Components/Sliders/slider-handle-bg | #ffffff | `--componentColors-components-sliders-sliderHandleBg` |
 | Component colors/Components/Mockups/screen-mockup-border | #181d27 | `--componentColors-components-mockups-screenMockupBorder` |
-| Component colors/Components/Footers/footer-button-fg | #e9d7fe | `--componentColors-components-footers-footerButtonFg` |
+| Component colors/Components/Footers/footer-button-fg | #d9d6fe | `--componentColors-components-footers-footerButtonFg` |
 | Component colors/Components/Footers/footer-button-fg_hover | #ffffff | `--componentColors-components-footers-footerButtonFgHover` |
 | Component colors/Components/App store badges/app-store-badge-border | #a6a6a6 | `--componentColors-components-appStoreBadges-appStoreBadgeBorder` |
 | Component colors/Components/Toggles/toggle-button-fg_disabled | #fafafa | `--componentColors-components-toggles-toggleButtonFgDisabled` |
 | Component colors/Components/Toggles/toggle-border | #d5d7da | `--componentColors-components-toggles-toggleBorder` |
-| Component colors/Components/Toggles/toggle-slim-border_pressed | #7f56d9 | `--componentColors-components-toggles-toggleSlimBorderPressed` |
-| Component colors/Components/Toggles/toggle-slim-border_pressed-hover | #6941c6 | `--componentColors-components-toggles-toggleSlimBorderPressedHover` |
+| Component colors/Components/Toggles/toggle-slim-border_pressed | #6938ef | `--componentColors-components-toggles-toggleSlimBorderPressed` |
+| Component colors/Components/Toggles/toggle-slim-border_pressed-hover | #5925dc | `--componentColors-components-toggles-toggleSlimBorderPressedHover` |
 | Component colors/Components/Avatars/avatar-styles-bg-neutral | #e0e0e0 | `--componentColors-components-avatars-avatarStylesBgNeutral` |
-| Component colors/Components/Buttons/button-primary-icon | #d6bbfb | `--componentColors-components-buttons-buttonPrimaryIcon` |
-| Component colors/Components/Buttons/button-primary-icon_hover | #e9d7fe | `--componentColors-components-buttons-buttonPrimaryIconHover` |
+| Component colors/Components/Buttons/button-primary-icon | #bdb4fe | `--componentColors-components-buttons-buttonPrimaryIcon` |
+| Component colors/Components/Buttons/button-primary-icon_hover | #d9d6fe | `--componentColors-components-buttons-buttonPrimaryIconHover` |
 | Component colors/Components/Buttons/button-destructive-primary-icon | #fda29b | `--componentColors-components-buttons-buttonDestructivePrimaryIcon` |
 | Component colors/Components/Buttons/button-destructive-primary-icon_hover | #fecdca | `--componentColors-components-buttons-buttonDestructivePrimaryIconHover` |
 | Component colors/Alpha/alpha-white-90 | #ffffffe6 | `--componentColors-alpha-alphaWhite90` |
@@ -774,6 +774,17 @@
 
 | Token | Value | CSS Variable |
 |-------|-------|-------------|
+| fontSize/0 | 12 | `--fontSize-0` |
+| fontSize/1 | 14 | `--fontSize-1` |
+| fontSize/2 | 16 | `--fontSize-2` |
+| fontSize/3 | 18 | `--fontSize-3` |
+| fontSize/4 | 20 | `--fontSize-4` |
+| fontSize/5 | 24 | `--fontSize-5` |
+| fontSize/6 | 30 | `--fontSize-6` |
+| fontSize/7 | 36 | `--fontSize-7` |
+| fontSize/8 | 48 | `--fontSize-8` |
+| fontSize/9 | 60 | `--fontSize-9` |
+| fontSize/10 | 72 | `--fontSize-10` |
 | Font family/font-family-display | Pretendard | `--fontFamily-fontFamilyDisplay` |
 | Font family/font-family-body | Pretendard | `--fontFamily-fontFamilyBody` |
 | Font weight/regular | Regular | `--fontWeight-regular` |
@@ -819,6 +830,18 @@
 
 | Token | Value | CSS Variable |
 |-------|-------|-------------|
+| paragraphSpacing/0 | 12 | `--paragraphSpacing-0` |
+| paragraphSpacing/1 | 14 | `--paragraphSpacing-1` |
+| paragraphSpacing/2 | 16 | `--paragraphSpacing-2` |
+| paragraphSpacing/3 | 18 | `--paragraphSpacing-3` |
+| paragraphSpacing/4 | 20 | `--paragraphSpacing-4` |
+| paragraphSpacing/5 | 24 | `--paragraphSpacing-5` |
+| paragraphSpacing/6 | 30 | `--paragraphSpacing-6` |
+| paragraphSpacing/7 | 36 | `--paragraphSpacing-7` |
+| paragraphSpacing/8 | 48 | `--paragraphSpacing-8` |
+| paragraphSpacing/9 | 60 | `--paragraphSpacing-9` |
+| paragraphSpacing/10 | 72 | `--paragraphSpacing-10` |
+| paragraphIndent/0 | 0px | `--paragraphIndent-0` |
 | width-xxs | 320 | `--widthXxs` |
 | width-sm | 480 | `--widthSm` |
 | width-lg | 640 | `--widthLg` |
