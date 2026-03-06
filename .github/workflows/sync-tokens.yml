@@ -23,10 +23,10 @@ jobs:
         run: |
           mkdir -p /tmp/ds-build
           curl -sL https://raw.githubusercontent.com/stresslee/design-system/main/tokens.json -o /tmp/ds-build/tokens.json
-          curl -sL https://raw.githubusercontent.com/stresslee/design-system/main/sync-to-agent.js -o /tmp/ds-build/sync-to-agent.js
+          curl -sL https://raw.githubusercontent.com/stresslee/design-system/main/sync-to-agent.js -o /tmp/ds-build/sync-to-agent.mjs
 
       - name: Generate DESIGN_TOKENS.md and TOKEN_MAP.json
-        run: node /tmp/ds-build/sync-to-agent.js --out $GITHUB_WORKSPACE/ds
+        run: node /tmp/ds-build/sync-to-agent.mjs --out $GITHUB_WORKSPACE/ds
 
       - name: Commit updated tokens
         run: |

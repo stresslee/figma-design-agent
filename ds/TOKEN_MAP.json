@@ -1,0 +1,3927 @@
+{
+  "--colors-base-white": {
+    "figmaPath": "Colors/Base/white",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--colors-base-black": {
+    "figmaPath": "Colors/Base/black",
+    "value": "#000000",
+    "type": "COLOR"
+  },
+  "--colors-base-transparent": {
+    "figmaPath": "Colors/Base/transparent",
+    "value": "#ffffff00",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-25": {
+    "figmaPath": "Colors/Gray (light mode)/25",
+    "value": "#fdfdfd",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-50": {
+    "figmaPath": "Colors/Gray (light mode)/50",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-100": {
+    "figmaPath": "Colors/Gray (light mode)/100",
+    "value": "#f5f5f5",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-200": {
+    "figmaPath": "Colors/Gray (light mode)/200",
+    "value": "#e9eaeb",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-300": {
+    "figmaPath": "Colors/Gray (light mode)/300",
+    "value": "#d5d7da",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-400": {
+    "figmaPath": "Colors/Gray (light mode)/400",
+    "value": "#a4a7ae",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-500": {
+    "figmaPath": "Colors/Gray (light mode)/500",
+    "value": "#717680",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-600": {
+    "figmaPath": "Colors/Gray (light mode)/600",
+    "value": "#535862",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-700": {
+    "figmaPath": "Colors/Gray (light mode)/700",
+    "value": "#414651",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-800": {
+    "figmaPath": "Colors/Gray (light mode)/800",
+    "value": "#252b37",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-900": {
+    "figmaPath": "Colors/Gray (light mode)/900",
+    "value": "#181d27",
+    "type": "COLOR"
+  },
+  "--colors-grayLightMode-950": {
+    "figmaPath": "Colors/Gray (light mode)/950",
+    "value": "#0a0d12",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-25": {
+    "figmaPath": "Colors/Gray blue/25",
+    "value": "#fcfcfd",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-50": {
+    "figmaPath": "Colors/Gray blue/50",
+    "value": "#f8f9fc",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-100": {
+    "figmaPath": "Colors/Gray blue/100",
+    "value": "#eaecf5",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-200": {
+    "figmaPath": "Colors/Gray blue/200",
+    "value": "#d5d9eb",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-300": {
+    "figmaPath": "Colors/Gray blue/300",
+    "value": "#b3b8db",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-400": {
+    "figmaPath": "Colors/Gray blue/400",
+    "value": "#717bbc",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-500": {
+    "figmaPath": "Colors/Gray blue/500",
+    "value": "#4e5ba6",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-600": {
+    "figmaPath": "Colors/Gray blue/600",
+    "value": "#3e4784",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-700": {
+    "figmaPath": "Colors/Gray blue/700",
+    "value": "#363f72",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-800": {
+    "figmaPath": "Colors/Gray blue/800",
+    "value": "#293056",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-900": {
+    "figmaPath": "Colors/Gray blue/900",
+    "value": "#101323",
+    "type": "COLOR"
+  },
+  "--colors-grayBlue-950": {
+    "figmaPath": "Colors/Gray blue/950",
+    "value": "#0d0f1c",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-25": {
+    "figmaPath": "Colors/Gray cool/25",
+    "value": "#fcfcfd",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-50": {
+    "figmaPath": "Colors/Gray cool/50",
+    "value": "#f9f9fb",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-100": {
+    "figmaPath": "Colors/Gray cool/100",
+    "value": "#eff1f5",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-200": {
+    "figmaPath": "Colors/Gray cool/200",
+    "value": "#dcdfea",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-300": {
+    "figmaPath": "Colors/Gray cool/300",
+    "value": "#b9c0d4",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-400": {
+    "figmaPath": "Colors/Gray cool/400",
+    "value": "#7d89b0",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-500": {
+    "figmaPath": "Colors/Gray cool/500",
+    "value": "#5d6b98",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-600": {
+    "figmaPath": "Colors/Gray cool/600",
+    "value": "#4a5578",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-700": {
+    "figmaPath": "Colors/Gray cool/700",
+    "value": "#404968",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-800": {
+    "figmaPath": "Colors/Gray cool/800",
+    "value": "#30374f",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-900": {
+    "figmaPath": "Colors/Gray cool/900",
+    "value": "#111322",
+    "type": "COLOR"
+  },
+  "--colors-grayCool-950": {
+    "figmaPath": "Colors/Gray cool/950",
+    "value": "#0e101b",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-25": {
+    "figmaPath": "Colors/Gray modern/25",
+    "value": "#fcfcfd",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-50": {
+    "figmaPath": "Colors/Gray modern/50",
+    "value": "#f8fafc",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-100": {
+    "figmaPath": "Colors/Gray modern/100",
+    "value": "#eef2f6",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-200": {
+    "figmaPath": "Colors/Gray modern/200",
+    "value": "#e3e8ef",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-300": {
+    "figmaPath": "Colors/Gray modern/300",
+    "value": "#cdd5df",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-400": {
+    "figmaPath": "Colors/Gray modern/400",
+    "value": "#9aa4b2",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-500": {
+    "figmaPath": "Colors/Gray modern/500",
+    "value": "#697586",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-600": {
+    "figmaPath": "Colors/Gray modern/600",
+    "value": "#4b5565",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-700": {
+    "figmaPath": "Colors/Gray modern/700",
+    "value": "#364152",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-800": {
+    "figmaPath": "Colors/Gray modern/800",
+    "value": "#202939",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-900": {
+    "figmaPath": "Colors/Gray modern/900",
+    "value": "#121926",
+    "type": "COLOR"
+  },
+  "--colors-grayModern-950": {
+    "figmaPath": "Colors/Gray modern/950",
+    "value": "#0d121c",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-25": {
+    "figmaPath": "Colors/Gray neutral/25",
+    "value": "#fcfcfd",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-50": {
+    "figmaPath": "Colors/Gray neutral/50",
+    "value": "#f9fafb",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-100": {
+    "figmaPath": "Colors/Gray neutral/100",
+    "value": "#f3f4f6",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-200": {
+    "figmaPath": "Colors/Gray neutral/200",
+    "value": "#e5e7eb",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-300": {
+    "figmaPath": "Colors/Gray neutral/300",
+    "value": "#d2d6db",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-400": {
+    "figmaPath": "Colors/Gray neutral/400",
+    "value": "#9da4ae",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-500": {
+    "figmaPath": "Colors/Gray neutral/500",
+    "value": "#6c737f",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-600": {
+    "figmaPath": "Colors/Gray neutral/600",
+    "value": "#4d5761",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-700": {
+    "figmaPath": "Colors/Gray neutral/700",
+    "value": "#384250",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-800": {
+    "figmaPath": "Colors/Gray neutral/800",
+    "value": "#1f2a37",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-900": {
+    "figmaPath": "Colors/Gray neutral/900",
+    "value": "#111927",
+    "type": "COLOR"
+  },
+  "--colors-grayNeutral-950": {
+    "figmaPath": "Colors/Gray neutral/950",
+    "value": "#0d121c",
+    "type": "COLOR"
+  },
+  "--colors-brand-25": {
+    "figmaPath": "Colors/Brand/25",
+    "value": "#fcfaff",
+    "type": "COLOR"
+  },
+  "--colors-brand-50": {
+    "figmaPath": "Colors/Brand/50",
+    "value": "#f9f5ff",
+    "type": "COLOR"
+  },
+  "--colors-brand-100": {
+    "figmaPath": "Colors/Brand/100",
+    "value": "#f4ebff",
+    "type": "COLOR"
+  },
+  "--colors-brand-200": {
+    "figmaPath": "Colors/Brand/200",
+    "value": "#e9d7fe",
+    "type": "COLOR"
+  },
+  "--colors-brand-300": {
+    "figmaPath": "Colors/Brand/300",
+    "value": "#d6bbfb",
+    "type": "COLOR"
+  },
+  "--colors-brand-400": {
+    "figmaPath": "Colors/Brand/400",
+    "value": "#b692f6",
+    "type": "COLOR"
+  },
+  "--colors-brand-500": {
+    "figmaPath": "Colors/Brand/500",
+    "value": "#9e77ed",
+    "type": "COLOR"
+  },
+  "--colors-brand-600": {
+    "figmaPath": "Colors/Brand/600",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--colors-brand-700": {
+    "figmaPath": "Colors/Brand/700",
+    "value": "#6941c6",
+    "type": "COLOR"
+  },
+  "--colors-brand-800": {
+    "figmaPath": "Colors/Brand/800",
+    "value": "#53389e",
+    "type": "COLOR"
+  },
+  "--colors-brand-900": {
+    "figmaPath": "Colors/Brand/900",
+    "value": "#42307d",
+    "type": "COLOR"
+  },
+  "--colors-brand-950": {
+    "figmaPath": "Colors/Brand/950",
+    "value": "#2c1c5f",
+    "type": "COLOR"
+  },
+  "--colors-error-25": {
+    "figmaPath": "Colors/Error/25",
+    "value": "#fffbfa",
+    "type": "COLOR"
+  },
+  "--colors-error-50": {
+    "figmaPath": "Colors/Error/50",
+    "value": "#fef3f2",
+    "type": "COLOR"
+  },
+  "--colors-error-100": {
+    "figmaPath": "Colors/Error/100",
+    "value": "#fee4e2",
+    "type": "COLOR"
+  },
+  "--colors-error-200": {
+    "figmaPath": "Colors/Error/200",
+    "value": "#fecdca",
+    "type": "COLOR"
+  },
+  "--colors-error-300": {
+    "figmaPath": "Colors/Error/300",
+    "value": "#fda29b",
+    "type": "COLOR"
+  },
+  "--colors-error-400": {
+    "figmaPath": "Colors/Error/400",
+    "value": "#f97066",
+    "type": "COLOR"
+  },
+  "--colors-error-500": {
+    "figmaPath": "Colors/Error/500",
+    "value": "#f04438",
+    "type": "COLOR"
+  },
+  "--colors-error-600": {
+    "figmaPath": "Colors/Error/600",
+    "value": "#d92d20",
+    "type": "COLOR"
+  },
+  "--colors-error-700": {
+    "figmaPath": "Colors/Error/700",
+    "value": "#b42318",
+    "type": "COLOR"
+  },
+  "--colors-error-800": {
+    "figmaPath": "Colors/Error/800",
+    "value": "#912018",
+    "type": "COLOR"
+  },
+  "--colors-error-900": {
+    "figmaPath": "Colors/Error/900",
+    "value": "#7a271a",
+    "type": "COLOR"
+  },
+  "--colors-error-950": {
+    "figmaPath": "Colors/Error/950",
+    "value": "#55160c",
+    "type": "COLOR"
+  },
+  "--colors-warning-25": {
+    "figmaPath": "Colors/Warning/25",
+    "value": "#fffcf5",
+    "type": "COLOR"
+  },
+  "--colors-warning-50": {
+    "figmaPath": "Colors/Warning/50",
+    "value": "#fffaeb",
+    "type": "COLOR"
+  },
+  "--colors-warning-100": {
+    "figmaPath": "Colors/Warning/100",
+    "value": "#fef0c7",
+    "type": "COLOR"
+  },
+  "--colors-warning-200": {
+    "figmaPath": "Colors/Warning/200",
+    "value": "#fedf89",
+    "type": "COLOR"
+  },
+  "--colors-warning-300": {
+    "figmaPath": "Colors/Warning/300",
+    "value": "#fec84b",
+    "type": "COLOR"
+  },
+  "--colors-warning-400": {
+    "figmaPath": "Colors/Warning/400",
+    "value": "#fdb022",
+    "type": "COLOR"
+  },
+  "--colors-warning-500": {
+    "figmaPath": "Colors/Warning/500",
+    "value": "#f79009",
+    "type": "COLOR"
+  },
+  "--colors-warning-600": {
+    "figmaPath": "Colors/Warning/600",
+    "value": "#dc6803",
+    "type": "COLOR"
+  },
+  "--colors-warning-700": {
+    "figmaPath": "Colors/Warning/700",
+    "value": "#b54708",
+    "type": "COLOR"
+  },
+  "--colors-warning-800": {
+    "figmaPath": "Colors/Warning/800",
+    "value": "#93370d",
+    "type": "COLOR"
+  },
+  "--colors-warning-900": {
+    "figmaPath": "Colors/Warning/900",
+    "value": "#7a2e0e",
+    "type": "COLOR"
+  },
+  "--colors-warning-950": {
+    "figmaPath": "Colors/Warning/950",
+    "value": "#4e1d09",
+    "type": "COLOR"
+  },
+  "--colors-success-25": {
+    "figmaPath": "Colors/Success/25",
+    "value": "#f6fef9",
+    "type": "COLOR"
+  },
+  "--colors-success-50": {
+    "figmaPath": "Colors/Success/50",
+    "value": "#ecfdf3",
+    "type": "COLOR"
+  },
+  "--colors-success-100": {
+    "figmaPath": "Colors/Success/100",
+    "value": "#dcfae6",
+    "type": "COLOR"
+  },
+  "--colors-success-200": {
+    "figmaPath": "Colors/Success/200",
+    "value": "#abefc6",
+    "type": "COLOR"
+  },
+  "--colors-success-300": {
+    "figmaPath": "Colors/Success/300",
+    "value": "#75e0a7",
+    "type": "COLOR"
+  },
+  "--colors-success-400": {
+    "figmaPath": "Colors/Success/400",
+    "value": "#47cd89",
+    "type": "COLOR"
+  },
+  "--colors-success-500": {
+    "figmaPath": "Colors/Success/500",
+    "value": "#17b26a",
+    "type": "COLOR"
+  },
+  "--colors-success-600": {
+    "figmaPath": "Colors/Success/600",
+    "value": "#079455",
+    "type": "COLOR"
+  },
+  "--colors-success-700": {
+    "figmaPath": "Colors/Success/700",
+    "value": "#067647",
+    "type": "COLOR"
+  },
+  "--colors-success-800": {
+    "figmaPath": "Colors/Success/800",
+    "value": "#085d3a",
+    "type": "COLOR"
+  },
+  "--colors-success-900": {
+    "figmaPath": "Colors/Success/900",
+    "value": "#074d31",
+    "type": "COLOR"
+  },
+  "--colors-success-950": {
+    "figmaPath": "Colors/Success/950",
+    "value": "#053321",
+    "type": "COLOR"
+  },
+  "--colors-green-25": {
+    "figmaPath": "Colors/Green/25",
+    "value": "#f6fef9",
+    "type": "COLOR"
+  },
+  "--colors-green-50": {
+    "figmaPath": "Colors/Green/50",
+    "value": "#edfcf2",
+    "type": "COLOR"
+  },
+  "--colors-green-100": {
+    "figmaPath": "Colors/Green/100",
+    "value": "#d3f8df",
+    "type": "COLOR"
+  },
+  "--colors-green-200": {
+    "figmaPath": "Colors/Green/200",
+    "value": "#aaf0c4",
+    "type": "COLOR"
+  },
+  "--colors-green-300": {
+    "figmaPath": "Colors/Green/300",
+    "value": "#73e2a3",
+    "type": "COLOR"
+  },
+  "--colors-green-400": {
+    "figmaPath": "Colors/Green/400",
+    "value": "#3ccb7f",
+    "type": "COLOR"
+  },
+  "--colors-green-500": {
+    "figmaPath": "Colors/Green/500",
+    "value": "#16b364",
+    "type": "COLOR"
+  },
+  "--colors-green-600": {
+    "figmaPath": "Colors/Green/600",
+    "value": "#099250",
+    "type": "COLOR"
+  },
+  "--colors-green-700": {
+    "figmaPath": "Colors/Green/700",
+    "value": "#087443",
+    "type": "COLOR"
+  },
+  "--colors-green-800": {
+    "figmaPath": "Colors/Green/800",
+    "value": "#095c37",
+    "type": "COLOR"
+  },
+  "--colors-green-900": {
+    "figmaPath": "Colors/Green/900",
+    "value": "#084c2e",
+    "type": "COLOR"
+  },
+  "--colors-green-950": {
+    "figmaPath": "Colors/Green/950",
+    "value": "#052e1c",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-25": {
+    "figmaPath": "Colors/Gray iron/25",
+    "value": "#fcfcfc",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-50": {
+    "figmaPath": "Colors/Gray iron/50",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-100": {
+    "figmaPath": "Colors/Gray iron/100",
+    "value": "#f4f4f5",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-200": {
+    "figmaPath": "Colors/Gray iron/200",
+    "value": "#e4e4e7",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-300": {
+    "figmaPath": "Colors/Gray iron/300",
+    "value": "#d1d1d6",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-400": {
+    "figmaPath": "Colors/Gray iron/400",
+    "value": "#a0a0ab",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-500": {
+    "figmaPath": "Colors/Gray iron/500",
+    "value": "#70707b",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-600": {
+    "figmaPath": "Colors/Gray iron/600",
+    "value": "#51525c",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-700": {
+    "figmaPath": "Colors/Gray iron/700",
+    "value": "#3f3f46",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-800": {
+    "figmaPath": "Colors/Gray iron/800",
+    "value": "#26272b",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-900": {
+    "figmaPath": "Colors/Gray iron/900",
+    "value": "#1a1a1e",
+    "type": "COLOR"
+  },
+  "--colors-grayIron-950": {
+    "figmaPath": "Colors/Gray iron/950",
+    "value": "#131316",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-25": {
+    "figmaPath": "Colors/Gray true/25",
+    "value": "#fcfcfc",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-50": {
+    "figmaPath": "Colors/Gray true/50",
+    "value": "#f7f7f7",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-100": {
+    "figmaPath": "Colors/Gray true/100",
+    "value": "#f5f5f5",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-200": {
+    "figmaPath": "Colors/Gray true/200",
+    "value": "#e5e5e5",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-300": {
+    "figmaPath": "Colors/Gray true/300",
+    "value": "#d6d6d6",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-400": {
+    "figmaPath": "Colors/Gray true/400",
+    "value": "#a3a3a3",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-500": {
+    "figmaPath": "Colors/Gray true/500",
+    "value": "#737373",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-600": {
+    "figmaPath": "Colors/Gray true/600",
+    "value": "#525252",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-700": {
+    "figmaPath": "Colors/Gray true/700",
+    "value": "#424242",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-800": {
+    "figmaPath": "Colors/Gray true/800",
+    "value": "#292929",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-900": {
+    "figmaPath": "Colors/Gray true/900",
+    "value": "#141414",
+    "type": "COLOR"
+  },
+  "--colors-grayTrue-950": {
+    "figmaPath": "Colors/Gray true/950",
+    "value": "#0f0f0f",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-25": {
+    "figmaPath": "Colors/Gray warm/25",
+    "value": "#fdfdfc",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-50": {
+    "figmaPath": "Colors/Gray warm/50",
+    "value": "#fafaf9",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-100": {
+    "figmaPath": "Colors/Gray warm/100",
+    "value": "#f5f5f4",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-200": {
+    "figmaPath": "Colors/Gray warm/200",
+    "value": "#e7e5e4",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-300": {
+    "figmaPath": "Colors/Gray warm/300",
+    "value": "#d7d3d0",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-400": {
+    "figmaPath": "Colors/Gray warm/400",
+    "value": "#a9a29d",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-500": {
+    "figmaPath": "Colors/Gray warm/500",
+    "value": "#79716b",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-600": {
+    "figmaPath": "Colors/Gray warm/600",
+    "value": "#57534e",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-700": {
+    "figmaPath": "Colors/Gray warm/700",
+    "value": "#44403c",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-800": {
+    "figmaPath": "Colors/Gray warm/800",
+    "value": "#292524",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-900": {
+    "figmaPath": "Colors/Gray warm/900",
+    "value": "#1c1917",
+    "type": "COLOR"
+  },
+  "--colors-grayWarm-950": {
+    "figmaPath": "Colors/Gray warm/950",
+    "value": "#171412",
+    "type": "COLOR"
+  },
+  "--colors-moss-25": {
+    "figmaPath": "Colors/Moss/25",
+    "value": "#fafdf7",
+    "type": "COLOR"
+  },
+  "--colors-moss-50": {
+    "figmaPath": "Colors/Moss/50",
+    "value": "#f5fbee",
+    "type": "COLOR"
+  },
+  "--colors-moss-100": {
+    "figmaPath": "Colors/Moss/100",
+    "value": "#e6f4d7",
+    "type": "COLOR"
+  },
+  "--colors-moss-200": {
+    "figmaPath": "Colors/Moss/200",
+    "value": "#ceeab0",
+    "type": "COLOR"
+  },
+  "--colors-moss-300": {
+    "figmaPath": "Colors/Moss/300",
+    "value": "#acdc79",
+    "type": "COLOR"
+  },
+  "--colors-moss-400": {
+    "figmaPath": "Colors/Moss/400",
+    "value": "#86cb3c",
+    "type": "COLOR"
+  },
+  "--colors-moss-500": {
+    "figmaPath": "Colors/Moss/500",
+    "value": "#669f2a",
+    "type": "COLOR"
+  },
+  "--colors-moss-600": {
+    "figmaPath": "Colors/Moss/600",
+    "value": "#4f7a21",
+    "type": "COLOR"
+  },
+  "--colors-moss-700": {
+    "figmaPath": "Colors/Moss/700",
+    "value": "#3f621a",
+    "type": "COLOR"
+  },
+  "--colors-moss-800": {
+    "figmaPath": "Colors/Moss/800",
+    "value": "#335015",
+    "type": "COLOR"
+  },
+  "--colors-moss-900": {
+    "figmaPath": "Colors/Moss/900",
+    "value": "#2b4212",
+    "type": "COLOR"
+  },
+  "--colors-moss-950": {
+    "figmaPath": "Colors/Moss/950",
+    "value": "#1a280b",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-25": {
+    "figmaPath": "Colors/Green light/25",
+    "value": "#fafef5",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-50": {
+    "figmaPath": "Colors/Green light/50",
+    "value": "#f3fee7",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-100": {
+    "figmaPath": "Colors/Green light/100",
+    "value": "#e3fbcc",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-200": {
+    "figmaPath": "Colors/Green light/200",
+    "value": "#d0f8ab",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-300": {
+    "figmaPath": "Colors/Green light/300",
+    "value": "#a6ef67",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-400": {
+    "figmaPath": "Colors/Green light/400",
+    "value": "#85e13a",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-500": {
+    "figmaPath": "Colors/Green light/500",
+    "value": "#66c61c",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-600": {
+    "figmaPath": "Colors/Green light/600",
+    "value": "#4ca30d",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-700": {
+    "figmaPath": "Colors/Green light/700",
+    "value": "#3b7c0f",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-800": {
+    "figmaPath": "Colors/Green light/800",
+    "value": "#326212",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-900": {
+    "figmaPath": "Colors/Green light/900",
+    "value": "#2b5314",
+    "type": "COLOR"
+  },
+  "--colors-greenLight-950": {
+    "figmaPath": "Colors/Green light/950",
+    "value": "#15290a",
+    "type": "COLOR"
+  },
+  "--colors-teal-25": {
+    "figmaPath": "Colors/Teal/25",
+    "value": "#f6fefc",
+    "type": "COLOR"
+  },
+  "--colors-teal-50": {
+    "figmaPath": "Colors/Teal/50",
+    "value": "#f0fdf9",
+    "type": "COLOR"
+  },
+  "--colors-teal-100": {
+    "figmaPath": "Colors/Teal/100",
+    "value": "#ccfbef",
+    "type": "COLOR"
+  },
+  "--colors-teal-200": {
+    "figmaPath": "Colors/Teal/200",
+    "value": "#99f6e0",
+    "type": "COLOR"
+  },
+  "--colors-teal-300": {
+    "figmaPath": "Colors/Teal/300",
+    "value": "#5fe9d0",
+    "type": "COLOR"
+  },
+  "--colors-teal-400": {
+    "figmaPath": "Colors/Teal/400",
+    "value": "#2ed3b7",
+    "type": "COLOR"
+  },
+  "--colors-teal-500": {
+    "figmaPath": "Colors/Teal/500",
+    "value": "#15b79e",
+    "type": "COLOR"
+  },
+  "--colors-teal-600": {
+    "figmaPath": "Colors/Teal/600",
+    "value": "#0e9384",
+    "type": "COLOR"
+  },
+  "--colors-teal-700": {
+    "figmaPath": "Colors/Teal/700",
+    "value": "#107569",
+    "type": "COLOR"
+  },
+  "--colors-teal-800": {
+    "figmaPath": "Colors/Teal/800",
+    "value": "#125d56",
+    "type": "COLOR"
+  },
+  "--colors-teal-900": {
+    "figmaPath": "Colors/Teal/900",
+    "value": "#134e48",
+    "type": "COLOR"
+  },
+  "--colors-teal-950": {
+    "figmaPath": "Colors/Teal/950",
+    "value": "#0a2926",
+    "type": "COLOR"
+  },
+  "--colors-cyan-25": {
+    "figmaPath": "Colors/Cyan/25",
+    "value": "#f5feff",
+    "type": "COLOR"
+  },
+  "--colors-cyan-50": {
+    "figmaPath": "Colors/Cyan/50",
+    "value": "#ecfdff",
+    "type": "COLOR"
+  },
+  "--colors-cyan-100": {
+    "figmaPath": "Colors/Cyan/100",
+    "value": "#cff9fe",
+    "type": "COLOR"
+  },
+  "--colors-cyan-200": {
+    "figmaPath": "Colors/Cyan/200",
+    "value": "#a5f0fc",
+    "type": "COLOR"
+  },
+  "--colors-cyan-300": {
+    "figmaPath": "Colors/Cyan/300",
+    "value": "#67e3f9",
+    "type": "COLOR"
+  },
+  "--colors-cyan-400": {
+    "figmaPath": "Colors/Cyan/400",
+    "value": "#22ccee",
+    "type": "COLOR"
+  },
+  "--colors-cyan-500": {
+    "figmaPath": "Colors/Cyan/500",
+    "value": "#06aed4",
+    "type": "COLOR"
+  },
+  "--colors-cyan-600": {
+    "figmaPath": "Colors/Cyan/600",
+    "value": "#088ab2",
+    "type": "COLOR"
+  },
+  "--colors-cyan-700": {
+    "figmaPath": "Colors/Cyan/700",
+    "value": "#0e7090",
+    "type": "COLOR"
+  },
+  "--colors-cyan-800": {
+    "figmaPath": "Colors/Cyan/800",
+    "value": "#155b75",
+    "type": "COLOR"
+  },
+  "--colors-cyan-900": {
+    "figmaPath": "Colors/Cyan/900",
+    "value": "#164c63",
+    "type": "COLOR"
+  },
+  "--colors-cyan-950": {
+    "figmaPath": "Colors/Cyan/950",
+    "value": "#0d2d3a",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-25": {
+    "figmaPath": "Colors/Blue light/25",
+    "value": "#f5fbff",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-50": {
+    "figmaPath": "Colors/Blue light/50",
+    "value": "#f0f9ff",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-100": {
+    "figmaPath": "Colors/Blue light/100",
+    "value": "#e0f2fe",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-200": {
+    "figmaPath": "Colors/Blue light/200",
+    "value": "#b9e6fe",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-300": {
+    "figmaPath": "Colors/Blue light/300",
+    "value": "#7cd4fd",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-400": {
+    "figmaPath": "Colors/Blue light/400",
+    "value": "#36bffa",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-500": {
+    "figmaPath": "Colors/Blue light/500",
+    "value": "#0ba5ec",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-600": {
+    "figmaPath": "Colors/Blue light/600",
+    "value": "#0086c9",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-700": {
+    "figmaPath": "Colors/Blue light/700",
+    "value": "#026aa2",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-800": {
+    "figmaPath": "Colors/Blue light/800",
+    "value": "#065986",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-900": {
+    "figmaPath": "Colors/Blue light/900",
+    "value": "#0b4a6f",
+    "type": "COLOR"
+  },
+  "--colors-blueLight-950": {
+    "figmaPath": "Colors/Blue light/950",
+    "value": "#062c41",
+    "type": "COLOR"
+  },
+  "--colors-blue-25": {
+    "figmaPath": "Colors/Blue/25",
+    "value": "#f5faff",
+    "type": "COLOR"
+  },
+  "--colors-blue-50": {
+    "figmaPath": "Colors/Blue/50",
+    "value": "#eff8ff",
+    "type": "COLOR"
+  },
+  "--colors-blue-100": {
+    "figmaPath": "Colors/Blue/100",
+    "value": "#d1e9ff",
+    "type": "COLOR"
+  },
+  "--colors-blue-200": {
+    "figmaPath": "Colors/Blue/200",
+    "value": "#b2ddff",
+    "type": "COLOR"
+  },
+  "--colors-blue-300": {
+    "figmaPath": "Colors/Blue/300",
+    "value": "#84caff",
+    "type": "COLOR"
+  },
+  "--colors-blue-400": {
+    "figmaPath": "Colors/Blue/400",
+    "value": "#53b1fd",
+    "type": "COLOR"
+  },
+  "--colors-blue-500": {
+    "figmaPath": "Colors/Blue/500",
+    "value": "#2e90fa",
+    "type": "COLOR"
+  },
+  "--colors-blue-600": {
+    "figmaPath": "Colors/Blue/600",
+    "value": "#1570ef",
+    "type": "COLOR"
+  },
+  "--colors-blue-700": {
+    "figmaPath": "Colors/Blue/700",
+    "value": "#175cd3",
+    "type": "COLOR"
+  },
+  "--colors-blue-800": {
+    "figmaPath": "Colors/Blue/800",
+    "value": "#1849a9",
+    "type": "COLOR"
+  },
+  "--colors-blue-900": {
+    "figmaPath": "Colors/Blue/900",
+    "value": "#194185",
+    "type": "COLOR"
+  },
+  "--colors-blue-950": {
+    "figmaPath": "Colors/Blue/950",
+    "value": "#102a56",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-25": {
+    "figmaPath": "Colors/Blue dark/25",
+    "value": "#f5f8ff",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-50": {
+    "figmaPath": "Colors/Blue dark/50",
+    "value": "#eff4ff",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-100": {
+    "figmaPath": "Colors/Blue dark/100",
+    "value": "#d1e0ff",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-200": {
+    "figmaPath": "Colors/Blue dark/200",
+    "value": "#b2ccff",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-300": {
+    "figmaPath": "Colors/Blue dark/300",
+    "value": "#84adff",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-400": {
+    "figmaPath": "Colors/Blue dark/400",
+    "value": "#528bff",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-500": {
+    "figmaPath": "Colors/Blue dark/500",
+    "value": "#2970ff",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-600": {
+    "figmaPath": "Colors/Blue dark/600",
+    "value": "#155eef",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-700": {
+    "figmaPath": "Colors/Blue dark/700",
+    "value": "#004eeb",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-800": {
+    "figmaPath": "Colors/Blue dark/800",
+    "value": "#0040c1",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-900": {
+    "figmaPath": "Colors/Blue dark/900",
+    "value": "#00359e",
+    "type": "COLOR"
+  },
+  "--colors-blueDark-950": {
+    "figmaPath": "Colors/Blue dark/950",
+    "value": "#002266",
+    "type": "COLOR"
+  },
+  "--colors-indigo-25": {
+    "figmaPath": "Colors/Indigo/25",
+    "value": "#f5f8ff",
+    "type": "COLOR"
+  },
+  "--colors-indigo-50": {
+    "figmaPath": "Colors/Indigo/50",
+    "value": "#eef4ff",
+    "type": "COLOR"
+  },
+  "--colors-indigo-100": {
+    "figmaPath": "Colors/Indigo/100",
+    "value": "#e0eaff",
+    "type": "COLOR"
+  },
+  "--colors-indigo-200": {
+    "figmaPath": "Colors/Indigo/200",
+    "value": "#c7d7fe",
+    "type": "COLOR"
+  },
+  "--colors-indigo-300": {
+    "figmaPath": "Colors/Indigo/300",
+    "value": "#a4bcfd",
+    "type": "COLOR"
+  },
+  "--colors-indigo-400": {
+    "figmaPath": "Colors/Indigo/400",
+    "value": "#8098f9",
+    "type": "COLOR"
+  },
+  "--colors-indigo-500": {
+    "figmaPath": "Colors/Indigo/500",
+    "value": "#6172f3",
+    "type": "COLOR"
+  },
+  "--colors-indigo-600": {
+    "figmaPath": "Colors/Indigo/600",
+    "value": "#444ce7",
+    "type": "COLOR"
+  },
+  "--colors-indigo-700": {
+    "figmaPath": "Colors/Indigo/700",
+    "value": "#3538cd",
+    "type": "COLOR"
+  },
+  "--colors-indigo-800": {
+    "figmaPath": "Colors/Indigo/800",
+    "value": "#2d31a6",
+    "type": "COLOR"
+  },
+  "--colors-indigo-900": {
+    "figmaPath": "Colors/Indigo/900",
+    "value": "#2d3282",
+    "type": "COLOR"
+  },
+  "--colors-indigo-950": {
+    "figmaPath": "Colors/Indigo/950",
+    "value": "#1f235b",
+    "type": "COLOR"
+  },
+  "--colors-violet-25": {
+    "figmaPath": "Colors/Violet/25",
+    "value": "#fbfaff",
+    "type": "COLOR"
+  },
+  "--colors-violet-50": {
+    "figmaPath": "Colors/Violet/50",
+    "value": "#f5f3ff",
+    "type": "COLOR"
+  },
+  "--colors-violet-100": {
+    "figmaPath": "Colors/Violet/100",
+    "value": "#ece9fe",
+    "type": "COLOR"
+  },
+  "--colors-violet-200": {
+    "figmaPath": "Colors/Violet/200",
+    "value": "#ddd6fe",
+    "type": "COLOR"
+  },
+  "--colors-violet-300": {
+    "figmaPath": "Colors/Violet/300",
+    "value": "#c3b5fd",
+    "type": "COLOR"
+  },
+  "--colors-violet-400": {
+    "figmaPath": "Colors/Violet/400",
+    "value": "#a48afb",
+    "type": "COLOR"
+  },
+  "--colors-violet-500": {
+    "figmaPath": "Colors/Violet/500",
+    "value": "#875bf7",
+    "type": "COLOR"
+  },
+  "--colors-violet-600": {
+    "figmaPath": "Colors/Violet/600",
+    "value": "#7839ee",
+    "type": "COLOR"
+  },
+  "--colors-violet-700": {
+    "figmaPath": "Colors/Violet/700",
+    "value": "#6927da",
+    "type": "COLOR"
+  },
+  "--colors-violet-800": {
+    "figmaPath": "Colors/Violet/800",
+    "value": "#5720b7",
+    "type": "COLOR"
+  },
+  "--colors-violet-900": {
+    "figmaPath": "Colors/Violet/900",
+    "value": "#491c96",
+    "type": "COLOR"
+  },
+  "--colors-violet-950": {
+    "figmaPath": "Colors/Violet/950",
+    "value": "#2e125e",
+    "type": "COLOR"
+  },
+  "--colors-purple-25": {
+    "figmaPath": "Colors/Purple/25",
+    "value": "#fafaff",
+    "type": "COLOR"
+  },
+  "--colors-purple-50": {
+    "figmaPath": "Colors/Purple/50",
+    "value": "#f4f3ff",
+    "type": "COLOR"
+  },
+  "--colors-purple-100": {
+    "figmaPath": "Colors/Purple/100",
+    "value": "#ebe9fe",
+    "type": "COLOR"
+  },
+  "--colors-purple-200": {
+    "figmaPath": "Colors/Purple/200",
+    "value": "#d9d6fe",
+    "type": "COLOR"
+  },
+  "--colors-purple-300": {
+    "figmaPath": "Colors/Purple/300",
+    "value": "#bdb4fe",
+    "type": "COLOR"
+  },
+  "--colors-purple-400": {
+    "figmaPath": "Colors/Purple/400",
+    "value": "#9b8afb",
+    "type": "COLOR"
+  },
+  "--colors-purple-500": {
+    "figmaPath": "Colors/Purple/500",
+    "value": "#7a5af8",
+    "type": "COLOR"
+  },
+  "--colors-purple-600": {
+    "figmaPath": "Colors/Purple/600",
+    "value": "#6938ef",
+    "type": "COLOR"
+  },
+  "--colors-purple-700": {
+    "figmaPath": "Colors/Purple/700",
+    "value": "#5925dc",
+    "type": "COLOR"
+  },
+  "--colors-purple-800": {
+    "figmaPath": "Colors/Purple/800",
+    "value": "#4a1fb8",
+    "type": "COLOR"
+  },
+  "--colors-purple-900": {
+    "figmaPath": "Colors/Purple/900",
+    "value": "#3e1c96",
+    "type": "COLOR"
+  },
+  "--colors-purple-950": {
+    "figmaPath": "Colors/Purple/950",
+    "value": "#27115f",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-25": {
+    "figmaPath": "Colors/Fuchsia/25",
+    "value": "#fefaff",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-50": {
+    "figmaPath": "Colors/Fuchsia/50",
+    "value": "#fdf4ff",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-100": {
+    "figmaPath": "Colors/Fuchsia/100",
+    "value": "#fbe8ff",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-200": {
+    "figmaPath": "Colors/Fuchsia/200",
+    "value": "#f6d0fe",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-300": {
+    "figmaPath": "Colors/Fuchsia/300",
+    "value": "#eeaafd",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-400": {
+    "figmaPath": "Colors/Fuchsia/400",
+    "value": "#e478fa",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-500": {
+    "figmaPath": "Colors/Fuchsia/500",
+    "value": "#d444f1",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-600": {
+    "figmaPath": "Colors/Fuchsia/600",
+    "value": "#ba24d5",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-700": {
+    "figmaPath": "Colors/Fuchsia/700",
+    "value": "#9f1ab1",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-800": {
+    "figmaPath": "Colors/Fuchsia/800",
+    "value": "#821890",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-900": {
+    "figmaPath": "Colors/Fuchsia/900",
+    "value": "#6f1877",
+    "type": "COLOR"
+  },
+  "--colors-fuchsia-950": {
+    "figmaPath": "Colors/Fuchsia/950",
+    "value": "#47104c",
+    "type": "COLOR"
+  },
+  "--colors-pink-25": {
+    "figmaPath": "Colors/Pink/25",
+    "value": "#fef6fb",
+    "type": "COLOR"
+  },
+  "--colors-pink-50": {
+    "figmaPath": "Colors/Pink/50",
+    "value": "#fdf2fa",
+    "type": "COLOR"
+  },
+  "--colors-pink-100": {
+    "figmaPath": "Colors/Pink/100",
+    "value": "#fce7f6",
+    "type": "COLOR"
+  },
+  "--colors-pink-200": {
+    "figmaPath": "Colors/Pink/200",
+    "value": "#fcceee",
+    "type": "COLOR"
+  },
+  "--colors-pink-300": {
+    "figmaPath": "Colors/Pink/300",
+    "value": "#faa7e0",
+    "type": "COLOR"
+  },
+  "--colors-pink-400": {
+    "figmaPath": "Colors/Pink/400",
+    "value": "#f670c7",
+    "type": "COLOR"
+  },
+  "--colors-pink-500": {
+    "figmaPath": "Colors/Pink/500",
+    "value": "#ee46bc",
+    "type": "COLOR"
+  },
+  "--colors-pink-600": {
+    "figmaPath": "Colors/Pink/600",
+    "value": "#dd2590",
+    "type": "COLOR"
+  },
+  "--colors-pink-700": {
+    "figmaPath": "Colors/Pink/700",
+    "value": "#c11574",
+    "type": "COLOR"
+  },
+  "--colors-pink-800": {
+    "figmaPath": "Colors/Pink/800",
+    "value": "#9e165f",
+    "type": "COLOR"
+  },
+  "--colors-pink-900": {
+    "figmaPath": "Colors/Pink/900",
+    "value": "#851651",
+    "type": "COLOR"
+  },
+  "--colors-pink-950": {
+    "figmaPath": "Colors/Pink/950",
+    "value": "#4e0d30",
+    "type": "COLOR"
+  },
+  "--colors-rosé-25": {
+    "figmaPath": "Colors/Rosé/25",
+    "value": "#fff5f6",
+    "type": "COLOR"
+  },
+  "--colors-rosé-50": {
+    "figmaPath": "Colors/Rosé/50",
+    "value": "#fff1f3",
+    "type": "COLOR"
+  },
+  "--colors-rosé-100": {
+    "figmaPath": "Colors/Rosé/100",
+    "value": "#ffe4e8",
+    "type": "COLOR"
+  },
+  "--colors-rosé-200": {
+    "figmaPath": "Colors/Rosé/200",
+    "value": "#fecdd6",
+    "type": "COLOR"
+  },
+  "--colors-rosé-300": {
+    "figmaPath": "Colors/Rosé/300",
+    "value": "#fea3b4",
+    "type": "COLOR"
+  },
+  "--colors-rosé-400": {
+    "figmaPath": "Colors/Rosé/400",
+    "value": "#fd6f8e",
+    "type": "COLOR"
+  },
+  "--colors-rosé-500": {
+    "figmaPath": "Colors/Rosé/500",
+    "value": "#f63d68",
+    "type": "COLOR"
+  },
+  "--colors-rosé-600": {
+    "figmaPath": "Colors/Rosé/600",
+    "value": "#e31b54",
+    "type": "COLOR"
+  },
+  "--colors-rosé-700": {
+    "figmaPath": "Colors/Rosé/700",
+    "value": "#c01048",
+    "type": "COLOR"
+  },
+  "--colors-rosé-800": {
+    "figmaPath": "Colors/Rosé/800",
+    "value": "#a11043",
+    "type": "COLOR"
+  },
+  "--colors-rosé-900": {
+    "figmaPath": "Colors/Rosé/900",
+    "value": "#89123e",
+    "type": "COLOR"
+  },
+  "--colors-rosé-950": {
+    "figmaPath": "Colors/Rosé/950",
+    "value": "#510b24",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-25": {
+    "figmaPath": "Colors/Orange dark/25",
+    "value": "#fff9f5",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-50": {
+    "figmaPath": "Colors/Orange dark/50",
+    "value": "#fff4ed",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-100": {
+    "figmaPath": "Colors/Orange dark/100",
+    "value": "#ffe6d5",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-200": {
+    "figmaPath": "Colors/Orange dark/200",
+    "value": "#ffd6ae",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-300": {
+    "figmaPath": "Colors/Orange dark/300",
+    "value": "#ff9c66",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-400": {
+    "figmaPath": "Colors/Orange dark/400",
+    "value": "#ff692e",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-500": {
+    "figmaPath": "Colors/Orange dark/500",
+    "value": "#ff4405",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-600": {
+    "figmaPath": "Colors/Orange dark/600",
+    "value": "#e62e05",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-700": {
+    "figmaPath": "Colors/Orange dark/700",
+    "value": "#bc1b06",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-800": {
+    "figmaPath": "Colors/Orange dark/800",
+    "value": "#97180c",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-900": {
+    "figmaPath": "Colors/Orange dark/900",
+    "value": "#771a0d",
+    "type": "COLOR"
+  },
+  "--colors-orangeDark-950": {
+    "figmaPath": "Colors/Orange dark/950",
+    "value": "#57130a",
+    "type": "COLOR"
+  },
+  "--colors-orange-25": {
+    "figmaPath": "Colors/Orange/25",
+    "value": "#fefaf5",
+    "type": "COLOR"
+  },
+  "--colors-orange-50": {
+    "figmaPath": "Colors/Orange/50",
+    "value": "#fef6ee",
+    "type": "COLOR"
+  },
+  "--colors-orange-100": {
+    "figmaPath": "Colors/Orange/100",
+    "value": "#fdead7",
+    "type": "COLOR"
+  },
+  "--colors-orange-200": {
+    "figmaPath": "Colors/Orange/200",
+    "value": "#f9dbaf",
+    "type": "COLOR"
+  },
+  "--colors-orange-300": {
+    "figmaPath": "Colors/Orange/300",
+    "value": "#f7b27a",
+    "type": "COLOR"
+  },
+  "--colors-orange-400": {
+    "figmaPath": "Colors/Orange/400",
+    "value": "#f38744",
+    "type": "COLOR"
+  },
+  "--colors-orange-500": {
+    "figmaPath": "Colors/Orange/500",
+    "value": "#ef6820",
+    "type": "COLOR"
+  },
+  "--colors-orange-600": {
+    "figmaPath": "Colors/Orange/600",
+    "value": "#e04f16",
+    "type": "COLOR"
+  },
+  "--colors-orange-700": {
+    "figmaPath": "Colors/Orange/700",
+    "value": "#b93815",
+    "type": "COLOR"
+  },
+  "--colors-orange-800": {
+    "figmaPath": "Colors/Orange/800",
+    "value": "#932f19",
+    "type": "COLOR"
+  },
+  "--colors-orange-900": {
+    "figmaPath": "Colors/Orange/900",
+    "value": "#772917",
+    "type": "COLOR"
+  },
+  "--colors-orange-950": {
+    "figmaPath": "Colors/Orange/950",
+    "value": "#511c10",
+    "type": "COLOR"
+  },
+  "--colors-yellow-25": {
+    "figmaPath": "Colors/Yellow/25",
+    "value": "#fefdf0",
+    "type": "COLOR"
+  },
+  "--colors-yellow-50": {
+    "figmaPath": "Colors/Yellow/50",
+    "value": "#fefbe8",
+    "type": "COLOR"
+  },
+  "--colors-yellow-100": {
+    "figmaPath": "Colors/Yellow/100",
+    "value": "#fef7c3",
+    "type": "COLOR"
+  },
+  "--colors-yellow-200": {
+    "figmaPath": "Colors/Yellow/200",
+    "value": "#feee95",
+    "type": "COLOR"
+  },
+  "--colors-yellow-300": {
+    "figmaPath": "Colors/Yellow/300",
+    "value": "#fde272",
+    "type": "COLOR"
+  },
+  "--colors-yellow-400": {
+    "figmaPath": "Colors/Yellow/400",
+    "value": "#fac515",
+    "type": "COLOR"
+  },
+  "--colors-yellow-500": {
+    "figmaPath": "Colors/Yellow/500",
+    "value": "#eaaa08",
+    "type": "COLOR"
+  },
+  "--colors-yellow-600": {
+    "figmaPath": "Colors/Yellow/600",
+    "value": "#ca8504",
+    "type": "COLOR"
+  },
+  "--colors-yellow-700": {
+    "figmaPath": "Colors/Yellow/700",
+    "value": "#a15c07",
+    "type": "COLOR"
+  },
+  "--colors-yellow-800": {
+    "figmaPath": "Colors/Yellow/800",
+    "value": "#854a0e",
+    "type": "COLOR"
+  },
+  "--colors-yellow-900": {
+    "figmaPath": "Colors/Yellow/900",
+    "value": "#713b12",
+    "type": "COLOR"
+  },
+  "--colors-yellow-950": {
+    "figmaPath": "Colors/Yellow/950",
+    "value": "#542c0d",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-25": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/25",
+    "value": "#fffffffa",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-50": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/50",
+    "value": "#fffffff5",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-100": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/100",
+    "value": "#fffffff0",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-200": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/200",
+    "value": "#ffffffeb",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-300": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/300",
+    "value": "#ffffffcc",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-400": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/400",
+    "value": "#ffffff8f",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-500": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/500",
+    "value": "#ffffff80",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-600": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/600",
+    "value": "#ffffff59",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-700": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/700",
+    "value": "#ffffff29",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-800": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/800",
+    "value": "#ffffff14",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-900": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/900",
+    "value": "#ffffff0a",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkModeAlpha-950": {
+    "figmaPath": "Colors/Gray (dark mode alpha)/950",
+    "value": "#ffffff00",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-25": {
+    "figmaPath": "Colors/Gray (dark mode)/25",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-50": {
+    "figmaPath": "Colors/Gray (dark mode)/50",
+    "value": "#f7f7f7",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-100": {
+    "figmaPath": "Colors/Gray (dark mode)/100",
+    "value": "#f0f0f1",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-200": {
+    "figmaPath": "Colors/Gray (dark mode)/200",
+    "value": "#ececed",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-300": {
+    "figmaPath": "Colors/Gray (dark mode)/300",
+    "value": "#cecfd2",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-400": {
+    "figmaPath": "Colors/Gray (dark mode)/400",
+    "value": "#94979c",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-500": {
+    "figmaPath": "Colors/Gray (dark mode)/500",
+    "value": "#85888e",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-600": {
+    "figmaPath": "Colors/Gray (dark mode)/600",
+    "value": "#61656c",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-700": {
+    "figmaPath": "Colors/Gray (dark mode)/700",
+    "value": "#373a41",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-800": {
+    "figmaPath": "Colors/Gray (dark mode)/800",
+    "value": "#22262f",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-900": {
+    "figmaPath": "Colors/Gray (dark mode)/900",
+    "value": "#13161b",
+    "type": "COLOR"
+  },
+  "--colors-grayDarkMode-950": {
+    "figmaPath": "Colors/Gray (dark mode)/950",
+    "value": "#0c0e12",
+    "type": "COLOR"
+  },
+  "--colors-text-textPrimary-900": {
+    "figmaPath": "Colors/Text/text-primary (900)",
+    "value": "#181d27",
+    "type": "COLOR"
+  },
+  "--colors-text-textTertiary-600": {
+    "figmaPath": "Colors/Text/text-tertiary (600)",
+    "value": "#535862",
+    "type": "COLOR"
+  },
+  "--colors-text-textErrorPrimary-600": {
+    "figmaPath": "Colors/Text/text-error-primary (600)",
+    "value": "#d92d20",
+    "type": "COLOR"
+  },
+  "--colors-text-textWarningPrimary-600": {
+    "figmaPath": "Colors/Text/text-warning-primary (600)",
+    "value": "#dc6803",
+    "type": "COLOR"
+  },
+  "--colors-text-textSuccessPrimary-600": {
+    "figmaPath": "Colors/Text/text-success-primary (600)",
+    "value": "#079455",
+    "type": "COLOR"
+  },
+  "--colors-text-textWhite": {
+    "figmaPath": "Colors/Text/text-white",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--colors-text-textSecondary-700": {
+    "figmaPath": "Colors/Text/text-secondary (700)",
+    "value": "#414651",
+    "type": "COLOR"
+  },
+  "--colors-text-textDisabled": {
+    "figmaPath": "Colors/Text/text-disabled",
+    "value": "#717680",
+    "type": "COLOR"
+  },
+  "--colors-text-textSecondaryHover": {
+    "figmaPath": "Colors/Text/text-secondary_hover",
+    "value": "#252b37",
+    "type": "COLOR"
+  },
+  "--colors-text-textTertiaryHover": {
+    "figmaPath": "Colors/Text/text-tertiary_hover",
+    "value": "#414651",
+    "type": "COLOR"
+  },
+  "--colors-text-textBrandSecondary-700": {
+    "figmaPath": "Colors/Text/text-brand-secondary (700)",
+    "value": "#6941c6",
+    "type": "COLOR"
+  },
+  "--colors-text-textPlaceholder": {
+    "figmaPath": "Colors/Text/text-placeholder",
+    "value": "#717680",
+    "type": "COLOR"
+  },
+  "--colors-text-textPlaceholderSubtle": {
+    "figmaPath": "Colors/Text/text-placeholder_subtle",
+    "value": "#d5d7da",
+    "type": "COLOR"
+  },
+  "--colors-text-textBrandTertiary-600": {
+    "figmaPath": "Colors/Text/text-brand-tertiary (600)",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--colors-text-textQuaternary-500": {
+    "figmaPath": "Colors/Text/text-quaternary (500)",
+    "value": "#717680",
+    "type": "COLOR"
+  },
+  "--colors-text-textBrandPrimary-900": {
+    "figmaPath": "Colors/Text/text-brand-primary (900)",
+    "value": "#42307d",
+    "type": "COLOR"
+  },
+  "--colors-text-textPrimaryOnBrand": {
+    "figmaPath": "Colors/Text/text-primary_on-brand",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--colors-text-textSecondaryOnBrand": {
+    "figmaPath": "Colors/Text/text-secondary_on-brand",
+    "value": "#e9d7fe",
+    "type": "COLOR"
+  },
+  "--colors-text-textTertiaryOnBrand": {
+    "figmaPath": "Colors/Text/text-tertiary_on-brand",
+    "value": "#e9d7fe",
+    "type": "COLOR"
+  },
+  "--colors-text-textQuaternaryOnBrand": {
+    "figmaPath": "Colors/Text/text-quaternary_on-brand",
+    "value": "#d6bbfb",
+    "type": "COLOR"
+  },
+  "--colors-text-textBrandTertiaryAlt": {
+    "figmaPath": "Colors/Text/text-brand-tertiary_alt",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--colors-text-textErrorPrimaryHover": {
+    "figmaPath": "Colors/Text/text-error-primary_hover",
+    "value": "#b42318",
+    "type": "COLOR"
+  },
+  "--colors-border-borderSecondary": {
+    "figmaPath": "Colors/Border/border-secondary",
+    "value": "#e9eaeb",
+    "type": "COLOR"
+  },
+  "--colors-border-borderErrorSubtle": {
+    "figmaPath": "Colors/Border/border-error_subtle",
+    "value": "#fda29b",
+    "type": "COLOR"
+  },
+  "--colors-border-borderPrimary": {
+    "figmaPath": "Colors/Border/border-primary",
+    "value": "#d5d7da",
+    "type": "COLOR"
+  },
+  "--colors-border-borderBrand": {
+    "figmaPath": "Colors/Border/border-brand",
+    "value": "#9e77ed",
+    "type": "COLOR"
+  },
+  "--colors-border-borderDisabled": {
+    "figmaPath": "Colors/Border/border-disabled",
+    "value": "#d5d7da",
+    "type": "COLOR"
+  },
+  "--colors-border-borderError": {
+    "figmaPath": "Colors/Border/border-error",
+    "value": "#f04438",
+    "type": "COLOR"
+  },
+  "--colors-border-borderDisabledSubtle": {
+    "figmaPath": "Colors/Border/border-disabled_subtle",
+    "value": "#e9eaeb",
+    "type": "COLOR"
+  },
+  "--colors-border-borderTertiary": {
+    "figmaPath": "Colors/Border/border-tertiary",
+    "value": "#f5f5f5",
+    "type": "COLOR"
+  },
+  "--colors-border-borderBrandAlt": {
+    "figmaPath": "Colors/Border/border-brand_alt",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--colors-border-borderSecondaryAlt": {
+    "figmaPath": "Colors/Border/border-secondary_alt",
+    "value": "#00000014",
+    "type": "COLOR"
+  },
+  "--colors-background-bgPrimary": {
+    "figmaPath": "Colors/Background/bg-primary",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--colors-background-bgTertiary": {
+    "figmaPath": "Colors/Background/bg-tertiary",
+    "value": "#f5f5f5",
+    "type": "COLOR"
+  },
+  "--colors-background-bgBrandPrimary": {
+    "figmaPath": "Colors/Background/bg-brand-primary",
+    "value": "#f9f5ff",
+    "type": "COLOR"
+  },
+  "--colors-background-bgErrorSecondary": {
+    "figmaPath": "Colors/Background/bg-error-secondary",
+    "value": "#fee4e2",
+    "type": "COLOR"
+  },
+  "--colors-background-bgWarningPrimary": {
+    "figmaPath": "Colors/Background/bg-warning-primary",
+    "value": "#fffaeb",
+    "type": "COLOR"
+  },
+  "--colors-background-bgWarningSecondary": {
+    "figmaPath": "Colors/Background/bg-warning-secondary",
+    "value": "#fef0c7",
+    "type": "COLOR"
+  },
+  "--colors-background-bgSuccessPrimary": {
+    "figmaPath": "Colors/Background/bg-success-primary",
+    "value": "#ecfdf3",
+    "type": "COLOR"
+  },
+  "--colors-background-bgSuccessSecondary": {
+    "figmaPath": "Colors/Background/bg-success-secondary",
+    "value": "#dcfae6",
+    "type": "COLOR"
+  },
+  "--colors-background-bgBrandSolid": {
+    "figmaPath": "Colors/Background/bg-brand-solid",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--colors-background-bgSecondarySolid": {
+    "figmaPath": "Colors/Background/bg-secondary-solid",
+    "value": "#535862",
+    "type": "COLOR"
+  },
+  "--colors-background-bgErrorSolid": {
+    "figmaPath": "Colors/Background/bg-error-solid",
+    "value": "#d92d20",
+    "type": "COLOR"
+  },
+  "--colors-background-bgWarningSolid": {
+    "figmaPath": "Colors/Background/bg-warning-solid",
+    "value": "#dc6803",
+    "type": "COLOR"
+  },
+  "--colors-background-bgSuccessSolid": {
+    "figmaPath": "Colors/Background/bg-success-solid",
+    "value": "#079455",
+    "type": "COLOR"
+  },
+  "--colors-background-bgSecondaryHover": {
+    "figmaPath": "Colors/Background/bg-secondary_hover",
+    "value": "#f5f5f5",
+    "type": "COLOR"
+  },
+  "--colors-background-bgPrimaryHover": {
+    "figmaPath": "Colors/Background/bg-primary_hover",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--colors-background-bgDisabled": {
+    "figmaPath": "Colors/Background/bg-disabled",
+    "value": "#f5f5f5",
+    "type": "COLOR"
+  },
+  "--colors-background-bgActive": {
+    "figmaPath": "Colors/Background/bg-active",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--colors-background-bgBrandSolidHover": {
+    "figmaPath": "Colors/Background/bg-brand-solid_hover",
+    "value": "#6941c6",
+    "type": "COLOR"
+  },
+  "--colors-background-bgErrorPrimary": {
+    "figmaPath": "Colors/Background/bg-error-primary",
+    "value": "#fef3f2",
+    "type": "COLOR"
+  },
+  "--colors-background-bgBrandSecondary": {
+    "figmaPath": "Colors/Background/bg-brand-secondary",
+    "value": "#f4ebff",
+    "type": "COLOR"
+  },
+  "--colors-background-bgSecondary": {
+    "figmaPath": "Colors/Background/bg-secondary",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--colors-background-bgDisabledSubtle": {
+    "figmaPath": "Colors/Background/bg-disabled_subtle",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--colors-background-bgQuaternary": {
+    "figmaPath": "Colors/Background/bg-quaternary",
+    "value": "#e9eaeb",
+    "type": "COLOR"
+  },
+  "--colors-background-bgPrimaryAlt": {
+    "figmaPath": "Colors/Background/bg-primary_alt",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--colors-background-bgBrandPrimaryAlt": {
+    "figmaPath": "Colors/Background/bg-brand-primary_alt",
+    "value": "#f9f5ff",
+    "type": "COLOR"
+  },
+  "--colors-background-bgSecondaryAlt": {
+    "figmaPath": "Colors/Background/bg-secondary_alt",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--colors-background-bgOverlay": {
+    "figmaPath": "Colors/Background/bg-overlay",
+    "value": "#0a0d12",
+    "type": "COLOR"
+  },
+  "--colors-background-bgSecondarySubtle": {
+    "figmaPath": "Colors/Background/bg-secondary_subtle",
+    "value": "#fdfdfd",
+    "type": "COLOR"
+  },
+  "--colors-background-bgBrandSection": {
+    "figmaPath": "Colors/Background/bg-brand-section",
+    "value": "#53389e",
+    "type": "COLOR"
+  },
+  "--colors-background-bgBrandSectionSubtle": {
+    "figmaPath": "Colors/Background/bg-brand-section_subtle",
+    "value": "#6941c6",
+    "type": "COLOR"
+  },
+  "--colors-background-bgPrimarySolid": {
+    "figmaPath": "Colors/Background/bg-primary-solid",
+    "value": "#0a0d12",
+    "type": "COLOR"
+  },
+  "--colors-background-bgErrorSolidHover": {
+    "figmaPath": "Colors/Background/bg-error-solid_hover",
+    "value": "#b42318",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgSecondary-700": {
+    "figmaPath": "Colors/Foreground/fg-secondary (700)",
+    "value": "#414651",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgWarningPrimary": {
+    "figmaPath": "Colors/Foreground/fg-warning-primary",
+    "value": "#dc6803",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgSuccessPrimary": {
+    "figmaPath": "Colors/Foreground/fg-success-primary",
+    "value": "#079455",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgWhite": {
+    "figmaPath": "Colors/Foreground/fg-white",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgSuccessSecondary": {
+    "figmaPath": "Colors/Foreground/fg-success-secondary",
+    "value": "#17b26a",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgSecondaryHover": {
+    "figmaPath": "Colors/Foreground/fg-secondary_hover",
+    "value": "#252b37",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgPrimary-900": {
+    "figmaPath": "Colors/Foreground/fg-primary (900)",
+    "value": "#181d27",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgDisabled": {
+    "figmaPath": "Colors/Foreground/fg-disabled",
+    "value": "#a4a7ae",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgBrandSecondary-500": {
+    "figmaPath": "Colors/Foreground/fg-brand-secondary (500)",
+    "value": "#9e77ed",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgBrandPrimary-600": {
+    "figmaPath": "Colors/Foreground/fg-brand-primary (600)",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgQuaternary-400": {
+    "figmaPath": "Colors/Foreground/fg-quaternary (400)",
+    "value": "#a4a7ae",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgQuaternaryHover": {
+    "figmaPath": "Colors/Foreground/fg-quaternary_hover",
+    "value": "#717680",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgErrorPrimary": {
+    "figmaPath": "Colors/Foreground/fg-error-primary",
+    "value": "#d92d20",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgDisabledSubtle": {
+    "figmaPath": "Colors/Foreground/fg-disabled_subtle",
+    "value": "#d5d7da",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgWarningSecondary": {
+    "figmaPath": "Colors/Foreground/fg-warning-secondary",
+    "value": "#f79009",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgErrorSecondary": {
+    "figmaPath": "Colors/Foreground/fg-error-secondary",
+    "value": "#f04438",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgTertiary-600": {
+    "figmaPath": "Colors/Foreground/fg-tertiary (600)",
+    "value": "#535862",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgTertiaryHover": {
+    "figmaPath": "Colors/Foreground/fg-tertiary_hover",
+    "value": "#414651",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgBrandPrimaryAlt": {
+    "figmaPath": "Colors/Foreground/fg-brand-primary_alt",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgBrandSecondaryAlt": {
+    "figmaPath": "Colors/Foreground/fg-brand-secondary_alt",
+    "value": "#9e77ed",
+    "type": "COLOR"
+  },
+  "--colors-foreground-fgBrandSecondaryHover": {
+    "figmaPath": "Colors/Foreground/fg-brand-secondary_hover",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowXs": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-xs",
+    "value": "#0a0d120d",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowSm02": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-sm_02",
+    "value": "#0a0d121a",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowLg01": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-lg_01",
+    "value": "#0a0d1214",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowLg02": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-lg_02",
+    "value": "#0a0d1208",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowSm01": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-sm_01",
+    "value": "#0a0d121a",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadow3xl01": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-3xl_01",
+    "value": "#0a0d1224",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadow2xl01": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-2xl_01",
+    "value": "#0a0d122e",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowMd01": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-md_01",
+    "value": "#0a0d121a",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowMd02": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-md_02",
+    "value": "#0a0d120f",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowXl01": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-xl_01",
+    "value": "#0a0d1214",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowXl02": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-xl_02",
+    "value": "#0a0d1208",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowSkeumorphicInner": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-skeumorphic-inner",
+    "value": "#0a0d120d",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowSkeumorphicInnerBorder": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-skeumorphic-inner-border",
+    "value": "#0a0d122e",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowLg03": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-lg_03",
+    "value": "#0a0d120a",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadowXl03": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-xl_03",
+    "value": "#0a0d120a",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadow2xl02": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-2xl_02",
+    "value": "#0a0d120a",
+    "type": "COLOR"
+  },
+  "--colors-effects-shadows-shadow3xl02": {
+    "figmaPath": "Colors/Effects/Shadows/shadow-3xl_02",
+    "value": "#0a0d120a",
+    "type": "COLOR"
+  },
+  "--colors-effects-portfolioMockups-shadowMainCentreMd": {
+    "figmaPath": "Colors/Effects/Portfolio mockups/shadow-main-centre-md",
+    "value": "#0a0d1224",
+    "type": "COLOR"
+  },
+  "--colors-effects-portfolioMockups-shadowMainCentreLg": {
+    "figmaPath": "Colors/Effects/Portfolio mockups/shadow-main-centre-lg",
+    "value": "#0a0d122e",
+    "type": "COLOR"
+  },
+  "--colors-effects-portfolioMockups-shadowOverlayLg": {
+    "figmaPath": "Colors/Effects/Portfolio mockups/shadow-overlay-lg",
+    "value": "#0a0d121f",
+    "type": "COLOR"
+  },
+  "--colors-effects-portfolioMockups-shadowGridMd": {
+    "figmaPath": "Colors/Effects/Portfolio mockups/shadow-grid-md",
+    "value": "#0a0d1214",
+    "type": "COLOR"
+  },
+  "--colors-effects-focusRings-focusRing": {
+    "figmaPath": "Colors/Effects/Focus rings/focus-ring",
+    "value": "#9e77ed",
+    "type": "COLOR"
+  },
+  "--colors-effects-focusRings-focusRingError": {
+    "figmaPath": "Colors/Effects/Focus rings/focus-ring-error",
+    "value": "#f04438",
+    "type": "COLOR"
+  },
+  "--spacing-0-0px": {
+    "figmaPath": "Spacing/0 (0px)",
+    "value": 0,
+    "type": "NUMBER"
+  },
+  "--spacing-0․5-2px": {
+    "figmaPath": "Spacing/0․5 (2px)",
+    "value": 2,
+    "type": "NUMBER"
+  },
+  "--spacing-1-4px": {
+    "figmaPath": "Spacing/1 (4px)",
+    "value": 4,
+    "type": "NUMBER"
+  },
+  "--spacing-2-8px": {
+    "figmaPath": "Spacing/2 (8px)",
+    "value": 8,
+    "type": "NUMBER"
+  },
+  "--spacing-3-12px": {
+    "figmaPath": "Spacing/3 (12px)",
+    "value": 12,
+    "type": "NUMBER"
+  },
+  "--spacing-4-16px": {
+    "figmaPath": "Spacing/4 (16px)",
+    "value": 16,
+    "type": "NUMBER"
+  },
+  "--spacing-5-20px": {
+    "figmaPath": "Spacing/5 (20px)",
+    "value": 20,
+    "type": "NUMBER"
+  },
+  "--spacing-6-24px": {
+    "figmaPath": "Spacing/6 (24px)",
+    "value": 24,
+    "type": "NUMBER"
+  },
+  "--spacing-8-32px": {
+    "figmaPath": "Spacing/8 (32px)",
+    "value": 32,
+    "type": "NUMBER"
+  },
+  "--spacing-10-40px": {
+    "figmaPath": "Spacing/10 (40px)",
+    "value": 40,
+    "type": "NUMBER"
+  },
+  "--spacing-12-48px": {
+    "figmaPath": "Spacing/12 (48px)",
+    "value": 48,
+    "type": "NUMBER"
+  },
+  "--spacing-16-64px": {
+    "figmaPath": "Spacing/16 (64px)",
+    "value": 64,
+    "type": "NUMBER"
+  },
+  "--spacing-20-80px": {
+    "figmaPath": "Spacing/20 (80px)",
+    "value": 80,
+    "type": "NUMBER"
+  },
+  "--spacing-24-96px": {
+    "figmaPath": "Spacing/24 (96px)",
+    "value": 96,
+    "type": "NUMBER"
+  },
+  "--spacing-32-128px": {
+    "figmaPath": "Spacing/32 (128px)",
+    "value": 128,
+    "type": "NUMBER"
+  },
+  "--spacing-40-160px": {
+    "figmaPath": "Spacing/40 (160px)",
+    "value": 160,
+    "type": "NUMBER"
+  },
+  "--spacing-48-192px": {
+    "figmaPath": "Spacing/48 (192px)",
+    "value": 192,
+    "type": "NUMBER"
+  },
+  "--spacing-56-224px": {
+    "figmaPath": "Spacing/56 (224px)",
+    "value": 224,
+    "type": "NUMBER"
+  },
+  "--spacing-64-256px": {
+    "figmaPath": "Spacing/64 (256px)",
+    "value": 256,
+    "type": "NUMBER"
+  },
+  "--spacing-96-384px": {
+    "figmaPath": "Spacing/96 (384px)",
+    "value": 384,
+    "type": "NUMBER"
+  },
+  "--spacing-80-320px": {
+    "figmaPath": "Spacing/80 (320px)",
+    "value": 320,
+    "type": "NUMBER"
+  },
+  "--spacing-120-480px": {
+    "figmaPath": "Spacing/120 (480px)",
+    "value": 480,
+    "type": "NUMBER"
+  },
+  "--spacing-160-640px": {
+    "figmaPath": "Spacing/160 (640px)",
+    "value": 640,
+    "type": "NUMBER"
+  },
+  "--spacing-192-768px": {
+    "figmaPath": "Spacing/192 (768px)",
+    "value": 768,
+    "type": "NUMBER"
+  },
+  "--spacing-256-1024px": {
+    "figmaPath": "Spacing/256 (1,024px)",
+    "value": 1024,
+    "type": "NUMBER"
+  },
+  "--spacing-320-1280px": {
+    "figmaPath": "Spacing/320 (1,280px)",
+    "value": 1280,
+    "type": "NUMBER"
+  },
+  "--spacing-360-1440px": {
+    "figmaPath": "Spacing/360 (1,440px)",
+    "value": 1440,
+    "type": "NUMBER"
+  },
+  "--spacing-400-1600px": {
+    "figmaPath": "Spacing/400 (1,600px)",
+    "value": 1600,
+    "type": "NUMBER"
+  },
+  "--spacing-480-1920px": {
+    "figmaPath": "Spacing/480 (1,920px)",
+    "value": 1920,
+    "type": "NUMBER"
+  },
+  "--spacing-1․5-6px": {
+    "figmaPath": "Spacing/1․5 (6px)",
+    "value": 6,
+    "type": "NUMBER"
+  },
+  "--spacing-140-560px": {
+    "figmaPath": "Spacing/140 (560px)",
+    "value": 560,
+    "type": "NUMBER"
+  },
+  "--spacing-180-720px": {
+    "figmaPath": "Spacing/180 (720px)",
+    "value": 720,
+    "type": "NUMBER"
+  },
+  "--componentColors-utility-blue-utilityBlue600": {
+    "figmaPath": "Component colors/Utility/Blue/utility-blue-600",
+    "value": "#1570ef",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blue-utilityBlue700": {
+    "figmaPath": "Component colors/Utility/Blue/utility-blue-700",
+    "value": "#175cd3",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blue-utilityBlue500": {
+    "figmaPath": "Component colors/Utility/Blue/utility-blue-500",
+    "value": "#2e90fa",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blue-utilityBlue200": {
+    "figmaPath": "Component colors/Utility/Blue/utility-blue-200",
+    "value": "#b2ddff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blue-utilityBlue50": {
+    "figmaPath": "Component colors/Utility/Blue/utility-blue-50",
+    "value": "#eff8ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blue-utilityBlue100": {
+    "figmaPath": "Component colors/Utility/Blue/utility-blue-100",
+    "value": "#d1e9ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blue-utilityBlue400": {
+    "figmaPath": "Component colors/Utility/Blue/utility-blue-400",
+    "value": "#53b1fd",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blue-utilityBlue300": {
+    "figmaPath": "Component colors/Utility/Blue/utility-blue-300",
+    "value": "#84caff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand600": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-600",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand700": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-700",
+    "value": "#6941c6",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand500": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-500",
+    "value": "#9e77ed",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand200": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-200",
+    "value": "#e9d7fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand50": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-50",
+    "value": "#f9f5ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand100": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-100",
+    "value": "#f4ebff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand400": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-400",
+    "value": "#b692f6",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand50Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-50_alt",
+    "value": "#f9f5ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand100Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-100_alt",
+    "value": "#f4ebff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand200Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-200_alt",
+    "value": "#e9d7fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand400Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-400_alt",
+    "value": "#b692f6",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand500Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-500_alt",
+    "value": "#9e77ed",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand600Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-600_alt",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand700Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-700_alt",
+    "value": "#6941c6",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand300": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-300",
+    "value": "#d6bbfb",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand900": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-900",
+    "value": "#42307d",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand800": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-800",
+    "value": "#53389e",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand300Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-300_alt",
+    "value": "#d6bbfb",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand800Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-800_alt",
+    "value": "#53389e",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-brand-utilityBrand900Alt": {
+    "figmaPath": "Component colors/Utility/Brand/utility-brand-900_alt",
+    "value": "#42307d",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray700": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-700",
+    "value": "#414651",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray600": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-600",
+    "value": "#535862",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray500": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-500",
+    "value": "#717680",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray200": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-200",
+    "value": "#e9eaeb",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray50": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-50",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray100": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-100",
+    "value": "#f5f5f5",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray400": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-400",
+    "value": "#a4a7ae",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray300": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-300",
+    "value": "#d5d7da",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray900": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-900",
+    "value": "#181d27",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-gray-utilityGray800": {
+    "figmaPath": "Component colors/Utility/Gray/utility-gray-800",
+    "value": "#252b37",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-error-utilityError600": {
+    "figmaPath": "Component colors/Utility/Error/utility-error-600",
+    "value": "#d92d20",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-error-utilityError700": {
+    "figmaPath": "Component colors/Utility/Error/utility-error-700",
+    "value": "#b42318",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-error-utilityError500": {
+    "figmaPath": "Component colors/Utility/Error/utility-error-500",
+    "value": "#f04438",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-error-utilityError200": {
+    "figmaPath": "Component colors/Utility/Error/utility-error-200",
+    "value": "#fecdca",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-error-utilityError50": {
+    "figmaPath": "Component colors/Utility/Error/utility-error-50",
+    "value": "#fef3f2",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-error-utilityError100": {
+    "figmaPath": "Component colors/Utility/Error/utility-error-100",
+    "value": "#fee4e2",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-error-utilityError400": {
+    "figmaPath": "Component colors/Utility/Error/utility-error-400",
+    "value": "#f97066",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-error-utilityError300": {
+    "figmaPath": "Component colors/Utility/Error/utility-error-300",
+    "value": "#fda29b",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-warning-utilityWarning600": {
+    "figmaPath": "Component colors/Utility/Warning/utility-warning-600",
+    "value": "#dc6803",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-warning-utilityWarning700": {
+    "figmaPath": "Component colors/Utility/Warning/utility-warning-700",
+    "value": "#b54708",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-warning-utilityWarning500": {
+    "figmaPath": "Component colors/Utility/Warning/utility-warning-500",
+    "value": "#f79009",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-warning-utilityWarning200": {
+    "figmaPath": "Component colors/Utility/Warning/utility-warning-200",
+    "value": "#fedf89",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-warning-utilityWarning50": {
+    "figmaPath": "Component colors/Utility/Warning/utility-warning-50",
+    "value": "#fffaeb",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-warning-utilityWarning100": {
+    "figmaPath": "Component colors/Utility/Warning/utility-warning-100",
+    "value": "#fef0c7",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-warning-utilityWarning400": {
+    "figmaPath": "Component colors/Utility/Warning/utility-warning-400",
+    "value": "#fdb022",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-warning-utilityWarning300": {
+    "figmaPath": "Component colors/Utility/Warning/utility-warning-300",
+    "value": "#fec84b",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-success-utilitySuccess600": {
+    "figmaPath": "Component colors/Utility/Success/utility-success-600",
+    "value": "#079455",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-success-utilitySuccess700": {
+    "figmaPath": "Component colors/Utility/Success/utility-success-700",
+    "value": "#067647",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-success-utilitySuccess500": {
+    "figmaPath": "Component colors/Utility/Success/utility-success-500",
+    "value": "#17b26a",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-success-utilitySuccess200": {
+    "figmaPath": "Component colors/Utility/Success/utility-success-200",
+    "value": "#abefc6",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-success-utilitySuccess50": {
+    "figmaPath": "Component colors/Utility/Success/utility-success-50",
+    "value": "#ecfdf3",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-success-utilitySuccess100": {
+    "figmaPath": "Component colors/Utility/Success/utility-success-100",
+    "value": "#dcfae6",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-success-utilitySuccess400": {
+    "figmaPath": "Component colors/Utility/Success/utility-success-400",
+    "value": "#47cd89",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-success-utilitySuccess300": {
+    "figmaPath": "Component colors/Utility/Success/utility-success-300",
+    "value": "#75e0a7",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orange-utilityOrange600": {
+    "figmaPath": "Component colors/Utility/Orange/utility-orange-600",
+    "value": "#e04f16",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orange-utilityOrange700": {
+    "figmaPath": "Component colors/Utility/Orange/utility-orange-700",
+    "value": "#b93815",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orange-utilityOrange500": {
+    "figmaPath": "Component colors/Utility/Orange/utility-orange-500",
+    "value": "#ef6820",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orange-utilityOrange200": {
+    "figmaPath": "Component colors/Utility/Orange/utility-orange-200",
+    "value": "#f9dbaf",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orange-utilityOrange50": {
+    "figmaPath": "Component colors/Utility/Orange/utility-orange-50",
+    "value": "#fef6ee",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orange-utilityOrange100": {
+    "figmaPath": "Component colors/Utility/Orange/utility-orange-100",
+    "value": "#fdead7",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orange-utilityOrange400": {
+    "figmaPath": "Component colors/Utility/Orange/utility-orange-400",
+    "value": "#f38744",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orange-utilityOrange300": {
+    "figmaPath": "Component colors/Utility/Orange/utility-orange-300",
+    "value": "#f7b27a",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueDark-utilityBlueDark600": {
+    "figmaPath": "Component colors/Utility/Blue dark/utility-blue-dark-600",
+    "value": "#155eef",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueDark-utilityBlueDark700": {
+    "figmaPath": "Component colors/Utility/Blue dark/utility-blue-dark-700",
+    "value": "#004eeb",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueDark-utilityBlueDark500": {
+    "figmaPath": "Component colors/Utility/Blue dark/utility-blue-dark-500",
+    "value": "#2970ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueDark-utilityBlueDark200": {
+    "figmaPath": "Component colors/Utility/Blue dark/utility-blue-dark-200",
+    "value": "#b2ccff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueDark-utilityBlueDark50": {
+    "figmaPath": "Component colors/Utility/Blue dark/utility-blue-dark-50",
+    "value": "#eff4ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueDark-utilityBlueDark100": {
+    "figmaPath": "Component colors/Utility/Blue dark/utility-blue-dark-100",
+    "value": "#d1e0ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueDark-utilityBlueDark400": {
+    "figmaPath": "Component colors/Utility/Blue dark/utility-blue-dark-400",
+    "value": "#528bff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueDark-utilityBlueDark300": {
+    "figmaPath": "Component colors/Utility/Blue dark/utility-blue-dark-300",
+    "value": "#84adff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-indigo-utilityIndigo600": {
+    "figmaPath": "Component colors/Utility/Indigo/utility-indigo-600",
+    "value": "#444ce7",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-indigo-utilityIndigo700": {
+    "figmaPath": "Component colors/Utility/Indigo/utility-indigo-700",
+    "value": "#3538cd",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-indigo-utilityIndigo500": {
+    "figmaPath": "Component colors/Utility/Indigo/utility-indigo-500",
+    "value": "#6172f3",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-indigo-utilityIndigo200": {
+    "figmaPath": "Component colors/Utility/Indigo/utility-indigo-200",
+    "value": "#c7d7fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-indigo-utilityIndigo50": {
+    "figmaPath": "Component colors/Utility/Indigo/utility-indigo-50",
+    "value": "#eef4ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-indigo-utilityIndigo100": {
+    "figmaPath": "Component colors/Utility/Indigo/utility-indigo-100",
+    "value": "#e0eaff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-indigo-utilityIndigo400": {
+    "figmaPath": "Component colors/Utility/Indigo/utility-indigo-400",
+    "value": "#8098f9",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-indigo-utilityIndigo300": {
+    "figmaPath": "Component colors/Utility/Indigo/utility-indigo-300",
+    "value": "#a4bcfd",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-fuchsia-utilityFuchsia600": {
+    "figmaPath": "Component colors/Utility/Fuchsia/utility-fuchsia-600",
+    "value": "#ba24d5",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-fuchsia-utilityFuchsia700": {
+    "figmaPath": "Component colors/Utility/Fuchsia/utility-fuchsia-700",
+    "value": "#9f1ab1",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-fuchsia-utilityFuchsia500": {
+    "figmaPath": "Component colors/Utility/Fuchsia/utility-fuchsia-500",
+    "value": "#d444f1",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-fuchsia-utilityFuchsia200": {
+    "figmaPath": "Component colors/Utility/Fuchsia/utility-fuchsia-200",
+    "value": "#f6d0fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-fuchsia-utilityFuchsia50": {
+    "figmaPath": "Component colors/Utility/Fuchsia/utility-fuchsia-50",
+    "value": "#fdf4ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-fuchsia-utilityFuchsia100": {
+    "figmaPath": "Component colors/Utility/Fuchsia/utility-fuchsia-100",
+    "value": "#fbe8ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-fuchsia-utilityFuchsia400": {
+    "figmaPath": "Component colors/Utility/Fuchsia/utility-fuchsia-400",
+    "value": "#e478fa",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-fuchsia-utilityFuchsia300": {
+    "figmaPath": "Component colors/Utility/Fuchsia/utility-fuchsia-300",
+    "value": "#eeaafd",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-pink-utilityPink600": {
+    "figmaPath": "Component colors/Utility/Pink/utility-pink-600",
+    "value": "#dd2590",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-pink-utilityPink700": {
+    "figmaPath": "Component colors/Utility/Pink/utility-pink-700",
+    "value": "#c11574",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-pink-utilityPink500": {
+    "figmaPath": "Component colors/Utility/Pink/utility-pink-500",
+    "value": "#ee46bc",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-pink-utilityPink200": {
+    "figmaPath": "Component colors/Utility/Pink/utility-pink-200",
+    "value": "#fcceee",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-pink-utilityPink50": {
+    "figmaPath": "Component colors/Utility/Pink/utility-pink-50",
+    "value": "#fdf2fa",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-pink-utilityPink100": {
+    "figmaPath": "Component colors/Utility/Pink/utility-pink-100",
+    "value": "#fce7f6",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-pink-utilityPink400": {
+    "figmaPath": "Component colors/Utility/Pink/utility-pink-400",
+    "value": "#f670c7",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-pink-utilityPink300": {
+    "figmaPath": "Component colors/Utility/Pink/utility-pink-300",
+    "value": "#faa7e0",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-purple-utilityPurple600": {
+    "figmaPath": "Component colors/Utility/Purple/utility-purple-600",
+    "value": "#6938ef",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-purple-utilityPurple700": {
+    "figmaPath": "Component colors/Utility/Purple/utility-purple-700",
+    "value": "#5925dc",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-purple-utilityPurple500": {
+    "figmaPath": "Component colors/Utility/Purple/utility-purple-500",
+    "value": "#7a5af8",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-purple-utilityPurple200": {
+    "figmaPath": "Component colors/Utility/Purple/utility-purple-200",
+    "value": "#d9d6fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-purple-utilityPurple50": {
+    "figmaPath": "Component colors/Utility/Purple/utility-purple-50",
+    "value": "#f4f3ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-purple-utilityPurple100": {
+    "figmaPath": "Component colors/Utility/Purple/utility-purple-100",
+    "value": "#ebe9fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-purple-utilityPurple400": {
+    "figmaPath": "Component colors/Utility/Purple/utility-purple-400",
+    "value": "#9b8afb",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-purple-utilityPurple300": {
+    "figmaPath": "Component colors/Utility/Purple/utility-purple-300",
+    "value": "#bdb4fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orangeDark-utilityOrangeDark600": {
+    "figmaPath": "Component colors/Utility/Orange dark/utility-orange-dark-600",
+    "value": "#e62e05",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orangeDark-utilityOrangeDark700": {
+    "figmaPath": "Component colors/Utility/Orange dark/utility-orange-dark-700",
+    "value": "#bc1b06",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orangeDark-utilityOrangeDark500": {
+    "figmaPath": "Component colors/Utility/Orange dark/utility-orange-dark-500",
+    "value": "#ff4405",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orangeDark-utilityOrangeDark200": {
+    "figmaPath": "Component colors/Utility/Orange dark/utility-orange-dark-200",
+    "value": "#ffd6ae",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orangeDark-utilityOrangeDark50": {
+    "figmaPath": "Component colors/Utility/Orange dark/utility-orange-dark-50",
+    "value": "#fff4ed",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orangeDark-utilityOrangeDark100": {
+    "figmaPath": "Component colors/Utility/Orange dark/utility-orange-dark-100",
+    "value": "#ffe6d5",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orangeDark-utilityOrangeDark400": {
+    "figmaPath": "Component colors/Utility/Orange dark/utility-orange-dark-400",
+    "value": "#ff692e",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-orangeDark-utilityOrangeDark300": {
+    "figmaPath": "Component colors/Utility/Orange dark/utility-orange-dark-300",
+    "value": "#ff9c66",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueLight-utilityBlueLight600": {
+    "figmaPath": "Component colors/Utility/Blue light/utility-blue-light-600",
+    "value": "#0086c9",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueLight-utilityBlueLight700": {
+    "figmaPath": "Component colors/Utility/Blue light/utility-blue-light-700",
+    "value": "#026aa2",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueLight-utilityBlueLight500": {
+    "figmaPath": "Component colors/Utility/Blue light/utility-blue-light-500",
+    "value": "#0ba5ec",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueLight-utilityBlueLight200": {
+    "figmaPath": "Component colors/Utility/Blue light/utility-blue-light-200",
+    "value": "#b9e6fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueLight-utilityBlueLight50": {
+    "figmaPath": "Component colors/Utility/Blue light/utility-blue-light-50",
+    "value": "#f0f9ff",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueLight-utilityBlueLight100": {
+    "figmaPath": "Component colors/Utility/Blue light/utility-blue-light-100",
+    "value": "#e0f2fe",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueLight-utilityBlueLight400": {
+    "figmaPath": "Component colors/Utility/Blue light/utility-blue-light-400",
+    "value": "#36bffa",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-blueLight-utilityBlueLight300": {
+    "figmaPath": "Component colors/Utility/Blue light/utility-blue-light-300",
+    "value": "#7cd4fd",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-grayBlue-utilityGrayBlue600": {
+    "figmaPath": "Component colors/Utility/Gray blue/utility-gray-blue-600",
+    "value": "#3e4784",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-grayBlue-utilityGrayBlue700": {
+    "figmaPath": "Component colors/Utility/Gray blue/utility-gray-blue-700",
+    "value": "#363f72",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-grayBlue-utilityGrayBlue500": {
+    "figmaPath": "Component colors/Utility/Gray blue/utility-gray-blue-500",
+    "value": "#4e5ba6",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-grayBlue-utilityGrayBlue200": {
+    "figmaPath": "Component colors/Utility/Gray blue/utility-gray-blue-200",
+    "value": "#d5d9eb",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-grayBlue-utilityGrayBlue50": {
+    "figmaPath": "Component colors/Utility/Gray blue/utility-gray-blue-50",
+    "value": "#f8f9fc",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-grayBlue-utilityGrayBlue100": {
+    "figmaPath": "Component colors/Utility/Gray blue/utility-gray-blue-100",
+    "value": "#eaecf5",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-grayBlue-utilityGrayBlue400": {
+    "figmaPath": "Component colors/Utility/Gray blue/utility-gray-blue-400",
+    "value": "#717bbc",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-grayBlue-utilityGrayBlue300": {
+    "figmaPath": "Component colors/Utility/Gray blue/utility-gray-blue-300",
+    "value": "#b3b8db",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-green-utilityGreen50": {
+    "figmaPath": "Component colors/Utility/Green/utility-green-50",
+    "value": "#edfcf2",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-green-utilityGreen100": {
+    "figmaPath": "Component colors/Utility/Green/utility-green-100",
+    "value": "#d3f8df",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-green-utilityGreen200": {
+    "figmaPath": "Component colors/Utility/Green/utility-green-200",
+    "value": "#aaf0c4",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-green-utilityGreen300": {
+    "figmaPath": "Component colors/Utility/Green/utility-green-300",
+    "value": "#73e2a3",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-green-utilityGreen400": {
+    "figmaPath": "Component colors/Utility/Green/utility-green-400",
+    "value": "#3ccb7f",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-green-utilityGreen500": {
+    "figmaPath": "Component colors/Utility/Green/utility-green-500",
+    "value": "#16b364",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-green-utilityGreen600": {
+    "figmaPath": "Component colors/Utility/Green/utility-green-600",
+    "value": "#099250",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-green-utilityGreen700": {
+    "figmaPath": "Component colors/Utility/Green/utility-green-700",
+    "value": "#087443",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-yellow-utilityYellow50": {
+    "figmaPath": "Component colors/Utility/Yellow/utility-yellow-50",
+    "value": "#fefbe8",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-yellow-utilityYellow100": {
+    "figmaPath": "Component colors/Utility/Yellow/utility-yellow-100",
+    "value": "#fef7c3",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-yellow-utilityYellow200": {
+    "figmaPath": "Component colors/Utility/Yellow/utility-yellow-200",
+    "value": "#feee95",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-yellow-utilityYellow300": {
+    "figmaPath": "Component colors/Utility/Yellow/utility-yellow-300",
+    "value": "#fde272",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-yellow-utilityYellow400": {
+    "figmaPath": "Component colors/Utility/Yellow/utility-yellow-400",
+    "value": "#fac515",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-yellow-utilityYellow500": {
+    "figmaPath": "Component colors/Utility/Yellow/utility-yellow-500",
+    "value": "#eaaa08",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-yellow-utilityYellow600": {
+    "figmaPath": "Component colors/Utility/Yellow/utility-yellow-600",
+    "value": "#ca8504",
+    "type": "COLOR"
+  },
+  "--componentColors-utility-yellow-utilityYellow700": {
+    "figmaPath": "Component colors/Utility/Yellow/utility-yellow-700",
+    "value": "#a15c07",
+    "type": "COLOR"
+  },
+  "--componentColors-components-tooltips-tooltipSupportingText": {
+    "figmaPath": "Component colors/Components/Tooltips/tooltip-supporting-text",
+    "value": "#d5d7da",
+    "type": "COLOR"
+  },
+  "--componentColors-components-textEditor-textEditorIconFg": {
+    "figmaPath": "Component colors/Components/Text editor/text-editor-icon-fg",
+    "value": "#a4a7ae",
+    "type": "COLOR"
+  },
+  "--componentColors-components-textEditor-textEditorIconFgActive": {
+    "figmaPath": "Component colors/Components/Text editor/text-editor-icon-fg_active",
+    "value": "#717680",
+    "type": "COLOR"
+  },
+  "--componentColors-components-icons-featuredIcons-featuredIconLightFgBrand": {
+    "figmaPath": "Component colors/Components/Icons/Featured icons/featured-icon-light-fg-brand",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--componentColors-components-icons-featuredIcons-featuredIconLightFgGray": {
+    "figmaPath": "Component colors/Components/Icons/Featured icons/featured-icon-light-fg-gray",
+    "value": "#717680",
+    "type": "COLOR"
+  },
+  "--componentColors-components-icons-featuredIcons-featuredIconLightFgError": {
+    "figmaPath": "Component colors/Components/Icons/Featured icons/featured-icon-light-fg-error",
+    "value": "#d92d20",
+    "type": "COLOR"
+  },
+  "--componentColors-components-icons-featuredIcons-featuredIconLightFgWarning": {
+    "figmaPath": "Component colors/Components/Icons/Featured icons/featured-icon-light-fg-warning",
+    "value": "#dc6803",
+    "type": "COLOR"
+  },
+  "--componentColors-components-icons-featuredIcons-featuredIconLightFgSuccess": {
+    "figmaPath": "Component colors/Components/Icons/Featured icons/featured-icon-light-fg-success",
+    "value": "#079455",
+    "type": "COLOR"
+  },
+  "--componentColors-components-icons-icons-iconFgBrand": {
+    "figmaPath": "Component colors/Components/Icons/Icons/icon-fg-brand",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--componentColors-components-icons-icons-iconFgBrandOnBrand": {
+    "figmaPath": "Component colors/Components/Icons/Icons/icon-fg-brand_on-brand",
+    "value": "#e9d7fe",
+    "type": "COLOR"
+  },
+  "--componentColors-components-sliders-sliderHandleBorder": {
+    "figmaPath": "Component colors/Components/Sliders/slider-handle-border",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--componentColors-components-sliders-sliderHandleBg": {
+    "figmaPath": "Component colors/Components/Sliders/slider-handle-bg",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--componentColors-components-mockups-screenMockupBorder": {
+    "figmaPath": "Component colors/Components/Mockups/screen-mockup-border",
+    "value": "#181d27",
+    "type": "COLOR"
+  },
+  "--componentColors-components-footers-footerButtonFg": {
+    "figmaPath": "Component colors/Components/Footers/footer-button-fg",
+    "value": "#e9d7fe",
+    "type": "COLOR"
+  },
+  "--componentColors-components-footers-footerButtonFgHover": {
+    "figmaPath": "Component colors/Components/Footers/footer-button-fg_hover",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--componentColors-components-appStoreBadges-appStoreBadgeBorder": {
+    "figmaPath": "Component colors/Components/App store badges/app-store-badge-border",
+    "value": "#a6a6a6",
+    "type": "COLOR"
+  },
+  "--componentColors-components-toggles-toggleButtonFgDisabled": {
+    "figmaPath": "Component colors/Components/Toggles/toggle-button-fg_disabled",
+    "value": "#fafafa",
+    "type": "COLOR"
+  },
+  "--componentColors-components-toggles-toggleBorder": {
+    "figmaPath": "Component colors/Components/Toggles/toggle-border",
+    "value": "#d5d7da",
+    "type": "COLOR"
+  },
+  "--componentColors-components-toggles-toggleSlimBorderPressed": {
+    "figmaPath": "Component colors/Components/Toggles/toggle-slim-border_pressed",
+    "value": "#7f56d9",
+    "type": "COLOR"
+  },
+  "--componentColors-components-toggles-toggleSlimBorderPressedHover": {
+    "figmaPath": "Component colors/Components/Toggles/toggle-slim-border_pressed-hover",
+    "value": "#6941c6",
+    "type": "COLOR"
+  },
+  "--componentColors-components-avatars-avatarStylesBgNeutral": {
+    "figmaPath": "Component colors/Components/Avatars/avatar-styles-bg-neutral",
+    "value": "#e0e0e0",
+    "type": "COLOR"
+  },
+  "--componentColors-components-buttons-buttonPrimaryIcon": {
+    "figmaPath": "Component colors/Components/Buttons/button-primary-icon",
+    "value": "#d6bbfb",
+    "type": "COLOR"
+  },
+  "--componentColors-components-buttons-buttonPrimaryIconHover": {
+    "figmaPath": "Component colors/Components/Buttons/button-primary-icon_hover",
+    "value": "#e9d7fe",
+    "type": "COLOR"
+  },
+  "--componentColors-components-buttons-buttonDestructivePrimaryIcon": {
+    "figmaPath": "Component colors/Components/Buttons/button-destructive-primary-icon",
+    "value": "#fda29b",
+    "type": "COLOR"
+  },
+  "--componentColors-components-buttons-buttonDestructivePrimaryIconHover": {
+    "figmaPath": "Component colors/Components/Buttons/button-destructive-primary-icon_hover",
+    "value": "#fecdca",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite90": {
+    "figmaPath": "Component colors/Alpha/alpha-white-90",
+    "value": "#ffffffe6",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite80": {
+    "figmaPath": "Component colors/Alpha/alpha-white-80",
+    "value": "#ffffffcc",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite70": {
+    "figmaPath": "Component colors/Alpha/alpha-white-70",
+    "value": "#ffffffb3",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite60": {
+    "figmaPath": "Component colors/Alpha/alpha-white-60",
+    "value": "#ffffff99",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite50": {
+    "figmaPath": "Component colors/Alpha/alpha-white-50",
+    "value": "#ffffff80",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite40": {
+    "figmaPath": "Component colors/Alpha/alpha-white-40",
+    "value": "#ffffff66",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite30": {
+    "figmaPath": "Component colors/Alpha/alpha-white-30",
+    "value": "#ffffff4d",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite20": {
+    "figmaPath": "Component colors/Alpha/alpha-white-20",
+    "value": "#ffffff33",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite10": {
+    "figmaPath": "Component colors/Alpha/alpha-white-10",
+    "value": "#ffffff1a",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack10": {
+    "figmaPath": "Component colors/Alpha/alpha-black-10",
+    "value": "#0000001a",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack20": {
+    "figmaPath": "Component colors/Alpha/alpha-black-20",
+    "value": "#00000033",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack30": {
+    "figmaPath": "Component colors/Alpha/alpha-black-30",
+    "value": "#0000004d",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack40": {
+    "figmaPath": "Component colors/Alpha/alpha-black-40",
+    "value": "#00000066",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack50": {
+    "figmaPath": "Component colors/Alpha/alpha-black-50",
+    "value": "#00000080",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack60": {
+    "figmaPath": "Component colors/Alpha/alpha-black-60",
+    "value": "#00000099",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack70": {
+    "figmaPath": "Component colors/Alpha/alpha-black-70",
+    "value": "#000000b3",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack80": {
+    "figmaPath": "Component colors/Alpha/alpha-black-80",
+    "value": "#000000cc",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack90": {
+    "figmaPath": "Component colors/Alpha/alpha-black-90",
+    "value": "#000000e6",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaBlack100": {
+    "figmaPath": "Component colors/Alpha/alpha-black-100",
+    "value": "#000000",
+    "type": "COLOR"
+  },
+  "--componentColors-alpha-alphaWhite100": {
+    "figmaPath": "Component colors/Alpha/alpha-white-100",
+    "value": "#ffffff",
+    "type": "COLOR"
+  },
+  "--fontFamily-fontFamilyDisplay": {
+    "figmaPath": "Font family/font-family-display",
+    "value": "Pretendard",
+    "type": "TEXT"
+  },
+  "--fontFamily-fontFamilyBody": {
+    "figmaPath": "Font family/font-family-body",
+    "value": "Pretendard",
+    "type": "TEXT"
+  },
+  "--fontWeight-regular": {
+    "figmaPath": "Font weight/regular",
+    "value": "Regular",
+    "type": "TEXT"
+  },
+  "--fontWeight-regularItalic": {
+    "figmaPath": "Font weight/regular-italic",
+    "value": "Regular italic",
+    "type": "TEXT"
+  },
+  "--fontWeight-medium": {
+    "figmaPath": "Font weight/medium",
+    "value": "Medium",
+    "type": "TEXT"
+  },
+  "--fontWeight-mediumItalic": {
+    "figmaPath": "Font weight/medium-italic",
+    "value": "Medium italic",
+    "type": "TEXT"
+  },
+  "--fontWeight-semibold": {
+    "figmaPath": "Font weight/semibold",
+    "value": "Semibold",
+    "type": "TEXT"
+  },
+  "--fontWeight-semiboldItalic": {
+    "figmaPath": "Font weight/semibold-italic",
+    "value": "Semibold italic",
+    "type": "TEXT"
+  },
+  "--fontWeight-bold": {
+    "figmaPath": "Font weight/bold",
+    "value": "Bold",
+    "type": "TEXT"
+  },
+  "--fontWeight-boldItalic": {
+    "figmaPath": "Font weight/bold-italic",
+    "value": "Bold italic",
+    "type": "TEXT"
+  },
+  "--fontSize-textXs": {
+    "figmaPath": "Font size/text-xs",
+    "value": 12,
+    "type": "NUMBER"
+  },
+  "--fontSize-textSm": {
+    "figmaPath": "Font size/text-sm",
+    "value": 14,
+    "type": "NUMBER"
+  },
+  "--fontSize-textMd": {
+    "figmaPath": "Font size/text-md",
+    "value": 16,
+    "type": "NUMBER"
+  },
+  "--fontSize-textLg": {
+    "figmaPath": "Font size/text-lg",
+    "value": 18,
+    "type": "NUMBER"
+  },
+  "--fontSize-textXl": {
+    "figmaPath": "Font size/text-xl",
+    "value": 20,
+    "type": "NUMBER"
+  },
+  "--fontSize-displayXs": {
+    "figmaPath": "Font size/display-xs",
+    "value": 24,
+    "type": "NUMBER"
+  },
+  "--fontSize-displaySm": {
+    "figmaPath": "Font size/display-sm",
+    "value": 30,
+    "type": "NUMBER"
+  },
+  "--fontSize-displayMd": {
+    "figmaPath": "Font size/display-md",
+    "value": 36,
+    "type": "NUMBER"
+  },
+  "--fontSize-displayLg": {
+    "figmaPath": "Font size/display-lg",
+    "value": 48,
+    "type": "NUMBER"
+  },
+  "--fontSize-displayXl": {
+    "figmaPath": "Font size/display-xl",
+    "value": 60,
+    "type": "NUMBER"
+  },
+  "--fontSize-display2xl": {
+    "figmaPath": "Font size/display-2xl",
+    "value": 72,
+    "type": "NUMBER"
+  },
+  "--lineHeight-textXs": {
+    "figmaPath": "Line height/text-xs",
+    "value": 18,
+    "type": "NUMBER"
+  },
+  "--lineHeight-textSm": {
+    "figmaPath": "Line height/text-sm",
+    "value": 20,
+    "type": "NUMBER"
+  },
+  "--lineHeight-textMd": {
+    "figmaPath": "Line height/text-md",
+    "value": 24,
+    "type": "NUMBER"
+  },
+  "--lineHeight-textLg": {
+    "figmaPath": "Line height/text-lg",
+    "value": 28,
+    "type": "NUMBER"
+  },
+  "--lineHeight-textXl": {
+    "figmaPath": "Line height/text-xl",
+    "value": 30,
+    "type": "NUMBER"
+  },
+  "--lineHeight-displayXs": {
+    "figmaPath": "Line height/display-xs",
+    "value": 32,
+    "type": "NUMBER"
+  },
+  "--lineHeight-displaySm": {
+    "figmaPath": "Line height/display-sm",
+    "value": 38,
+    "type": "NUMBER"
+  },
+  "--lineHeight-displayMd": {
+    "figmaPath": "Line height/display-md",
+    "value": 44,
+    "type": "NUMBER"
+  },
+  "--lineHeight-displayLg": {
+    "figmaPath": "Line height/display-lg",
+    "value": 60,
+    "type": "NUMBER"
+  },
+  "--lineHeight-displayXl": {
+    "figmaPath": "Line height/display-xl",
+    "value": 72,
+    "type": "NUMBER"
+  },
+  "--lineHeight-display2xl": {
+    "figmaPath": "Line height/display-2xl",
+    "value": 90,
+    "type": "NUMBER"
+  },
+  "--containerMaxWidthDesktop": {
+    "figmaPath": "container-max-width-desktop",
+    "value": 1280,
+    "type": "NUMBER"
+  },
+  "--containerPaddingDesktop": {
+    "figmaPath": "container-padding-desktop",
+    "value": 32,
+    "type": "NUMBER"
+  },
+  "--containerPaddingMobile": {
+    "figmaPath": "container-padding-mobile",
+    "value": 16,
+    "type": "NUMBER"
+  },
+  "--widthXxs": {
+    "figmaPath": "width-xxs",
+    "value": 320,
+    "type": "NUMBER"
+  },
+  "--widthSm": {
+    "figmaPath": "width-sm",
+    "value": 480,
+    "type": "NUMBER"
+  },
+  "--widthLg": {
+    "figmaPath": "width-lg",
+    "value": 640,
+    "type": "NUMBER"
+  },
+  "--widthXl": {
+    "figmaPath": "width-xl",
+    "value": 768,
+    "type": "NUMBER"
+  },
+  "--width2xl": {
+    "figmaPath": "width-2xl",
+    "value": 1024,
+    "type": "NUMBER"
+  },
+  "--width3xl": {
+    "figmaPath": "width-3xl",
+    "value": 1280,
+    "type": "NUMBER"
+  },
+  "--width4xl": {
+    "figmaPath": "width-4xl",
+    "value": 1440,
+    "type": "NUMBER"
+  },
+  "--width5xl": {
+    "figmaPath": "width-5xl",
+    "value": 1600,
+    "type": "NUMBER"
+  },
+  "--width6xl": {
+    "figmaPath": "width-6xl",
+    "value": 1920,
+    "type": "NUMBER"
+  },
+  "--widthMd": {
+    "figmaPath": "width-md",
+    "value": 560,
+    "type": "NUMBER"
+  },
+  "--paragraphMaxWidth": {
+    "figmaPath": "paragraph-max-width",
+    "value": 720,
+    "type": "NUMBER"
+  },
+  "--widthXs": {
+    "figmaPath": "width-xs",
+    "value": 384,
+    "type": "NUMBER"
+  },
+  "--spacingNone": {
+    "figmaPath": "spacing-none",
+    "value": 0,
+    "type": "NUMBER"
+  },
+  "--spacingXxs": {
+    "figmaPath": "spacing-xxs",
+    "value": 2,
+    "type": "NUMBER"
+  },
+  "--spacingXs": {
+    "figmaPath": "spacing-xs",
+    "value": 4,
+    "type": "NUMBER"
+  },
+  "--spacingMd": {
+    "figmaPath": "spacing-md",
+    "value": 8,
+    "type": "NUMBER"
+  },
+  "--spacingLg": {
+    "figmaPath": "spacing-lg",
+    "value": 12,
+    "type": "NUMBER"
+  },
+  "--spacingXl": {
+    "figmaPath": "spacing-xl",
+    "value": 16,
+    "type": "NUMBER"
+  },
+  "--spacing2xl": {
+    "figmaPath": "spacing-2xl",
+    "value": 20,
+    "type": "NUMBER"
+  },
+  "--spacing3xl": {
+    "figmaPath": "spacing-3xl",
+    "value": 24,
+    "type": "NUMBER"
+  },
+  "--spacing4xl": {
+    "figmaPath": "spacing-4xl",
+    "value": 32,
+    "type": "NUMBER"
+  },
+  "--spacing6xl": {
+    "figmaPath": "spacing-6xl",
+    "value": 48,
+    "type": "NUMBER"
+  },
+  "--spacing7xl": {
+    "figmaPath": "spacing-7xl",
+    "value": 64,
+    "type": "NUMBER"
+  },
+  "--spacing8xl": {
+    "figmaPath": "spacing-8xl",
+    "value": 80,
+    "type": "NUMBER"
+  },
+  "--spacing9xl": {
+    "figmaPath": "spacing-9xl",
+    "value": 96,
+    "type": "NUMBER"
+  },
+  "--spacing10xl": {
+    "figmaPath": "spacing-10xl",
+    "value": 128,
+    "type": "NUMBER"
+  },
+  "--spacing11xl": {
+    "figmaPath": "spacing-11xl",
+    "value": 160,
+    "type": "NUMBER"
+  },
+  "--spacingSm": {
+    "figmaPath": "spacing-sm",
+    "value": 6,
+    "type": "NUMBER"
+  },
+  "--spacing5xl": {
+    "figmaPath": "spacing-5xl",
+    "value": 40,
+    "type": "NUMBER"
+  },
+  "--radiusNone": {
+    "figmaPath": "radius-none",
+    "value": 0,
+    "type": "NUMBER"
+  },
+  "--radiusXxs": {
+    "figmaPath": "radius-xxs",
+    "value": 2,
+    "type": "NUMBER"
+  },
+  "--radiusXs": {
+    "figmaPath": "radius-xs",
+    "value": 4,
+    "type": "NUMBER"
+  },
+  "--radiusSm": {
+    "figmaPath": "radius-sm",
+    "value": 6,
+    "type": "NUMBER"
+  },
+  "--radiusMd": {
+    "figmaPath": "radius-md",
+    "value": 8,
+    "type": "NUMBER"
+  },
+  "--radiusXl": {
+    "figmaPath": "radius-xl",
+    "value": 12,
+    "type": "NUMBER"
+  },
+  "--radius2xl": {
+    "figmaPath": "radius-2xl",
+    "value": 16,
+    "type": "NUMBER"
+  },
+  "--radius4xl": {
+    "figmaPath": "radius-4xl",
+    "value": 24,
+    "type": "NUMBER"
+  },
+  "--radiusFull": {
+    "figmaPath": "radius-full",
+    "value": 9999,
+    "type": "NUMBER"
+  },
+  "--radiusLg": {
+    "figmaPath": "radius-lg",
+    "value": 10,
+    "type": "NUMBER"
+  },
+  "--radius3xl": {
+    "figmaPath": "radius-3xl",
+    "value": 20,
+    "type": "NUMBER"
+  }
+}
