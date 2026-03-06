@@ -4384,11 +4384,6 @@
     "value": "#542c0d",
     "type": "COLOR"
   },
-  "--gradient-skeuemorphicGradientBorder": {
-    "figmaPath": "Gradient/skeuemorphic-gradient-border",
-    "value": "linear-gradient(180deg, #ffffff1f 0%, #ffffff00 100%)",
-    "type": "COLOR"
-  },
   "--gradient-gray-600>500-90deg": {
     "figmaPath": "Gradient/Gray/600 -> 500 (90deg)",
     "value": "linear-gradient(90deg, #535862 0%, #717680 100%)",
