@@ -69,49 +69,65 @@
         color: #999;
         margin: 0;
       }
-    .mode-toggle {
-      display: flex;
-      gap: 0;
-      background: #2a2a2a;
-      border-radius: 6px;
-      padding: 2px;
-      margin-top: 8px;
-    }
-    .mode-btn {
-      flex: 1;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      background: transparent;
-      color: #888;
-      transition: all 0.2s;
-    }
-    .mode-btn.active {
-      background: #4a4a6a;
-      color: #fff;
-    }
-    .mode-btn:hover:not(.active) {
-      color: #bbb;
-    }
+      /* DS Loading progress */
+      .ds-loading {
+        display: none;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .ds-loading.visible {
+        display: flex;
+      }
+      .ds-loading-text {
+        font-size: 12px;
+        color: #b0b0b0;
+      }
+      .ds-loading-bar {
+        height: 3px;
+        border-radius: 2px;
+        background: #333;
+        overflow: hidden;
+      }
+      .ds-loading-fill {
+        height: 100%;
+        border-radius: 2px;
+        background: #7c3aed;
+        width: 0%;
+        transition: width 0.4s ease;
+      }
+      .ds-loading-fill.indeterminate {
+        width: 40%;
+        animation: indeterminate 1.2s ease-in-out infinite;
+      }
+      .ds-loading-fill.complete {
+        width: 100%;
+        background: #4ade80;
+      }
+      @keyframes indeterminate {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(350%); }
+      }
+      .ds-loading-text.done {
+        color: #4ade80;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="header">
         <h1>Figma Design Agent</h1>
-        <div class="mode-toggle" id="mode-toggle">
-          <button class="mode-btn active" data-mode="app" onclick="setMode('app')">App</button>
-          <button class="mode-btn" data-mode="terminal" onclick="setMode('terminal')">Terminal</button>
-        </div>
       </div>
       <div id="status-row" class="status-row disconnected">
         <span id="status-dot" class="dot red"></span>
         <span id="status-text">Disconnected</span>
       </div>
-      <p id="info-text" class="info">Waiting for Electron app on :8767...</p>
+      <p id="info-text" class="info">Waiting for bridge server on :8767...</p>
+      <div id="ds-loading" class="ds-loading">
+        <span id="ds-loading-text" class="ds-loading-text"></span>
+        <div class="ds-loading-bar">
+          <div id="ds-loading-fill" class="ds-loading-fill"></div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -128,31 +144,7 @@
         reconnectAttempts: 0,
         maxReconnectAttempts: Infinity,
         intentionalDisconnect: false,
-        inputMode: 'app',
       };
-
-    function setMode(mode) {
-      state.inputMode = mode;
-      // Update toggle UI
-      document.querySelectorAll('.mode-btn').forEach(function(btn) {
-        btn.classList.toggle('active', btn.dataset.mode === mode);
-      });
-      // Send to server via WebSocket
-      if (state.socket && state.socket.readyState === WebSocket.OPEN) {
-        state.socket.send(JSON.stringify({
-          type: 'set-input-mode',
-          channel: state.channel,
-          mode: mode,
-        }));
-      }
-      // Update info text
-      var infoText = document.getElementById('info-text');
-      if (infoText) {
-        infoText.textContent = mode === 'terminal'
-          ? 'Terminal mode — Claude Code에서 입력'
-          : 'App mode — Electron 앱에서 입력';
-      }
-    }
 
       const SERVER_PORT = 8767;
 
@@ -161,6 +153,9 @@
       const statusDot = document.getElementById("status-dot");
       const statusText = document.getElementById("status-text");
       const infoText = document.getElementById("info-text");
+      const dsLoadingEl = document.getElementById("ds-loading");
+      const dsLoadingText = document.getElementById("ds-loading-text");
+      const dsLoadingFill = document.getElementById("ds-loading-fill");
 
       // === UI Update ===
       function updateUI(statusClass, dotClass, text, info) {
@@ -241,12 +236,6 @@
                 documentName: state.documentName || "Unknown",
               })
             );
-            // Sync current input mode with server
-            state.socket.send(JSON.stringify({
-              type: 'set-input-mode',
-              channel: state.channel,
-              mode: state.inputMode,
-            }));
           };
 
           state.socket.onmessage = (event) => {
@@ -287,6 +276,11 @@
                 state.socket.close();
               }
 
+              // Handle notifications from server (ds-loading, etc.)
+              if (data.type === "notification" && data.message) {
+                handleNotification(data.message);
+              }
+
               // Route commands and responses
               handleSocketMessage(data);
             } catch (error) {
@@ -301,7 +295,7 @@
             if (!state.intentionalDisconnect && state.channel) {
               scheduleReconnect();
             } else {
-              updateUI("disconnected", "red", "Disconnected", "Electron app disconnected");
+              updateUI("disconnected", "red", "Disconnected", "Bridge server disconnected");
             }
           };
 
@@ -348,6 +342,36 @@
       function onCommandComplete() {
         isProcessingCommand = false;
         processCommandQueue();
+      }
+
+      // === Handle notifications from server ===
+      let dsLoadingTimer = null;
+      function handleNotification(msg) {
+        if (msg.type === "ds-loading") {
+          if (msg.status === "loading") {
+            dsLoadingEl.classList.add("visible");
+            dsLoadingText.textContent = "디자인 시스템 문서 동기화 중...";
+            dsLoadingText.classList.remove("done");
+            dsLoadingFill.parentElement.style.display = "";
+            dsLoadingFill.className = "ds-loading-fill indeterminate";
+            dsLoadingFill.style.width = "";
+            if (dsLoadingTimer) clearTimeout(dsLoadingTimer);
+          } else if (msg.status === "syncing") {
+            dsLoadingEl.classList.add("visible");
+            var pct = Math.round((msg.current / msg.total) * 100);
+            dsLoadingText.textContent = "문서 동기화 중... (" + msg.current + "/" + msg.total + ") " + (msg.name || "");
+            dsLoadingText.classList.remove("done");
+            dsLoadingFill.parentElement.style.display = "";
+            dsLoadingFill.className = "ds-loading-fill";
+            dsLoadingFill.style.width = pct + "%";
+          } else if (msg.status === "done") {
+            var countText = msg.count ? " (" + msg.count + "개 컴포넌트)" : "";
+            dsLoadingText.textContent = "디자인 시스템 로딩 완료" + countText;
+            dsLoadingText.classList.add("done");
+            dsLoadingFill.parentElement.style.display = "none";
+            if (dsLoadingTimer) clearTimeout(dsLoadingTimer);
+          }
+        }
       }
 
       // === Handle messages from WebSocket (commands from Electron) ===

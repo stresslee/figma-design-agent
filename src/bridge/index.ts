@@ -17,7 +17,7 @@ import { registerDSLookupTools } from '../main/ds-lookup-tools';
 import { McpHttpServer } from '../main/mcp-http-server';
 import { ImageGenerator } from '../main/image-generator';
 import { getGeminiApiKey } from '../main/settings-store';
-import { setProjectRoot } from '../shared/ds-data';
+import { setProjectRoot, syncTokensFull, syncComponentDocs } from '../shared/ds-data';
 
 // ============================================================
 // Configuration
@@ -54,6 +54,9 @@ async function main() {
 
   // Set DS data project root
   setProjectRoot(PROJECT_ROOT);
+
+  // Auto-sync DS tokens from GitHub on startup
+  syncTokensFull();
 
   // 1. Start WebSocket server for Figma plugin
   const figmaWS = new FigmaWSServer(WS_PORT);
@@ -145,9 +148,26 @@ async function main() {
   const mcpServer = new McpHttpServer(tools);
   await mcpServer.start();
 
-  // 5. Log connection events
+  // 5. Log connection events + sync component docs from GitHub Pages
   figmaWS.on('connection-change', (state) => {
     console.log(`[Bridge] Figma: ${state.status}${state.channel ? ` (channel: ${state.channel})` : ''}`);
+
+    if (state.status === 'connected') {
+      // Notify plugin: DS loading started
+      figmaWS.sendNotification('ds-loading', { status: 'loading' });
+
+      // Async: fetch docs from GitHub Pages with progress
+      syncComponentDocs((current, total, name) => {
+        figmaWS.sendNotification('ds-loading', { status: 'syncing', current, total, name });
+      })
+        .then((count) => {
+          figmaWS.sendNotification('ds-loading', { status: 'done', count });
+        })
+        .catch((e) => {
+          console.warn('[Bridge] DS docs sync failed:', e);
+          figmaWS.sendNotification('ds-loading', { status: 'done', count: 0 });
+        });
+    }
   });
 
   console.log('[Bridge] Ready. Waiting for Figma plugin connection...');

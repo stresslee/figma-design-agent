@@ -8,7 +8,7 @@
  * to avoid multiple Claude API round-trips.
  */
 
-import { getIcons, getVariants, getDesignTokens, getTokenMap } from '../shared/ds-data';
+import { getIcons, getVariants, getDesignTokens, getTokenMap, getComponentDocs } from '../shared/ds-data';
 import type { ToolDefinition } from '../shared/types';
 
 /**
@@ -173,6 +173,75 @@ Pass multiple queries across all categories at once to avoid repeated calls.`,
       }
 
       return result;
+    },
+  });
+
+  // ─── Component Docs Lookup ────────────────────────────────────────
+
+  tools.set('lookup_component_docs', {
+    name: 'lookup_component_docs',
+    description: `Look up detailed DS component documentation from design-system-docs.
+Returns description, Figma component name, variants, props, and usage guidelines.
+Use this when you need to know which variants/props a DS component supports before creating instances.`,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Component name to search (e.g. "Toggle", "Button", "Badge", "Input")',
+        },
+        category: {
+          type: 'string',
+          enum: ['components', 'foundation', 'all'],
+          description: 'Category to search in (default: all)',
+        },
+      },
+      required: ['query'],
+    },
+    handler: async (params) => {
+      const docs = getComponentDocs();
+      if (!docs) {
+        return { error: 'DS_COMPONENT_DOCS.json not found. Run the docs scraping script first.' };
+      }
+
+      const query = (params.query as string).toLowerCase();
+      const category = (params.category as string) || 'all';
+
+      const searchIn = category === 'all'
+        ? [...(docs.components || []), ...(docs.foundation || [])]
+        : category === 'components'
+          ? (docs.components || [])
+          : (docs.foundation || []);
+
+      const matches = searchIn.filter((c) => {
+        if (c.name.toLowerCase().includes(query)) return true;
+        const fcn = c.figmaComponentName;
+        if (typeof fcn === 'string') return fcn.toLowerCase().includes(query);
+        if (Array.isArray(fcn)) return fcn.some((n: string) => typeof n === 'string' && n.toLowerCase().includes(query));
+        return false;
+      });
+
+      if (matches.length === 0) {
+        return {
+          query,
+          matches: [],
+          available: searchIn.map((c) => c.name),
+        };
+      }
+
+      return {
+        query,
+        matches: matches.map((c) => ({
+          name: c.name,
+          category: c.category,
+          figmaComponentName: c.figmaComponentName,
+          description: c.description,
+          variants: c.variants,
+          props: c.props,
+          figmaVariants: c.figmaVariants,
+          usageGuidelines: c.usageGuidelines,
+        })),
+      };
     },
   });
 }

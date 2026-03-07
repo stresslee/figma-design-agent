@@ -307,6 +307,16 @@ export class FigmaWSServer extends EventEmitter {
     }
   }
 
+  /** Send a one-way notification to the plugin UI (no response expected) */
+  sendNotification(notificationType: string, data: Record<string, unknown>): void {
+    if (!this.pluginSocket || this.pluginSocket.readyState !== WebSocket.OPEN) return;
+    this.pluginSocket.send(JSON.stringify({
+      type: 'notification',
+      channel: this.currentChannel,
+      message: { type: notificationType, ...data },
+    }));
+  }
+
   private emitConnectionState(status: FigmaConnectionState['status']): void {
     this.emit('connection-change', {
       status,

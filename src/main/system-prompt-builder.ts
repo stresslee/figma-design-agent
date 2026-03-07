@@ -13,6 +13,7 @@
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import type { ToolDefinition } from '../shared/types';
+import { getComponentDocsSummary } from '../shared/ds-data';
 
 export interface PromptContext {
   /** Available tools for the agent */
@@ -95,6 +96,12 @@ export async function buildSystemPrompt(
   const mobileComposition = await loadFullFile(projectRoot, 'ds/mobile-screen-composition-SKILL.md');
   if (mobileComposition) {
     sections.push(`## Mobile Screen Composition\n\n${mobileComposition}`);
+  }
+
+  // 3j. DS Component docs summary (from design-system-docs site)
+  const componentDocsSummary = getComponentDocsSummary();
+  if (componentDocsSummary) {
+    sections.push(`## DS Component Documentation\n\n${componentDocsSummary}`);
   }
 
   // 4. Available tools
@@ -369,6 +376,7 @@ blueprint 생성 전에 아래 4가지를 반드시 내부적으로 결정하라
 
 ### 🚨 최우선 금지 규칙
 - **⛔ 커스텀 색상(하드코딩 hex/RGB) 절대 금지!** — 모든 fill, stroke, fontColor는 반드시 DESIGN_TOKENS.md의 DS 토큰만 사용. #1A1A1A, #737880, #F5F0FF 같은 임의 hex 값 사용 시 실패!
+- **⛔ 단조로운 단색 화면 금지!** — Brand color만 사용하면 밋밋함. 기본 톤은 Gray Modern(bg-primary/bg-secondary/fg-primary/fg-secondary), 중요 텍스트·버튼·기능은 Brand color, 상황별 배지·지표에 Error(빨강)·Success(초록)·Warning(주황) 등 2~3개 Semantic accent를 혼용하여 시각적 리듬감 확보.
 - **⛔ Status Bar 직접 만들기 절대 금지!** — 텍스트/아이콘/rectangle/frame으로 Status Bar를 수동으로 그리지 마라! 루트 프레임에 \`"statusBar": true\`만 추가하면 DS Status Bar 인스턴스가 children 맨 앞에 자동 삽입된다.
 - **⛔ 이모지(🎁📚🏃 등)로 아이콘 대체 절대 금지!** — 이모지는 Figma에서 깨진다. 반드시 \`type: "icon"\` + DS-1 아이콘 이름 사용.
 - **⛔ rectangle/ellipse로 아이콘 자리 대체 금지!** — 반드시 \`type: "icon"\` 사용.
@@ -381,7 +389,7 @@ blueprint 생성 전에 아래 4가지를 반드시 내부적으로 결정하라
 - **텍스트에 layoutSizingHorizontal: "FILL" 누락 금지** — 세로 글씨 버그 발생.
 - **이모지/텍스트로 이미지 대체 금지** — rectangle placeholder 배치 후 generate_image 사용.
 - **히어로 배너에 isHero: true 누락 금지** — generate_image 호출 시 반드시 isHero: true 설정.
-- **히어로 배너 안에 별도 이미지 컨테이너 생성 절대 금지** — 히어로 섹션 프레임 자체의 nodeId를 generate_image에 전달. 프레임 안에 rectangle/frame을 만들어서 이미지를 넣지 마라!
+- **히어로 이미지 타겟 규칙** — Hero Section 안에 Banner Card 프레임이 있으면 Banner Card의 nodeId를 generate_image에 전달. Banner Card가 없으면 Hero Section 자체의 nodeId 전달. 프레임 안에 별도 rectangle을 만들어서 이미지를 넣지 마라!
 - **히어로 배너 정사각형 금지** — 히어로 배너는 반드시 가로가 넓은 직사각형 (393 × 160~220px). 정사각형(1:1)으로 만들지 마라!
 - **텍스트 프레임에 불투명 fill 절대 금지** — 텍스트를 감싸는 프레임에 흰색이나 컬러 fill을 넣지 마라. 특히 히어로 섹션 위 텍스트 프레임에 fill을 넣으면 이미지가 가려진다. 텍스트 프레임은 항상 fill 없음(투명).
 
@@ -704,6 +712,7 @@ batch_build_screen 결과에 스크린샷이 자동 포함됨 — export_node_as
 
 ### 🚨 최우선 금지 규칙
 - **⛔ 커스텀 색상(하드코딩 hex/RGB) 절대 금지!** — 모든 fill, stroke, fontColor는 DESIGN_TOKENS.md의 DS 토큰만 사용. #1A1A1A, #737880, #F5F0FF 같은 임의 값 금지!
+- **⛔ 단조로운 단색 화면 금지!** — 기본 톤은 Gray Modern, 중요 요소는 Brand color, 상황별 배지·지표에 Error/Success/Warning 등 2~3개 Semantic accent 혼용하여 시각적 리듬감 확보.
 - **⛔ Status Bar 직접 만들기 절대 금지!** — 텍스트/아이콘/rectangle로 Status Bar를 그리지 마라. 루트 프레임에 \`"statusBar": true\`만 추가하면 DS 인스턴스가 자동 삽입된다.
 - **⛔ 이모지(🎁📚🏃 등)로 아이콘 대체 절대 금지!** — 반드시 \`type: "icon"\` + DS-1 아이콘 이름
 - **⛔ rectangle/ellipse로 아이콘 자리 대체 금지!** — 반드시 \`type: "icon"\` 사용
@@ -718,7 +727,7 @@ batch_build_screen 결과에 스크린샷이 자동 포함됨 — export_node_as
 - **텍스트 프레임에 불투명 fill 절대 금지**
 - **히어로 배너 정사각형 금지** — 반드시 393 × 160~220px 가로형 직사각형
 - **히어로 배너에 isHero: true 누락 금지**
-- **히어로 배너 안에 별도 이미지 컨테이너 생성 금지**
+- **히어로 이미지 타겟 규칙** — Banner Card 있으면 Banner Card nodeId, 없으면 Hero Section nodeId 전달. 별도 rectangle 컨테이너 생성 금지
 - **히어로 배너 prompt에 오브젝트 3개 이상 나열 금지** — 핵심 1~2개만
 
 ## 🖼️ 히어로 배너 이미지 규칙 (isHero: true 필수!)
@@ -744,10 +753,10 @@ batch_build_screen 결과에 스크린샷이 자동 포함됨 — export_node_as
 
 ### 호출 방법
 \`\`\`
-generate_image({ prompt: "a single cute matte clay gift box, soft purple gradient background", nodeId: "<히어로 섹션 프레임 nodeId>", isHero: true })
+generate_image({ prompt: "a single cute matte clay gift box, soft purple gradient background", nodeId: "<Banner Card nodeId 또는 히어로 섹션 nodeId>", isHero: true })
 \`\`\`
 1. **isHero: true 필수** — 빼먹으면 배경 투명 + 크기 틀어짐
-2. **nodeId = 히어로 섹션 프레임 자체** — ⛔ 별도 이미지 컨테이너 금지
+2. **nodeId = Banner Card (있으면) 또는 Hero Section (없으면)** — ⛔ 별도 rectangle 컨테이너 금지
 3. **width/height 생략** — 시스템이 Figma 노드 크기 자동 감지
 4. **prompt에 오브젝트 최대 2개만** — 핵심 1~2개만. ⛔ 다수 나열 금지!
 5. **배경은 단색/그라데이션** — 좌측 텍스트 가독성 확보

@@ -57,7 +57,7 @@ function sendProgressUpdate(commandId, commandType, status, progress, totalItems
 }
 
 // Show UI
-figma.showUI(__html__, { width: 300, height: 140, visible: true });
+figma.showUI(__html__, { width: 300, height: 200, visible: true });
 
 // Auto-connect on plugin start
 setTimeout(() => {
@@ -5567,9 +5567,16 @@ async function batchBuildScreen(params) {
   const fontsToLoad = new Set();
   function collectFonts(node) {
     if (node.type === "text" || (!node.type && node.text)) {
-      const family = node.fontFamily || "Pretendard";
-      const weight = node.fontWeight || 400;
-      fontsToLoad.add(JSON.stringify({ family, style: getFontStyle(weight) }));
+      var family = node.fontFamily || "Pretendard";
+      var style = "Regular";
+      if (node.fontName && typeof node.fontName === "object") {
+        if (node.fontName.family) family = node.fontName.family;
+        if (node.fontName.style) style = node.fontName.style;
+      } else {
+        var weight = node.fontWeight || 400;
+        style = getFontStyle(weight);
+      }
+      fontsToLoad.add(JSON.stringify({ family, style: style }));
     }
     if (node.children) node.children.forEach(collectFonts);
   }
@@ -5698,9 +5705,16 @@ async function batchBuildScreen(params) {
 
     } else if (nodeType === "text") {
       node = figma.createText();
-      const family = spec.fontFamily || "Pretendard";
-      const weight = spec.fontWeight || 400;
-      var styleName = getFontStyle(weight);
+      // Support both fontName: {family, style} and fontFamily + fontWeight
+      var family = spec.fontFamily || "Pretendard";
+      var styleName = "Regular";
+      if (spec.fontName && typeof spec.fontName === "object") {
+        if (spec.fontName.family) family = spec.fontName.family;
+        if (spec.fontName.style) styleName = spec.fontName.style;
+      } else {
+        var weight = spec.fontWeight || 400;
+        styleName = getFontStyle(weight);
+      }
       try {
         node.fontName = { family, style: styleName };
         if (spec.fontSize) node.fontSize = parseInt(spec.fontSize);
@@ -5986,7 +6000,21 @@ async function batchBuildScreen(params) {
         // Then force textAutoResize to HEIGHT (width from parent, height auto)
         node.textAutoResize = "HEIGHT";
       } else {
-        if (hSizing) node.layoutSizingHorizontal = hSizing;
+        if (hSizing) {
+          node.layoutSizingHorizontal = hSizing;
+          // Safety: when FILL is applied, also set node width to parent's inner width
+          // This ensures width is correct even if parent auto-layout is later removed
+          if (hSizing === "FILL" && parentNode && parentNode.layoutMode && parentNode.layoutMode !== "NONE") {
+            try {
+              var pPadL = parentNode.paddingLeft || 0;
+              var pPadR = parentNode.paddingRight || 0;
+              var innerW = parentNode.width - pPadL - pPadR;
+              if (innerW > 0 && nodeType !== "text") {
+                node.resize(innerW, node.height);
+              }
+            } catch (e) { /* ignore resize errors */ }
+          }
+        }
       }
       if (vSizing) node.layoutSizingVertical = vSizing;
     } catch (lsErr) {

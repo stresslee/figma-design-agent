@@ -1,0 +1,1164 @@
+{
+  "name": "IMIN Stage Explore",
+  "width": 393,
+  "height": 1400,
+  "x": 986,
+  "y": 0,
+  "autoLayout": {
+    "layoutMode": "VERTICAL",
+    "primaryAxisAlignItems": "MIN",
+    "counterAxisAlignItems": "MIN",
+    "itemSpacing": 0,
+    "paddingTop": 0,
+    "paddingBottom": 120,
+    "paddingLeft": 0,
+    "paddingRight": 0
+  },
+  "fill": {"r": 1, "g": 1, "b": 1, "a": 1},
+  "statusBar": true,
+  "children": [
+    {
+      "name": "Header",
+      "type": "frame",
+      "width": 393,
+      "layoutSizingHorizontal": "FILL",
+      "autoLayout": {
+        "layoutMode": "HORIZONTAL",
+        "primaryAxisAlignItems": "SPACE_BETWEEN",
+        "counterAxisAlignItems": "CENTER",
+        "paddingTop": 12,
+        "paddingBottom": 12,
+        "paddingLeft": 20,
+        "paddingRight": 20
+      },
+      "fill": {"r": 1, "g": 1, "b": 1, "a": 1},
+      "children": [
+        {
+          "name": "Screen Title",
+          "type": "text",
+          "text": "스테이지",
+          "fontSize": 22,
+          "fontName": {"family": "Pretendard", "style": "Bold"},
+          "fontColor": "$token(fg-primary)"
+        },
+        {
+          "name": "Add Button",
+          "type": "frame",
+          "width": 36,
+          "height": 36,
+          "cornerRadius": 18,
+          "fill": "$token(bg-brand-solid)",
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER"
+          },
+          "children": [
+            {"name": "plus", "type": "icon", "size": 20, "iconColor": {"r": 1, "g": 1, "b": 1, "a": 1}}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Search Section",
+      "type": "frame",
+      "width": 393,
+      "layoutSizingHorizontal": "FILL",
+      "autoLayout": {
+        "layoutMode": "VERTICAL",
+        "primaryAxisAlignItems": "MIN",
+        "counterAxisAlignItems": "MIN",
+        "paddingTop": 4,
+        "paddingBottom": 12,
+        "paddingLeft": 20,
+        "paddingRight": 20
+      },
+      "children": [
+        {
+          "name": "Search Bar",
+          "type": "frame",
+          "width": 353,
+          "height": 44,
+          "layoutSizingHorizontal": "FILL",
+          "cornerRadius": 12,
+          "fill": "$token(bg-secondary)",
+          "autoLayout": {
+            "layoutMode": "HORIZONTAL",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 8,
+            "paddingLeft": 14,
+            "paddingRight": 14
+          },
+          "children": [
+            {"name": "search-sm", "type": "icon", "size": 20, "iconColor": "$token(fg-quaternary)"},
+            {
+              "name": "Search Placeholder",
+              "type": "text",
+              "text": "스테이지명 또는 방장명 검색",
+              "fontSize": 15,
+              "fontName": {"family": "Pretendard", "style": "Regular"},
+              "fontColor": "$token(fg-quaternary)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Filter Section",
+      "type": "frame",
+      "width": 393,
+      "layoutSizingHorizontal": "FILL",
+      "autoLayout": {
+        "layoutMode": "VERTICAL",
+        "primaryAxisAlignItems": "MIN",
+        "counterAxisAlignItems": "MIN",
+        "itemSpacing": 10,
+        "paddingTop": 4,
+        "paddingBottom": 12,
+        "paddingLeft": 20,
+        "paddingRight": 20
+      },
+      "children": [
+        {
+          "name": "Filter Row",
+          "type": "frame",
+          "width": 353,
+          "layoutSizingHorizontal": "FILL",
+          "autoLayout": {
+            "layoutMode": "HORIZONTAL",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 8
+          },
+          "children": [
+            {
+              "name": "Toggle Private",
+              "type": "frame",
+              "cornerRadius": 20,
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "CENTER",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 6,
+                "paddingTop": 8,
+                "paddingBottom": 8,
+                "paddingLeft": 14,
+                "paddingRight": 14
+              },
+              "fill": "$token(fg-primary)",
+              "children": [
+                {"name": "eye-off", "type": "icon", "size": 16, "iconColor": {"r": 1, "g": 1, "b": 1, "a": 1}},
+                {
+                  "name": "Toggle Label",
+                  "type": "text",
+                  "text": "비공개 제외",
+                  "fontSize": 13,
+                  "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                  "fontColor": {"r": 1, "g": 1, "b": 1, "a": 1}
+                }
+              ]
+            },
+            {
+              "name": "Filter Amount",
+              "type": "frame",
+              "cornerRadius": 20,
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "CENTER",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 4,
+                "paddingTop": 8,
+                "paddingBottom": 8,
+                "paddingLeft": 14,
+                "paddingRight": 14
+              },
+              "stroke": "$token(border-secondary)",
+              "strokeWeight": 1,
+              "children": [
+                {
+                  "name": "Amount Label",
+                  "type": "text",
+                  "text": "약정금",
+                  "fontSize": 13,
+                  "fontName": {"family": "Pretendard", "style": "Medium"},
+                  "fontColor": "$token(fg-secondary)"
+                },
+                {"name": "chevron-down", "type": "icon", "size": 14, "iconColor": "$token(fg-tertiary)"}
+              ]
+            },
+            {
+              "name": "Filter People",
+              "type": "frame",
+              "cornerRadius": 20,
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "CENTER",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 4,
+                "paddingTop": 8,
+                "paddingBottom": 8,
+                "paddingLeft": 14,
+                "paddingRight": 14
+              },
+              "stroke": "$token(border-secondary)",
+              "strokeWeight": 1,
+              "children": [
+                {
+                  "name": "People Label",
+                  "type": "text",
+                  "text": "인원",
+                  "fontSize": 13,
+                  "fontName": {"family": "Pretendard", "style": "Medium"},
+                  "fontColor": "$token(fg-secondary)"
+                },
+                {"name": "chevron-down", "type": "icon", "size": 14, "iconColor": "$token(fg-tertiary)"}
+              ]
+            },
+            {
+              "name": "Filter Order",
+              "type": "frame",
+              "cornerRadius": 20,
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "CENTER",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 4,
+                "paddingTop": 8,
+                "paddingBottom": 8,
+                "paddingLeft": 14,
+                "paddingRight": 14
+              },
+              "stroke": "$token(border-secondary)",
+              "strokeWeight": 1,
+              "children": [
+                {
+                  "name": "Order Label",
+                  "type": "text",
+                  "text": "순번",
+                  "fontSize": 13,
+                  "fontName": {"family": "Pretendard", "style": "Medium"},
+                  "fontColor": "$token(fg-secondary)"
+                },
+                {"name": "chevron-down", "type": "icon", "size": 14, "iconColor": "$token(fg-tertiary)"}
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sort Row",
+          "type": "frame",
+          "width": 353,
+          "layoutSizingHorizontal": "FILL",
+          "autoLayout": {
+            "layoutMode": "HORIZONTAL",
+            "primaryAxisAlignItems": "SPACE_BETWEEN",
+            "counterAxisAlignItems": "CENTER"
+          },
+          "children": [
+            {
+              "name": "Result Count",
+              "type": "text",
+              "text": "총 24개 스테이지",
+              "fontSize": 13,
+              "fontName": {"family": "Pretendard", "style": "Medium"},
+              "fontColor": "$token(fg-tertiary)"
+            },
+            {
+              "name": "Sort Button",
+              "type": "frame",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "CENTER",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 4
+              },
+              "children": [
+                {
+                  "name": "Sort Label",
+                  "type": "text",
+                  "text": "추천순",
+                  "fontSize": 13,
+                  "fontName": {"family": "Pretendard", "style": "Medium"},
+                  "fontColor": "$token(fg-secondary)"
+                },
+                {"name": "chevron-selector-vertical", "type": "icon", "size": 16, "iconColor": "$token(fg-tertiary)"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stage List",
+      "type": "frame",
+      "width": 393,
+      "layoutSizingHorizontal": "FILL",
+      "autoLayout": {
+        "layoutMode": "VERTICAL",
+        "primaryAxisAlignItems": "MIN",
+        "counterAxisAlignItems": "MIN",
+        "itemSpacing": 0,
+        "paddingLeft": 20,
+        "paddingRight": 20
+      },
+      "children": [
+        {
+          "name": "Stage Item 1",
+          "type": "frame",
+          "width": 353,
+          "layoutSizingHorizontal": "FILL",
+          "cornerRadius": 16,
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "MIN",
+            "itemSpacing": 14,
+            "paddingTop": 20,
+            "paddingBottom": 20,
+            "paddingLeft": 20,
+            "paddingRight": 20
+          },
+          "fill": "$token(bg-secondary)",
+          "children": [
+            {
+              "name": "Item1 Top Row",
+              "type": "frame",
+              "width": 313,
+              "layoutSizingHorizontal": "FILL",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "SPACE_BETWEEN",
+                "counterAxisAlignItems": "MIN"
+              },
+              "children": [
+                {
+                  "name": "Item1 Info",
+                  "type": "frame",
+                  "autoLayout": {
+                    "layoutMode": "VERTICAL",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "MIN",
+                    "itemSpacing": 6
+                  },
+                  "children": [
+                    {
+                      "name": "Item1 Amount",
+                      "type": "text",
+                      "text": "월 30만원 · 12개월",
+                      "fontSize": 18,
+                      "fontName": {"family": "Pretendard", "style": "Bold"},
+                      "fontColor": "$token(fg-primary)"
+                    },
+                    {
+                      "name": "Item1 Target",
+                      "type": "text",
+                      "text": "목표 260만원",
+                      "fontSize": 14,
+                      "fontName": {"family": "Pretendard", "style": "Medium"},
+                      "fontColor": "$token(fg-secondary)"
+                    }
+                  ]
+                },
+                {"name": "bookmark", "type": "icon", "size": 22, "iconColor": "$token(fg-quaternary)"}
+              ]
+            },
+            {
+              "name": "Item1 Tags Row",
+              "type": "frame",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "MIN",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 8
+              },
+              "children": [
+                {
+                  "name": "Item1 Rate Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-brand-primary)",
+                  "children": [
+                    {
+                      "name": "Rate Tag Text 1",
+                      "type": "text",
+                      "text": "연 6.5%",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-brand-primary)"
+                    }
+                  ]
+                },
+                {
+                  "name": "Item1 Benefit Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-success-primary)",
+                  "children": [
+                    {
+                      "name": "Benefit Tag Text 1",
+                      "type": "text",
+                      "text": "+2,000P",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-success-primary)"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Item1 Dots Row",
+              "type": "frame",
+              "width": 313,
+              "layoutSizingHorizontal": "FILL",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "SPACE_BETWEEN",
+                "counterAxisAlignItems": "CENTER"
+              },
+              "children": [
+                {
+                  "name": "Item1 Dots",
+                  "type": "frame",
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "CENTER",
+                    "itemSpacing": 4
+                  },
+                  "children": [
+                    {"name": "Dot Filled 1a", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 1b", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 1c", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 1d", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 1e", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 1f", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 1g", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Empty 1a", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 1b", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 1c", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 1d", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 1e", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"}
+                  ]
+                },
+                {
+                  "name": "Item1 Seat Info",
+                  "type": "text",
+                  "text": "7/12석",
+                  "fontSize": 12,
+                  "fontName": {"family": "Pretendard", "style": "Medium"},
+                  "fontColor": "$token(fg-tertiary)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "List Spacer 1",
+          "type": "frame",
+          "width": 353,
+          "height": 12,
+          "layoutSizingHorizontal": "FILL"
+        },
+        {
+          "name": "Stage Item 2",
+          "type": "frame",
+          "width": 353,
+          "layoutSizingHorizontal": "FILL",
+          "cornerRadius": 16,
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "MIN",
+            "itemSpacing": 14,
+            "paddingTop": 20,
+            "paddingBottom": 20,
+            "paddingLeft": 20,
+            "paddingRight": 20
+          },
+          "fill": "$token(bg-secondary)",
+          "children": [
+            {
+              "name": "Item2 Top Row",
+              "type": "frame",
+              "width": 313,
+              "layoutSizingHorizontal": "FILL",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "SPACE_BETWEEN",
+                "counterAxisAlignItems": "MIN"
+              },
+              "children": [
+                {
+                  "name": "Item2 Info",
+                  "type": "frame",
+                  "autoLayout": {
+                    "layoutMode": "VERTICAL",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "MIN",
+                    "itemSpacing": 6
+                  },
+                  "children": [
+                    {
+                      "name": "Item2 Amount",
+                      "type": "text",
+                      "text": "월 50만원 · 16개월",
+                      "fontSize": 18,
+                      "fontName": {"family": "Pretendard", "style": "Bold"},
+                      "fontColor": "$token(fg-primary)"
+                    },
+                    {
+                      "name": "Item2 Target",
+                      "type": "text",
+                      "text": "목표 800만원",
+                      "fontSize": 14,
+                      "fontName": {"family": "Pretendard", "style": "Medium"},
+                      "fontColor": "$token(fg-secondary)"
+                    }
+                  ]
+                },
+                {"name": "bookmark", "type": "icon", "size": 22, "iconColor": "$token(fg-brand-primary)"}
+              ]
+            },
+            {
+              "name": "Item2 Tags Row",
+              "type": "frame",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "MIN",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 8
+              },
+              "children": [
+                {
+                  "name": "Item2 Rate Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-brand-primary)",
+                  "children": [
+                    {
+                      "name": "Rate Tag Text 2",
+                      "type": "text",
+                      "text": "연 7.2%",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-brand-primary)"
+                    }
+                  ]
+                },
+                {
+                  "name": "Item2 Benefit Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-warning-secondary)",
+                  "children": [
+                    {
+                      "name": "Benefit Tag Text 2",
+                      "type": "text",
+                      "text": "기프티콘",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-warning-primary)"
+                    }
+                  ]
+                },
+                {
+                  "name": "Item2 Hot Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-error-primary)",
+                  "children": [
+                    {
+                      "name": "Hot Tag Text",
+                      "type": "text",
+                      "text": "마감임박",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-error-primary)"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Item2 Dots Row",
+              "type": "frame",
+              "width": 313,
+              "layoutSizingHorizontal": "FILL",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "SPACE_BETWEEN",
+                "counterAxisAlignItems": "CENTER"
+              },
+              "children": [
+                {
+                  "name": "Item2 Dots",
+                  "type": "frame",
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "CENTER",
+                    "itemSpacing": 4
+                  },
+                  "children": [
+                    {"name": "Dot Filled 2a", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2b", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2c", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2d", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2e", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2f", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2g", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2h", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2i", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2j", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2k", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2l", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2m", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 2n", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Empty 2a", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 2b", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"}
+                  ]
+                },
+                {
+                  "name": "Item2 Seat Info",
+                  "type": "text",
+                  "text": "14/16석",
+                  "fontSize": 12,
+                  "fontName": {"family": "Pretendard", "style": "Medium"},
+                  "fontColor": "$token(fg-error-primary)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "List Spacer 2",
+          "type": "frame",
+          "width": 353,
+          "height": 12,
+          "layoutSizingHorizontal": "FILL"
+        },
+        {
+          "name": "Stage Item 3",
+          "type": "frame",
+          "width": 353,
+          "layoutSizingHorizontal": "FILL",
+          "cornerRadius": 16,
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "MIN",
+            "itemSpacing": 14,
+            "paddingTop": 20,
+            "paddingBottom": 20,
+            "paddingLeft": 20,
+            "paddingRight": 20
+          },
+          "fill": "$token(bg-secondary)",
+          "children": [
+            {
+              "name": "Item3 Top Row",
+              "type": "frame",
+              "width": 313,
+              "layoutSizingHorizontal": "FILL",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "SPACE_BETWEEN",
+                "counterAxisAlignItems": "MIN"
+              },
+              "children": [
+                {
+                  "name": "Item3 Info",
+                  "type": "frame",
+                  "autoLayout": {
+                    "layoutMode": "VERTICAL",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "MIN",
+                    "itemSpacing": 6
+                  },
+                  "children": [
+                    {
+                      "name": "Item3 Amount",
+                      "type": "text",
+                      "text": "월 10만원 · 10개월",
+                      "fontSize": 18,
+                      "fontName": {"family": "Pretendard", "style": "Bold"},
+                      "fontColor": "$token(fg-primary)"
+                    },
+                    {
+                      "name": "Item3 Target",
+                      "type": "text",
+                      "text": "목표 100만원",
+                      "fontSize": 14,
+                      "fontName": {"family": "Pretendard", "style": "Medium"},
+                      "fontColor": "$token(fg-secondary)"
+                    }
+                  ]
+                },
+                {"name": "bookmark", "type": "icon", "size": 22, "iconColor": "$token(fg-quaternary)"}
+              ]
+            },
+            {
+              "name": "Item3 Tags Row",
+              "type": "frame",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "MIN",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 8
+              },
+              "children": [
+                {
+                  "name": "Item3 Rate Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-brand-primary)",
+                  "children": [
+                    {
+                      "name": "Rate Tag Text 3",
+                      "type": "text",
+                      "text": "연 5.8%",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-brand-primary)"
+                    }
+                  ]
+                },
+                {
+                  "name": "Item3 Benefit Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-success-primary)",
+                  "children": [
+                    {
+                      "name": "Benefit Tag Text 3",
+                      "type": "text",
+                      "text": "+3,000P",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-success-primary)"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Item3 Dots Row",
+              "type": "frame",
+              "width": 313,
+              "layoutSizingHorizontal": "FILL",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "SPACE_BETWEEN",
+                "counterAxisAlignItems": "CENTER"
+              },
+              "children": [
+                {
+                  "name": "Item3 Dots",
+                  "type": "frame",
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "CENTER",
+                    "itemSpacing": 4
+                  },
+                  "children": [
+                    {"name": "Dot Filled 3a", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 3b", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Filled 3c", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Empty 3a", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 3b", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 3c", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 3d", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 3e", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 3f", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 3g", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"}
+                  ]
+                },
+                {
+                  "name": "Item3 Seat Info",
+                  "type": "text",
+                  "text": "3/10석",
+                  "fontSize": 12,
+                  "fontName": {"family": "Pretendard", "style": "Medium"},
+                  "fontColor": "$token(fg-tertiary)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "List Spacer 3",
+          "type": "frame",
+          "width": 353,
+          "height": 12,
+          "layoutSizingHorizontal": "FILL"
+        },
+        {
+          "name": "Stage Item 4",
+          "type": "frame",
+          "width": 353,
+          "layoutSizingHorizontal": "FILL",
+          "cornerRadius": 16,
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "MIN",
+            "itemSpacing": 14,
+            "paddingTop": 20,
+            "paddingBottom": 20,
+            "paddingLeft": 20,
+            "paddingRight": 20
+          },
+          "fill": "$token(bg-secondary)",
+          "children": [
+            {
+              "name": "Item4 Top Row",
+              "type": "frame",
+              "width": 313,
+              "layoutSizingHorizontal": "FILL",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "SPACE_BETWEEN",
+                "counterAxisAlignItems": "MIN"
+              },
+              "children": [
+                {
+                  "name": "Item4 Info",
+                  "type": "frame",
+                  "autoLayout": {
+                    "layoutMode": "VERTICAL",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "MIN",
+                    "itemSpacing": 6
+                  },
+                  "children": [
+                    {
+                      "name": "Item4 Amount",
+                      "type": "text",
+                      "text": "월 100만원 · 6개월",
+                      "fontSize": 18,
+                      "fontName": {"family": "Pretendard", "style": "Bold"},
+                      "fontColor": "$token(fg-primary)"
+                    },
+                    {
+                      "name": "Item4 Target",
+                      "type": "text",
+                      "text": "목표 600만원",
+                      "fontSize": 14,
+                      "fontName": {"family": "Pretendard", "style": "Medium"},
+                      "fontColor": "$token(fg-secondary)"
+                    }
+                  ]
+                },
+                {"name": "bookmark", "type": "icon", "size": 22, "iconColor": "$token(fg-quaternary)"}
+              ]
+            },
+            {
+              "name": "Item4 Tags Row",
+              "type": "frame",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "MIN",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 8
+              },
+              "children": [
+                {
+                  "name": "Item4 Rate Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-brand-primary)",
+                  "children": [
+                    {
+                      "name": "Rate Tag Text 4",
+                      "type": "text",
+                      "text": "연 8.0%",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-brand-primary)"
+                    }
+                  ]
+                },
+                {
+                  "name": "Item4 Benefit Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-success-primary)",
+                  "children": [
+                    {
+                      "name": "Benefit Tag Text 4",
+                      "type": "text",
+                      "text": "+5,000P",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-success-primary)"
+                    }
+                  ]
+                },
+                {
+                  "name": "Item4 New Tag",
+                  "type": "frame",
+                  "cornerRadius": 6,
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "CENTER",
+                    "counterAxisAlignItems": "CENTER",
+                    "paddingTop": 4,
+                    "paddingBottom": 4,
+                    "paddingLeft": 8,
+                    "paddingRight": 8
+                  },
+                  "fill": "$token(bg-warning-primary)",
+                  "children": [
+                    {
+                      "name": "New Tag Text",
+                      "type": "text",
+                      "text": "NEW",
+                      "fontSize": 13,
+                      "fontName": {"family": "Pretendard", "style": "SemiBold"},
+                      "fontColor": "$token(fg-warning-primary)"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Item4 Dots Row",
+              "type": "frame",
+              "width": 313,
+              "layoutSizingHorizontal": "FILL",
+              "autoLayout": {
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "SPACE_BETWEEN",
+                "counterAxisAlignItems": "CENTER"
+              },
+              "children": [
+                {
+                  "name": "Item4 Dots",
+                  "type": "frame",
+                  "autoLayout": {
+                    "layoutMode": "HORIZONTAL",
+                    "primaryAxisAlignItems": "MIN",
+                    "counterAxisAlignItems": "CENTER",
+                    "itemSpacing": 4
+                  },
+                  "children": [
+                    {"name": "Dot Filled 4a", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(bg-brand-solid)"},
+                    {"name": "Dot Empty 4a", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 4b", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 4c", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 4d", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"},
+                    {"name": "Dot Empty 4e", "type": "frame", "width": 10, "height": 10, "cornerRadius": 5, "fill": "$token(border-secondary)"}
+                  ]
+                },
+                {
+                  "name": "Item4 Seat Info",
+                  "type": "text",
+                  "text": "1/6석",
+                  "fontSize": 12,
+                  "fontName": {"family": "Pretendard", "style": "Medium"},
+                  "fontColor": "$token(fg-tertiary)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tab Bar",
+      "type": "frame",
+      "width": 393,
+      "height": 83,
+      "layoutPositioning": "ABSOLUTE",
+      "constraints": {"horizontal": "STRETCH", "vertical": "MAX"},
+      "autoLayout": {
+        "layoutMode": "HORIZONTAL",
+        "primaryAxisAlignItems": "CENTER",
+        "counterAxisAlignItems": "CENTER",
+        "itemSpacing": 0,
+        "paddingTop": 8,
+        "paddingBottom": 28
+      },
+      "fill": {"r": 1, "g": 1, "b": 1, "a": 1},
+      "stroke": "$token(border-secondary)",
+      "strokeWeight": 1,
+      "strokeAlign": "INSIDE",
+      "children": [
+        {
+          "name": "Tab Home",
+          "type": "frame",
+          "width": 78,
+          "height": 47,
+          "layoutSizingHorizontal": "FILL",
+          "layoutSizingVertical": "FILL",
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 4
+          },
+          "children": [
+            {"name": "home-03", "type": "icon", "size": 22, "iconColor": "$token(fg-quaternary)"},
+            {"name": "Tab Home Label", "type": "text", "text": "홈", "fontSize": 11, "fontName": {"family": "Pretendard", "style": "Medium"}, "fontColor": "$token(fg-quaternary)", "textAlignHorizontal": "CENTER"}
+          ]
+        },
+        {
+          "name": "Tab Community",
+          "type": "frame",
+          "width": 78,
+          "height": 47,
+          "layoutSizingHorizontal": "FILL",
+          "layoutSizingVertical": "FILL",
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 4
+          },
+          "children": [
+            {"name": "message-smile-circle", "type": "icon", "size": 22, "iconColor": "$token(fg-quaternary)"},
+            {"name": "Tab Comm Label", "type": "text", "text": "커뮤니티", "fontSize": 11, "fontName": {"family": "Pretendard", "style": "Medium"}, "fontColor": "$token(fg-quaternary)", "textAlignHorizontal": "CENTER"}
+          ]
+        },
+        {
+          "name": "Tab Stage",
+          "type": "frame",
+          "width": 78,
+          "height": 47,
+          "layoutSizingHorizontal": "FILL",
+          "layoutSizingVertical": "FILL",
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 4
+          },
+          "children": [
+            {"name": "bar-chart-square-02", "type": "icon", "size": 22, "iconColor": "$token(fg-brand-primary)"},
+            {"name": "Tab Stage Label", "type": "text", "text": "스테이지", "fontSize": 11, "fontName": {"family": "Pretendard", "style": "SemiBold"}, "fontColor": "$token(fg-brand-primary)", "textAlignHorizontal": "CENTER"}
+          ]
+        },
+        {
+          "name": "Tab Lounge",
+          "type": "frame",
+          "width": 78,
+          "height": 47,
+          "layoutSizingHorizontal": "FILL",
+          "layoutSizingVertical": "FILL",
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 4
+          },
+          "children": [
+            {"name": "message-chat-circle", "type": "icon", "size": 22, "iconColor": "$token(fg-quaternary)"},
+            {"name": "Tab Lounge Label", "type": "text", "text": "라운지", "fontSize": 11, "fontName": {"family": "Pretendard", "style": "Medium"}, "fontColor": "$token(fg-quaternary)", "textAlignHorizontal": "CENTER"}
+          ]
+        },
+        {
+          "name": "Tab My",
+          "type": "frame",
+          "width": 78,
+          "height": 47,
+          "layoutSizingHorizontal": "FILL",
+          "layoutSizingVertical": "FILL",
+          "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 4
+          },
+          "children": [
+            {"name": "user-circle", "type": "icon", "size": 22, "iconColor": "$token(fg-quaternary)"},
+            {"name": "Tab My Label", "type": "text", "text": "나", "fontSize": 11, "fontName": {"family": "Pretendard", "style": "Medium"}, "fontColor": "$token(fg-quaternary)", "textAlignHorizontal": "CENTER"}
+          ]
+        }
+      ]
+    }
+  ]
+}

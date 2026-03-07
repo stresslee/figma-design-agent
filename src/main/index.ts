@@ -20,7 +20,7 @@ import { McpHttpServer } from './mcp-http-server';
 import { ImageGenerator } from './image-generator';
 import { PENCIL_MCP_CONFIG } from './mcp-server-config';
 import { getGeminiApiKey, setGeminiApiKey, getAnthropicApiKey, getDirectApiKey, setAnthropicApiKey } from './settings-store';
-import { setProjectRoot, getDesignTokens, getVariants } from '../shared/ds-data';
+import { setProjectRoot, getDesignTokens, getVariants, syncComponentDocs } from '../shared/ds-data';
 import { IPC_CHANNELS } from '../shared/types';
 import type { FigmaConnectionState, ClaudeCodeStatus } from '../shared/types';
 
@@ -148,12 +148,12 @@ app.whenReady().then(async () => {
   // Register generate_image tool (Gemini API → base64 → set_image_fill)
   tools.set('generate_image', {
     name: 'generate_image',
-    description: 'Generate an image using Gemini AI and apply it as fill to a Figma node. For hero/banner: set isHero=true and pass the HERO SECTION FRAME nodeId (NOT a child rectangle). The image fills the entire frame as background. For icons: isHero=false (default), removes background.',
+    description: 'Generate an image using Gemini AI and apply it as fill to a Figma node. For hero/banner: set isHero=true. If a Banner Card frame exists inside the Hero Section, pass the BANNER CARD nodeId (not the Hero Section). If no Banner Card exists, pass the Hero Section nodeId. For icons: isHero=false (default), removes background.',
     inputSchema: {
       type: 'object',
       properties: {
         prompt: { type: 'string', description: 'Image description (e.g. "minimal app logo, letter M, purple gradient")' },
-        nodeId: { type: 'string', description: 'Figma node ID to apply the image fill to. For hero banners, this MUST be the hero section frame itself (NOT a child node).' },
+        nodeId: { type: 'string', description: 'Figma node ID to apply the image fill to. For hero banners: pass Banner Card nodeId if it exists inside Hero Section, otherwise pass Hero Section nodeId.' },
         isHero: { type: 'boolean', description: 'Set true for hero/banner images. Auto-detects node size from Figma, keeps solid background, forces graphics to right side. Default: false.' },
         width: { type: 'number', description: 'Target width in Figma pixels. Ignored when isHero=true (auto-detected from node). Default: 120.' },
         height: { type: 'number', description: 'Target height in Figma pixels. Ignored when isHero=true (auto-detected from node). Default: 120.' },
@@ -170,35 +170,17 @@ app.whenReady().then(async () => {
       let width = (params.width as number) || 120;
       let height = (params.height as number) || 120;
 
-      // Hero mode: auto-detect node dimensions, auto-escalate to parent if node is too small
+      // Hero mode: auto-detect node dimensions from the specified nodeId (no auto-escalation)
       if (isHero) {
-        const MIN_HERO_SIZE = 200;
         try {
-          let nodeInfo = await figmaWS.sendCommand('get_node_info', { nodeId: targetNodeId }) as Record<string, unknown>;
-          let nodeWidth = nodeInfo.width as number;
-          let nodeHeight = nodeInfo.height as number;
-
-          // If node is too small, it's probably a child image placeholder — escalate to parent
-          if (nodeWidth && nodeHeight && (nodeWidth < MIN_HERO_SIZE || nodeHeight < MIN_HERO_SIZE)) {
-            console.warn(`[Main] Hero mode: node ${targetNodeId} is only ${nodeWidth}x${nodeHeight} — too small for hero. Escalating to parent.`);
-            const parentId = nodeInfo.parentId as string;
-            if (parentId) {
-              const parentInfo = await figmaWS.sendCommand('get_node_info', { nodeId: parentId }) as Record<string, unknown>;
-              const parentWidth = parentInfo.width as number;
-              const parentHeight = parentInfo.height as number;
-              if (parentWidth && parentHeight && parentWidth >= MIN_HERO_SIZE) {
-                targetNodeId = parentId;
-                nodeWidth = parentWidth;
-                nodeHeight = parentHeight;
-                console.log(`[Main] Hero mode: escalated to parent ${targetNodeId} (${nodeWidth}x${nodeHeight})`);
-              }
-            }
-          }
+          const nodeInfo = await figmaWS.sendCommand('get_node_info', { nodeId: targetNodeId }) as Record<string, unknown>;
+          const nodeWidth = nodeInfo.width as number;
+          const nodeHeight = nodeInfo.height as number;
 
           if (nodeWidth && nodeHeight) {
             width = Math.round(nodeWidth);
             height = Math.round(nodeHeight);
-            console.log(`[Main] Hero mode: final target ${targetNodeId}, size ${width}x${height}`);
+            console.log(`[Main] Hero mode: target ${targetNodeId}, size ${width}x${height}`);
           }
         } catch (e) {
           console.warn('[Main] Failed to get node size for hero, using provided dimensions:', e);
@@ -249,11 +231,23 @@ app.whenReady().then(async () => {
   figmaWS.on('connection-change', (state: FigmaConnectionState) => {
     mainWindow?.webContents.send(IPC_CHANNELS.FIGMA_STATUS, state);
 
-    // ★ Pre-cache ALL DS components when Figma connects
+    // ★ Pre-cache ALL DS components + sync docs from GitHub Pages when Figma connects
     if (state.status === 'connected') {
-      preCacheDSComponents(tools).catch((e) =>
-        console.warn('[Main] DS pre-cache failed:', e)
-      );
+      // Notify plugin: DS loading started
+      figmaWS.sendNotification('ds-loading', { status: 'loading' });
+
+      // Sync component docs from GitHub Pages (with progress), then pre-cache DS components
+      syncComponentDocs((current, total, name) => {
+        figmaWS.sendNotification('ds-loading', { status: 'syncing', current, total, name });
+      })
+        .then(() => preCacheDSComponents(tools))
+        .then(() => {
+          figmaWS.sendNotification('ds-loading', { status: 'done' });
+        })
+        .catch((e) => {
+          console.warn('[Main] DS sync/pre-cache failed:', e);
+          figmaWS.sendNotification('ds-loading', { status: 'done' });
+        });
     }
   });
 

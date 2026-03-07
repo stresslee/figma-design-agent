@@ -1,0 +1,77 @@
+{
+  "rootName": "Icon Test 2",
+  "width": 700,
+  "height": 300,
+  "fill": {"r": 1, "g": 1, "b": 1, "a": 1},
+  "children": [
+    {
+      "name": "Title",
+      "type": "text",
+      "text": "Icon Test 2 — randombox + solid icons",
+      "x": 20, "y": 20,
+      "fontSize": 20,
+      "fontName": {"family": "Pretendard", "style": "Bold"},
+      "fontColor": {"r": 0, "g": 0, "b": 0, "a": 1}
+    },
+    {
+      "name": "Row - Randombox Fix",
+      "type": "frame",
+      "x": 20, "y": 60,
+      "width": 660, "height": 60,
+      "autoLayout": {"layoutMode": "HORIZONTAL", "itemSpacing": 24, "counterAxisAlignItems": "CENTER", "paddingLeft": 12, "paddingRight": 12, "paddingTop": 8, "paddingBottom": 8},
+      "fill": {"r": 0.97, "g": 0.97, "b": 0.97, "a": 1},
+      "cornerRadius": 8,
+      "children": [
+        {"name": "randombox", "type": "icon", "iconName": "randombox", "size": 24, "iconColor": {"r": 0.5, "g": 0, "b": 1, "a": 1}},
+        {"name": "random", "type": "icon", "iconName": "random", "size": 24, "iconColor": {"r": 0.5, "g": 0, "b": 1, "a": 1}},
+        {"name": "dice-3", "type": "icon", "iconName": "dice-3", "size": 24, "iconColor": {"r": 0, "g": 0, "b": 0, "a": 1}},
+        {"name": "mystery", "type": "icon", "iconName": "mystery", "size": 24, "iconColor": {"r": 0, "g": 0, "b": 0, "a": 1}}
+      ]
+    },
+    {
+      "name": "Label Randombox",
+      "type": "frame",
+      "x": 20, "y": 125,
+      "width": 660, "height": 20,
+      "autoLayout": {"layoutMode": "HORIZONTAL", "itemSpacing": 24, "paddingLeft": 12, "paddingRight": 12},
+      "children": [
+        {"type": "text", "text": "randombox", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}},
+        {"type": "text", "text": "random", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}},
+        {"type": "text", "text": "dice-3", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}},
+        {"type": "text", "text": "mystery", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}}
+      ]
+    },
+    {
+      "name": "Row - Solid Icons (fill test)",
+      "type": "frame",
+      "x": 20, "y": 165,
+      "width": 660, "height": 60,
+      "autoLayout": {"layoutMode": "HORIZONTAL", "itemSpacing": 24, "counterAxisAlignItems": "CENTER", "paddingLeft": 12, "paddingRight": 12, "paddingTop": 8, "paddingBottom": 8},
+      "fill": {"r": 0.15, "g": 0.15, "b": 0.2, "a": 1},
+      "cornerRadius": 8,
+      "children": [
+        {"name": "heart-solid", "type": "icon", "iconName": "heart", "size": 24, "iconColor": {"r": 1, "g": 0.3, "b": 0.3, "a": 1}},
+        {"name": "star-solid", "type": "icon", "iconName": "star", "size": 24, "iconColor": {"r": 1, "g": 0.85, "b": 0, "a": 1}},
+        {"name": "bookmark-solid", "type": "icon", "iconName": "bookmark", "size": 24, "iconColor": {"r": 0.2, "g": 0.6, "b": 1, "a": 1}},
+        {"name": "bell-solid", "type": "icon", "iconName": "bell", "size": 24, "iconColor": {"r": 1, "g": 1, "b": 1, "a": 1}},
+        {"name": "home-solid", "type": "icon", "iconName": "home", "size": 24, "iconColor": {"r": 1, "g": 1, "b": 1, "a": 1}},
+        {"name": "check-circle-solid", "type": "icon", "iconName": "check-circle", "size": 24, "iconColor": {"r": 0.2, "g": 0.9, "b": 0.4, "a": 1}}
+      ]
+    },
+    {
+      "name": "Label Solid",
+      "type": "frame",
+      "x": 20, "y": 230,
+      "width": 660, "height": 20,
+      "autoLayout": {"layoutMode": "HORIZONTAL", "itemSpacing": 24, "paddingLeft": 12, "paddingRight": 12},
+      "children": [
+        {"type": "text", "text": "heart (solid)", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}},
+        {"type": "text", "text": "star (solid)", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}},
+        {"type": "text", "text": "bookmark (solid)", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}},
+        {"type": "text", "text": "bell (white)", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}},
+        {"type": "text", "text": "home (white)", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}},
+        {"type": "text", "text": "check-circle", "fontSize": 10, "fontName": {"family": "Pretendard", "style": "Regular"}, "fontColor": {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}}
+      ]
+    }
+  ]
+}

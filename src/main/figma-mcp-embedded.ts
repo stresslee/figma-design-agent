@@ -9,9 +9,9 @@
 import { z, ZodObject, ZodRawShape } from 'zod';
 import { FigmaWSServer } from './figma-ws-server';
 import type { ToolDefinition } from '../shared/types';
-import { getIcons, getVariants, type VariantEntry } from '../shared/ds-data';
+import { getIcons, getVariants, syncTokensIfNeeded, type VariantEntry } from '../shared/ds-data';
 import { convertPenToFigma, type PenNode } from './pen-to-figma';
-import { getIconSvg, resolveIconFile } from './untitled-icons';
+import { getIconSvg, getIconSvgAsync, resolveIconFile } from './untitled-icons';
 
 // Re-export for convenience
 export type { ToolDefinition };
@@ -643,23 +643,19 @@ Root frame supports: autoLayout, cornerRadius, fill.`, {
 
     const hasParentId = !!(params as Record<string, unknown>).parentId;
 
-    // Auto-cleanup: only when building a full screen (no parentId).
-    // Section builds (parentId set) should NOT delete the previously built root frame.
-    if (lastBuiltRootId && !hasParentId) {
-      try {
-        await cmd('delete_node', { nodeId: lastBuiltRootId });
-        console.log(`[batch_build_screen] Deleted previous build: ${lastBuiltRootId}`);
-      } catch (e) {
-        console.warn(`[batch_build_screen] Failed to delete previous build ${lastBuiltRootId}:`, e);
-      }
-      lastBuiltRootId = null;
-    }
+    // Auto-check for DS token updates before building
+    await syncTokensIfNeeded();
+
+    // Auto-cleanup DISABLED: multiple screens need to coexist on the same page.
+    // Previously this deleted the last built root frame on each new build.
+    // if (lastBuiltRootId && !hasParentId) { ... }
+    lastBuiltRootId = null;
 
     // ★ Step 1: Enhance blueprint (code-level auto-correction)
     const blueprint = params.blueprint as Record<string, unknown>;
     const enhanced = enhanceBlueprint(blueprint);
     // ★ Step 2: Smart Resolution: resolve semantic names → actual keys
-    const resolved = resolveBlueprint(enhanced);
+    const resolved = await resolveBlueprint(enhanced);
     const resolvedParams = { ...params, blueprint: resolved };
 
     // Pre-fetch images in the blueprint tree
@@ -686,6 +682,39 @@ Root frame supports: autoLayout, cornerRadius, fill.`, {
         }
       } catch (e) {
         console.warn('[batch_build_screen] Auto-screenshot failed:', e);
+      }
+
+      // ★ Post-build QA: programmatic dimension check
+      try {
+        const rootInfo = await cmd('get_node_info', { nodeId: result.rootId }, 10000) as Record<string, unknown>;
+        const rootW = rootInfo?.width as number;
+        const issues: string[] = [];
+        const children = rootInfo?.children as Array<Record<string, unknown>> || [];
+        for (const child of children) {
+          const cw = child.width as number;
+          const ch = child.height as number;
+          const cName = child.name as string;
+          const cLayout = child.layoutPositioning as string;
+          // Skip absolute-positioned children (Tab Bar, FAB)
+          if (cLayout === 'ABSOLUTE') continue;
+          // Check: full-width sections should match root width
+          if (cw < rootW * 0.9 && cw > 0) {
+            issues.push(`[QA] "${cName}" width=${cw} (expected ~${rootW}) — may need FILL or explicit width`);
+          }
+          // Check: zero-dimension nodes
+          if (cw === 0 || ch === 0) {
+            issues.push(`[QA] "${cName}" has zero dimension: ${cw}x${ch}`);
+          }
+        }
+        if (issues.length > 0) {
+          console.warn(`[batch_build_screen] Post-build QA found ${issues.length} issues:`);
+          issues.forEach(i => console.warn(i));
+          (result as Record<string, unknown>).qaIssues = issues;
+        } else {
+          console.log('[batch_build_screen] Post-build QA: all checks passed');
+        }
+      } catch (e) {
+        console.warn('[batch_build_screen] Post-build QA failed:', e);
       }
     }
 
@@ -820,7 +849,7 @@ Root frame supports: autoLayout, cornerRadius, fill.`, {
     }
 
     const enhanced = enhanceBlueprint(blueprint);
-    const resolved = resolveBlueprint(enhanced);
+    const resolved = await resolveBlueprint(enhanced);
     await prefetchImages([resolved]);
 
     const result = await cmd('batch_build_screen', { blueprint: resolved }, 300000) as Record<string, unknown>;
@@ -910,7 +939,7 @@ async function fetchImageAsBase64(url: string): Promise<string | null> {
 // Smart Resolution — semantic names → actual Figma keys
 // ============================================================
 
-export function resolveBlueprint(node: Record<string, unknown>): Record<string, unknown> {
+export async function resolveBlueprint(node: Record<string, unknown>): Promise<Record<string, unknown>> {
   const resolved = { ...node };
 
   // 1. statusBar: true → pass through to code.js for name-based search across all pages
@@ -931,15 +960,15 @@ export function resolveBlueprint(node: Record<string, unknown>): Record<string, 
   }
 
   // 3. type: "icon" → type: "svg_icon" (local @untitledui/icons SVG)
-  if (resolved.type === 'icon' && resolved.name) {
-    const iconName = resolved.name as string;
+  if (resolved.type === 'icon' && (resolved.iconName || resolved.name)) {
+    const iconName = (resolved.iconName || resolved.name) as string;
     const iconSize = (resolved.size as number) || 24;
     const iconColor = resolved.iconColor as { r: number; g: number; b: number; a?: number } | undefined;
     // Convert {r,g,b} 0-1 to hex for SVG stroke attribute
     const hexColor = iconColor
       ? '#' + [iconColor.r, iconColor.g, iconColor.b].map(c => Math.round(c * 255).toString(16).padStart(2, '0')).join('')
       : '#000000';
-    const svgData = getIconSvg(iconName, iconSize, hexColor);
+    const svgData = await getIconSvgAsync(iconName, iconSize, hexColor) || getIconSvg(iconName, iconSize, hexColor);
     if (svgData) {
       resolved.type = 'svg_icon';
       resolved.svgData = svgData;
@@ -1010,8 +1039,10 @@ export function resolveBlueprint(node: Record<string, unknown>): Record<string, 
 
   // Recurse: process children
   if (Array.isArray(resolved.children)) {
-    resolved.children = (resolved.children as Record<string, unknown>[]).map(child =>
-      resolveBlueprint(child as Record<string, unknown>)
+    resolved.children = await Promise.all(
+      (resolved.children as Record<string, unknown>[]).map(child =>
+        resolveBlueprint(child as Record<string, unknown>)
+      )
     );
   }
 
@@ -1800,14 +1831,26 @@ export function enhanceBlueprint(root: Record<string, unknown>): Record<string, 
         stats.structure++;
       }
 
-      // 6c. imageGenHint 자동 추가
+      // 6c. imageGenHint 자동 추가 — Banner Card 자식이 있으면 그곳에, 없으면 Hero Section에
       if (!n.imageGenHint) {
         const heroText = collectAllText(n);
-        n.imageGenHint = {
+        const hint = {
           prompt: `soft gradient background with abstract shapes, modern minimal style, matching the theme: ${heroText.slice(0, 60)}`,
           isHero: true,
         };
-        console.log(`[enforce] Added imageGenHint to hero section "${n.name}"`);
+        // Banner Card 탐색: 자식 중 'banner' 또는 'card' 이름을 가진 프레임
+        const children = (n.children as Record<string, unknown>[] | undefined) || [];
+        const bannerCard = children.find(c => {
+          const cName = ((c.name as string) || '').toLowerCase();
+          return c.type === 'frame' && (cName.includes('banner') || cName.includes('card'));
+        });
+        if (bannerCard && !bannerCard.imageGenHint) {
+          bannerCard.imageGenHint = hint;
+          console.log(`[enforce] Added imageGenHint to Banner Card "${bannerCard.name}" (inside hero "${n.name}")`);
+        } else if (!bannerCard) {
+          n.imageGenHint = hint;
+          console.log(`[enforce] Added imageGenHint to hero section "${n.name}" (no Banner Card found)`);
+        }
       }
     }
 

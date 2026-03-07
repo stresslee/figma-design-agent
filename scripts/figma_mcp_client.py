@@ -29,6 +29,114 @@ from typing import Any, Optional, List, Dict
 
 MCP_URL = "http://localhost:8769/mcp"
 SESSION_FILE = os.path.join(os.path.dirname(__file__), ".mcp_session")
+TOKEN_MAP_FILE = os.path.join(os.path.dirname(__file__), "..", "ds", "TOKEN_MAP.json")
+
+# Cached token map (loaded once per process)
+_token_map: Optional[Dict[str, dict]] = None
+
+
+def load_token_map() -> Dict[str, dict]:
+    """Load TOKEN_MAP.json and build a lookup by figmaPath."""
+    global _token_map
+    if _token_map is not None:
+        return _token_map
+
+    token_map_path = os.path.normpath(TOKEN_MAP_FILE)
+    if not os.path.exists(token_map_path):
+        print(f"WARNING: TOKEN_MAP.json not found at {token_map_path}. Token references won't be resolved.")
+        _token_map = {}
+        return _token_map
+
+    with open(token_map_path) as f:
+        raw = json.load(f)
+
+    # Build lookup: figmaPath → {value, type}
+    # e.g. "Colors/Background/bg-brand-solid" → {"value": "#1570ef", "type": "COLOR"}
+    _token_map = {}
+    for css_var, info in raw.items():
+        figma_path = info.get("figmaPath", "")
+        if figma_path:
+            _token_map[figma_path] = info
+            # Also index by the last segment for convenience
+            # e.g. "bg-brand-solid" → same info
+            short_name = figma_path.rsplit("/", 1)[-1] if "/" in figma_path else figma_path
+            if short_name not in _token_map:
+                _token_map[short_name] = info
+    return _token_map
+
+
+def hex_to_rgba(hex_color: str) -> Dict[str, float]:
+    """Convert hex color (#RRGGBB or #RRGGBBAA) to Figma RGBA dict (0-1 range)."""
+    h = hex_color.lstrip("#")
+    if len(h) == 6:
+        r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+        a = 255
+    elif len(h) == 8:
+        r, g, b, a = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), int(h[6:8], 16)
+    else:
+        return {"r": 0, "g": 0, "b": 0, "a": 1}
+    return {"r": round(r / 255, 3), "g": round(g / 255, 3), "b": round(b / 255, 3), "a": round(a / 255, 3)}
+
+
+def resolve_token_ref(value: str) -> Optional[Dict[str, float]]:
+    """Resolve a $token(name) reference to RGBA.
+
+    Supported formats:
+        "$token(bg-brand-solid)"
+        "$token(Colors/Background/bg-brand-solid)"
+        "$token(fg-brand-primary)" — matches "fg-brand-primary (600)" etc.
+    """
+    if not isinstance(value, str) or not value.startswith("$token("):
+        return None
+    token_name = value[7:-1]  # strip "$token(" and ")"
+    token_map = load_token_map()
+
+    # Exact match
+    info = token_map.get(token_name)
+    if info and info.get("type") == "COLOR":
+        return hex_to_rgba(info["value"])
+
+    # Partial match — search for token name in figmaPath endings
+    for path, info_item in token_map.items():
+        figma_path = info_item.get("figmaPath", path)
+        last_segment = figma_path.rsplit("/", 1)[-1] if "/" in figma_path else figma_path
+        # Match: exact segment, or segment starts with token_name + space/underscore
+        # e.g. "fg-brand-primary" matches "fg-brand-primary (600)"
+        if last_segment == token_name or last_segment.startswith(token_name + " ") or last_segment.startswith(token_name + "_"):
+            if info_item.get("type") == "COLOR":
+                return hex_to_rgba(info_item["value"])
+
+    print(f"WARNING: Token '{token_name}' not found in TOKEN_MAP.json")
+    return None
+
+
+def resolve_tokens_in_blueprint(node: Any) -> Any:
+    """Recursively resolve all $token() references in a blueprint JSON."""
+    if isinstance(node, str):
+        resolved = resolve_token_ref(node)
+        if resolved is not None:
+            return resolved
+        return node
+    elif isinstance(node, dict):
+        result = {}
+        for k, v in node.items():
+            resolved = resolve_tokens_in_blueprint(v)
+            result[k] = resolved
+        return result
+    elif isinstance(node, list):
+        return [resolve_tokens_in_blueprint(item) for item in node]
+    return node
+
+
+def _count_token_refs(node: Any) -> int:
+    """Count $token() references in a JSON structure."""
+    if isinstance(node, str):
+        return 1 if node.startswith("$token(") else 0
+    elif isinstance(node, dict):
+        return sum(_count_token_refs(v) for v in node.values())
+    elif isinstance(node, list):
+        return sum(_count_token_refs(item) for item in node)
+    return 0
 
 
 def get_session_id() -> Optional[str]:
@@ -167,11 +275,26 @@ def cmd_call(tool_name: str, args_json: str):
 
 
 def cmd_build(blueprint_file: str):
-    """Build a screen from a blueprint JSON file."""
+    """Build a screen from a blueprint JSON file.
+
+    Supports $token() references in color fields. Before building,
+    all $token(name) values are resolved to RGBA using TOKEN_MAP.json.
+
+    Example blueprint color:
+        "fill": "$token(bg-brand-solid)"
+        "fontColor": "$token(fg-brand-primary)"
+    These are resolved to {"r": ..., "g": ..., "b": ..., "a": ...} at build time.
+    """
     ensure_session()
 
     with open(blueprint_file) as f:
         blueprint = json.load(f)
+
+    # Resolve $token() references to RGBA using latest TOKEN_MAP.json
+    token_count = _count_token_refs(blueprint)
+    if token_count > 0:
+        print(f"Resolving {token_count} $token() references from TOKEN_MAP.json...")
+        blueprint = resolve_tokens_in_blueprint(blueprint)
 
     print(f"Building screen with {len(blueprint.get('children', []))} top-level children...")
     start = time.time()
