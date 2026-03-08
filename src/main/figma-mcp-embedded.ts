@@ -225,7 +225,11 @@ export function buildToolRegistry(figmaWS: FigmaWSServer): Map<string, ToolDefin
       nodeId: { type: 'string' },
       r: { type: 'number' }, g: { type: 'number' },
       b: { type: 'number' }, a: { type: 'number' },
-      strokeWeight: { type: 'number' }
+      strokeWeight: { type: 'number' },
+      strokeTopWeight: { type: 'number', description: 'Individual top stroke weight' },
+      strokeBottomWeight: { type: 'number', description: 'Individual bottom stroke weight' },
+      strokeLeftWeight: { type: 'number', description: 'Individual left stroke weight' },
+      strokeRightWeight: { type: 'number', description: 'Individual right stroke weight' }
     },
     required: ['nodeId', 'r', 'g', 'b']
   }, async (params) => {
@@ -256,7 +260,8 @@ export function buildToolRegistry(figmaWS: FigmaWSServer): Map<string, ToolDefin
       paddingLeft: { type: 'number' }, paddingRight: { type: 'number' },
       primaryAxisAlignItems: { type: 'string' },
       counterAxisAlignItems: { type: 'string' },
-      layoutWrap: { type: 'string' }
+      layoutWrap: { type: 'string' },
+      clipsContent: { type: 'boolean', description: 'Clip content that overflows the frame' }
     },
     required: ['nodeId', 'layoutMode']
   }, async (params) => cmd('set_auto_layout', params));

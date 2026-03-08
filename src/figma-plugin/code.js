@@ -900,11 +900,29 @@ async function setStrokeColor(params) {
     node.strokeWeight = strokeWeightParsed;
   }
 
+  // Individual stroke weights (bottom-only border 등)
+  // 개별 stroke weight 설정 시 strokeWeight가 figma.mixed(Symbol)로 변환됨
+  var hasIndividual = params.strokeTopWeight !== undefined || params.strokeBottomWeight !== undefined || params.strokeLeftWeight !== undefined || params.strokeRightWeight !== undefined;
+  if (hasIndividual && "strokeTopWeight" in node) {
+    node.strokeTopWeight = parseFloat(params.strokeTopWeight !== undefined ? params.strokeTopWeight : strokeWeightParsed);
+    node.strokeBottomWeight = parseFloat(params.strokeBottomWeight !== undefined ? params.strokeBottomWeight : strokeWeightParsed);
+    node.strokeLeftWeight = parseFloat(params.strokeLeftWeight !== undefined ? params.strokeLeftWeight : strokeWeightParsed);
+    node.strokeRightWeight = parseFloat(params.strokeRightWeight !== undefined ? params.strokeRightWeight : strokeWeightParsed);
+  }
+
+  // strokeWeight가 figma.mixed(Symbol)일 수 있으므로 typeof 체크
+  var swVal = "strokeWeight" in node ? node.strokeWeight : undefined;
+  var safeStrokeWeight = (typeof swVal === "number") ? swVal : undefined;
+
   return {
     id: node.id,
     name: node.name,
     strokes: node.strokes,
-    strokeWeight: "strokeWeight" in node ? node.strokeWeight : undefined,
+    strokeWeight: safeStrokeWeight,
+    strokeTopWeight: "strokeTopWeight" in node && typeof node.strokeTopWeight === "number" ? node.strokeTopWeight : undefined,
+    strokeBottomWeight: "strokeBottomWeight" in node && typeof node.strokeBottomWeight === "number" ? node.strokeBottomWeight : undefined,
+    strokeLeftWeight: "strokeLeftWeight" in node && typeof node.strokeLeftWeight === "number" ? node.strokeLeftWeight : undefined,
+    strokeRightWeight: "strokeRightWeight" in node && typeof node.strokeRightWeight === "number" ? node.strokeRightWeight : undefined,
   };
 }
 
@@ -2787,7 +2805,8 @@ async function setAutoLayout(params) {
     primaryAxisAlignItems,
     counterAxisAlignItems,
     layoutWrap,
-    strokesIncludedInLayout
+    strokesIncludedInLayout,
+    clipsContent
   } = params || {};
 
   if (!nodeId) {
@@ -2846,6 +2865,11 @@ async function setAutoLayout(params) {
     if (strokesIncludedInLayout !== undefined) {
       node.strokesIncludedInLayout = strokesIncludedInLayout;
     }
+
+    // Configure clips content
+    if (clipsContent !== undefined) {
+      node.clipsContent = clipsContent;
+    }
   }
 
   return {
@@ -2860,7 +2884,8 @@ async function setAutoLayout(params) {
     primaryAxisAlignItems: node.primaryAxisAlignItems,
     counterAxisAlignItems: node.counterAxisAlignItems,
     layoutWrap: node.layoutWrap,
-    strokesIncludedInLayout: node.strokesIncludedInLayout
+    strokesIncludedInLayout: node.strokesIncludedInLayout,
+    clipsContent: node.clipsContent
   };
 }
 
@@ -5654,18 +5679,25 @@ async function batchBuildScreen(params) {
       // Auto Layout
       if (spec.autoLayout) {
         const al = spec.autoLayout;
-        node.layoutMode = al.layoutMode || "VERTICAL";
+        node.layoutMode = al.layoutMode || al.direction || "VERTICAL";
         if (al.itemSpacing !== undefined) node.itemSpacing = al.itemSpacing;
         if (al.paddingTop !== undefined) node.paddingTop = al.paddingTop;
         if (al.paddingBottom !== undefined) node.paddingBottom = al.paddingBottom;
         if (al.paddingLeft !== undefined) node.paddingLeft = al.paddingLeft;
         if (al.paddingRight !== undefined) node.paddingRight = al.paddingRight;
-        // Shorthand padding
+        // Shorthand padding (number or object {top, bottom, left, right})
         if (al.padding !== undefined) {
-          node.paddingTop = al.padding;
-          node.paddingBottom = al.padding;
-          node.paddingLeft = al.padding;
-          node.paddingRight = al.padding;
+          if (typeof al.padding === 'object' && al.padding !== null) {
+            if (al.padding.top !== undefined) node.paddingTop = al.padding.top;
+            if (al.padding.bottom !== undefined) node.paddingBottom = al.padding.bottom;
+            if (al.padding.left !== undefined) node.paddingLeft = al.padding.left;
+            if (al.padding.right !== undefined) node.paddingRight = al.padding.right;
+          } else {
+            node.paddingTop = al.padding;
+            node.paddingBottom = al.padding;
+            node.paddingLeft = al.padding;
+            node.paddingRight = al.padding;
+          }
         }
         if (al.paddingHorizontal !== undefined) {
           node.paddingLeft = al.paddingHorizontal;

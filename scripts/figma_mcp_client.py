@@ -110,6 +110,122 @@ def resolve_token_ref(value: str) -> Optional[Dict[str, float]]:
     return None
 
 
+def _flatten_padding_objects(node: Any) -> Any:
+    """Recursively convert padding objects to individual paddingTop/Bottom/Left/Right.
+
+    autoLayout.padding = {top:12, bottom:12, left:20, right:20}
+    → autoLayout.paddingTop=12, paddingBottom=12, paddingLeft=20, paddingRight=20
+    """
+    if isinstance(node, dict):
+        result = {}
+        for k, v in node.items():
+            if k == "autoLayout" and isinstance(v, dict) and "padding" in v and isinstance(v["padding"], dict):
+                v = dict(v)  # shallow copy
+                p = v.pop("padding")
+                if "top" in p: v["paddingTop"] = p["top"]
+                if "bottom" in p: v["paddingBottom"] = p["bottom"]
+                if "left" in p: v["paddingLeft"] = p["left"]
+                if "right" in p: v["paddingRight"] = p["right"]
+            result[k] = _flatten_padding_objects(v)
+        return result
+    elif isinstance(node, list):
+        return [_flatten_padding_objects(item) for item in node]
+    return node
+
+
+def validate_blueprint(blueprint: dict) -> list:
+    """Validate blueprint JSON before building. Returns list of error/warning strings."""
+    issues = []
+
+    def _check_node(node: dict, path: str = "root"):
+        # Check autoLayout
+        al = node.get("autoLayout")
+        if al:
+            mode = al.get("layoutMode") or al.get("direction")
+            if mode and mode not in ("HORIZONTAL", "VERTICAL"):
+                issues.append(f"ERROR {path}: invalid layoutMode/direction '{mode}' (must be HORIZONTAL or VERTICAL)")
+
+            # Check padding is not an object (should be flat)
+            if "padding" in al and isinstance(al["padding"], dict):
+                issues.append(f"WARN {path}: padding is an object — will be auto-flattened, but prefer paddingTop/Bottom/Left/Right")
+
+            # Check SPACE_BETWEEN + FILL conflict
+            if al.get("primaryAxisAlignItems") == "SPACE_BETWEEN":
+                for child in node.get("children", []):
+                    child_al = child.get("autoLayout", {})
+                    if child.get("layoutSizingHorizontal") == "FILL" or child_al.get("layoutSizingHorizontal") == "FILL":
+                        issues.append(f"WARN {path} → {child.get('name','?')}: SPACE_BETWEEN parent + FILL child = 0px spacing")
+
+        # Check fill/fontColor is not raw hex string
+        for color_key in ("fill", "fontColor", "iconColor", "stroke"):
+            val = node.get(color_key)
+            if isinstance(val, str) and val.startswith("#"):
+                issues.append(f"ERROR {path}: {color_key}='{val}' is hex string — use $token() or {{r,g,b,a}} object")
+
+        # Check font for Korean text
+        text = node.get("text") or node.get("characters")
+        if text and any('\uac00' <= ch <= '\ud7a3' for ch in str(text)):
+            font = node.get("fontFamily") or node.get("fontName", {}).get("family", "")
+            if font and font not in ("Pretendard", ""):
+                issues.append(f"WARN {path}: Korean text with font '{font}' — should use Pretendard")
+
+        # R1: FRAME children of root/sections must be FILL (not HUG)
+        node_type = node.get("type", "frame")
+        is_frame = node_type in ("frame", "FRAME")
+        parent_has_layout = bool(node.get("autoLayout"))
+
+        if is_frame and path != "root":
+            sizing_h = node.get("layoutSizingHorizontal", "")
+            # Frames inside auto-layout parents should be FILL
+            if sizing_h == "HUG" or (sizing_h == "" and parent_has_layout):
+                node_name = node.get("name", "?")
+                # Skip small frames (icons, tags, chips, indicators, dots)
+                w = node.get("width", 999)
+                skip_keywords = ("Tag", "Chip", "Badge", "Dot", "Icon", "Indicator", "Nav Right", "DI1 Left", "DI2 Left", "DI3 Left")
+                is_small = w <= 60
+                is_skip = any(kw in node_name for kw in skip_keywords)
+                # Only warn for section/card-level frames and their direct children
+                depth = path.count("/")
+                if not is_small and not is_skip and depth <= 3:
+                    issues.append(f"WARN {path}: FRAME '{node_name}' has layoutSizingHorizontal='{sizing_h or 'unset'}' — should be FILL")
+
+        # R2: Tab Bar and FAB must have ABSOLUTE positioning note
+        node_name = node.get("name", "")
+        if "Tab Bar" in node_name or "FAB" in node_name:
+            pos = node.get("layoutPositioning", "")
+            if pos != "ABSOLUTE":
+                issues.append(f"WARN {path}: '{node_name}' needs layoutPositioning='ABSOLUTE' (batch_build_screen won't apply it — must be set in post-processing)")
+
+        # R3: Hero/Banner section should have HORIZONTAL carousel wrapper
+        if ("Banner" in node_name or "Hero" in node_name or "Carousel" in node_name):
+            children = node.get("children", [])
+            banner_children = [c for c in children if "Banner" in c.get("name", "") and c.get("type", "frame") in ("frame", "FRAME")]
+            if len(banner_children) >= 2:
+                layout_mode = (node.get("autoLayout", {}).get("layoutMode", "") or
+                               node.get("autoLayout", {}).get("direction", ""))
+                clips = node.get("clipsContent", False)
+                if layout_mode != "HORIZONTAL":
+                    issues.append(f"WARN {path}: Carousel '{node_name}' has {len(banner_children)} banners but layoutMode='{layout_mode}' — should be HORIZONTAL")
+                if not clips:
+                    issues.append(f"WARN {path}: Carousel '{node_name}' needs clipsContent=true to show only first banner")
+
+        # R4: FAB with text should be pill-shaped (width >= 100)
+        if "FAB" in node_name:
+            w = node.get("width", 0)
+            children = node.get("children", [])
+            has_text = any(c.get("type") in ("text", "TEXT") for c in children)
+            if has_text and w < 100:
+                issues.append(f"WARN {path}: FAB has text but width={w} — use pill shape (width >= 100)")
+
+        # Check children
+        for i, child in enumerate(node.get("children", [])):
+            child_name = child.get("name", f"child[{i}]")
+            _check_node(child, f"{path}/{child_name}")
+
+    _check_node(blueprint)
+    return issues
+
+
 def resolve_tokens_in_blueprint(node: Any) -> Any:
     """Recursively resolve all $token() references in a blueprint JSON."""
     if isinstance(node, str):
@@ -290,30 +406,472 @@ def cmd_build(blueprint_file: str):
     with open(blueprint_file) as f:
         blueprint = json.load(f)
 
-    # Resolve $token() references to RGBA using latest TOKEN_MAP.json
+    # Step 1: Validate blueprint before any processing
+    issues = validate_blueprint(blueprint)
+    errors = [i for i in issues if i.startswith("ERROR")]
+    warns = [i for i in issues if i.startswith("WARN")]
+    if errors:
+        print(f"\n{'='*50}")
+        print(f"BLUEPRINT VALIDATION FAILED — {len(errors)} error(s), {len(warns)} warning(s):")
+        for issue in issues:
+            print(f"  {issue}")
+        print(f"{'='*50}\n")
+        print("Fix errors before building. Use --force to skip validation.")
+        if "--force" not in sys.argv:
+            return
+    elif warns:
+        print(f"Blueprint validation: {len(warns)} warning(s)")
+        for w in warns:
+            print(f"  {w}")
+
+    # Step 2: Flatten padding objects in autoLayout before build
+    blueprint = _flatten_padding_objects(blueprint)
+
+    # Step 3: Resolve $token() references to RGBA using latest TOKEN_MAP.json
     token_count = _count_token_refs(blueprint)
     if token_count > 0:
         print(f"Resolving {token_count} $token() references from TOKEN_MAP.json...")
         blueprint = resolve_tokens_in_blueprint(blueprint)
 
-    print(f"Building screen with {len(blueprint.get('children', []))} top-level children...")
+    children_count = len(blueprint.get('children', []))
+    root_name = blueprint.get('name', 'unnamed')
+    print(f"Building '{root_name}' with {children_count} top-level children...")
     start = time.time()
 
     content = call_tool("batch_build_screen", {"blueprint": blueprint})
     result = parse_content(content)
 
     elapsed = time.time() - start
-    print(f"Build completed in {elapsed:.1f}s")
 
+    # Step 4: Extract and display rootId prominently
+    root_id = None
+    total_nodes = None
+    node_map = None
     if result["json"]:
         root_id = result["json"].get("rootId") or result["json"].get("nodeId")
-        if root_id:
-            print(f"Root node ID: {root_id}")
-    for t in result["texts"]:
-        if "rootId" in t or "nodeId" in t:
-            print(t)
+        total_nodes = result["json"].get("totalNodes")
+        node_map = result["json"].get("nodeMap")
+
+    print(f"\n{'='*50}")
+    print(f"BUILD COMPLETE in {elapsed:.1f}s")
+    if root_id:
+        print(f"  rootId: {root_id}")
+    if total_nodes:
+        print(f"  totalNodes: {total_nodes}")
+    if node_map:
+        print(f"  nodeMap keys: {len(node_map)}")
+        # Print first 10 node mappings for reference
+        for i, (name, nid) in enumerate(node_map.items()):
+            if i >= 10:
+                print(f"  ... and {len(node_map) - 10} more")
+                break
+            print(f"    {name}: {nid}")
+    print(f"{'='*50}")
+
     if result["images"]:
         print(f"[Screenshot returned: {result['images'][0]['data_length']} bytes]")
+
+    # Auto post-fix
+    if root_id:
+        print("\n🔧 자동 후처리 실행 중...")
+        cmd_post_fix(root_id)
+    else:
+        print("⚠️  rootId를 찾을 수 없어 post-fix를 건너뜁니다.")
+
+    # Auto image generation
+    if node_map:
+        image_specs = _extract_image_specs(blueprint, node_map)
+        if image_specs:
+            print(f"\n🎨 이미지 자동 생성 ({len(image_specs)}건)...")
+            _generate_images(image_specs)
+        else:
+            print("\n(imageGen 스펙 없음 — 이미지 생성 건너뜀)")
+
+
+def _extract_image_specs(blueprint: dict, node_map: dict) -> list:
+    """Blueprint에서 imageGen 스펙을 추출하고, nodeMap으로 실제 nodeId를 매핑.
+
+    Blueprint 노드에 imageGen 필드가 있으면:
+    {
+        "name": "Banner Card 1",
+        "imageGen": {
+            "prompt": "3D coins floating...",
+            "isHero": true,
+            "style": "yanolja-3d"  // optional
+        }
+    }
+
+    Returns: [{"nodeId": "85:1502", "prompt": "...", "isHero": true, "style": "..."}, ...]
+    """
+    specs = []
+
+    def _walk(node: dict):
+        name = node.get("name", "")
+        image_gen = node.get("imageGen")
+        if image_gen and isinstance(image_gen, dict):
+            # nodeMap에서 실제 nodeId 찾기
+            node_id = node_map.get(name)
+            if node_id:
+                spec = {
+                    "nodeId": node_id,
+                    "nodeName": name,
+                    "prompt": image_gen.get("prompt", ""),
+                    "isHero": image_gen.get("isHero", False),
+                    "width": image_gen.get("width"),
+                    "height": image_gen.get("height"),
+                    "style": image_gen.get("style"),
+                }
+                specs.append(spec)
+            else:
+                print(f"  ⚠️ imageGen 노드 '{name}'의 nodeId를 nodeMap에서 찾을 수 없음")
+
+        for child in node.get("children", []):
+            _walk(child)
+
+    _walk(blueprint)
+    return specs
+
+
+def _generate_images(specs: list):
+    """generate_image MCP 도구로 이미지 생성 + Figma 노드에 적용.
+
+    generate_image 도구는 내부적으로:
+    1. Gemini API 호출 (이미지 생성)
+    2. 아이콘은 rembg 배경 제거
+    3. set_image_fill로 Figma 노드에 적용
+    """
+    start = time.time()
+    success = 0
+    fail = 0
+
+    for i, spec in enumerate(specs):
+        node_name = spec["nodeName"]
+        node_id = spec["nodeId"]
+        prompt = spec["prompt"]
+        is_hero = spec.get("isHero", False)
+
+        print(f"  [{i+1}/{len(specs)}] {node_name} ({'hero' if is_hero else 'icon'})...")
+
+        params = {
+            "prompt": prompt,
+            "nodeId": node_id,
+            "isHero": is_hero,
+        }
+        if spec.get("width"):
+            params["width"] = spec["width"]
+        if spec.get("height"):
+            params["height"] = spec["height"]
+        if spec.get("style"):
+            params["style"] = spec["style"]
+
+        try:
+            content = call_tool("generate_image", params)
+            result = parse_content(content)
+            if result["json"] and result["json"].get("success"):
+                print(f"    ✅ 완료 ({result['json'].get('width')}x{result['json'].get('height')})")
+                success += 1
+            else:
+                print(f"    ❌ 실패: {result.get('texts', ['unknown error'])}")
+                fail += 1
+        except Exception as e:
+            print(f"    ❌ 에러: {e}")
+            fail += 1
+
+    elapsed = time.time() - start
+    print(f"\n  이미지 생성 완료 — {success} 성공, {fail} 실패 ({elapsed:.1f}s)")
+
+
+def _collect_tree(node_id: str, depth: int = 0, max_depth: int = 3) -> dict:
+    """노드 트리를 재귀적으로 수집 (최대 depth 3).
+
+    get_node_info로 노드 정보를 가져오고, children의 각 id에 대해 재귀 호출.
+    결과 노드에 _children_full 키로 완전한 자식 정보를 포함.
+    """
+    content = call_tool("get_node_info", {"nodeId": node_id})
+    result = parse_content(content)
+    node = result.get("json") or {}
+
+    if not node:
+        return {"id": node_id, "type": "UNKNOWN", "_children_full": []}
+
+    children_full = []
+    if depth < max_depth:
+        children = node.get("children", [])
+        for child in children:
+            child_id = child.get("id") if isinstance(child, dict) else child
+            if child_id:
+                child_node = _collect_tree(str(child_id), depth + 1, max_depth)
+                children_full.append(child_node)
+
+    node["_children_full"] = children_full
+    return node
+
+
+def _fix_fill_sizing(tree: dict) -> int:
+    """FRAME 노드의 layoutSizingHorizontal을 FILL로 수정.
+
+    스킵 조건:
+    - width <= 60 (아이콘 등 고정 크기)
+    - 이름에 icon/chevron/dot/Tag/Badge/Indicator/Nav Right/Vector 포함
+    - HORIZONTAL 부모 안의 Banner Card (캐로셀 배너는 FIXED 유지)
+    """
+    SKIP_KEYWORDS = ("icon", "chevron", "dot", "Tag", "Badge", "Indicator",
+                     "Nav Right", "Vector", "Icon", "Chevron", "Dot")
+    fix_count = 0
+
+    def _walk(node: dict, parent_layout_mode: str = ""):
+        nonlocal fix_count
+        node_type = (node.get("type") or "").upper()
+        node_name = node.get("name") or ""
+        node_id = node.get("id")
+        width = node.get("width", 999)
+        sizing_h = node.get("layoutSizingHorizontal", "")
+
+        is_frame = node_type in ("FRAME", "COMPONENT", "INSTANCE")
+
+        if is_frame and node_id != tree.get("id"):
+            # 스킵 조건 확인
+            skip = False
+            if width <= 60:
+                skip = True
+            if any(kw in node_name for kw in SKIP_KEYWORDS):
+                skip = True
+            # HORIZONTAL 부모 안의 Banner Card (캐로셀)
+            if parent_layout_mode == "HORIZONTAL" and "Banner" in node_name:
+                skip = True
+
+            if not skip and sizing_h != "FILL":
+                try:
+                    call_tool("set_layout_sizing", {
+                        "nodeId": node_id,
+                        "horizontal": "FILL"
+                    })
+                    fix_count += 1
+                    print(f"  FILL 수정: {node_name} ({node_id}) [{sizing_h} → FILL]")
+                except Exception as e:
+                    print(f"  FILL 수정 실패: {node_name} ({node_id}): {e}")
+
+        # 자식 노드 재귀
+        current_layout = node.get("layoutMode", "")
+        for child in node.get("_children_full", []):
+            _walk(child, current_layout)
+
+    _walk(tree)
+    return fix_count
+
+
+def _fix_layout_and_positions(tree: dict) -> dict:
+    """Tab Bar/FAB를 ABSOLUTE로 루트 하단에 배치하고, 인접 섹션 간 갭 조정.
+
+    Returns:
+        dict with content_bottom, fab_y, tab_y, root_height
+    """
+    root_id = tree.get("id")
+    children = tree.get("_children_full", [])
+
+    # 자식 분류
+    content_nodes = []
+    tab_bar = None
+    fab = None
+
+    for child in children:
+        name = (child.get("name") or "").lower()
+        if "tab bar" in name or "tabbar" in name:
+            tab_bar = child
+        elif "fab" in name:
+            fab = child
+        else:
+            content_nodes.append(child)
+
+    # 인접 섹션 간 갭 제거 (둘 다 투명 배경이면)
+    for i in range(1, len(content_nodes)):
+        prev = content_nodes[i - 1]
+        curr = content_nodes[i]
+
+        prev_fills = prev.get("fills", [])
+        curr_fills = curr.get("fills", [])
+
+        # 투명 여부 판단: fills가 비어있거나, 모든 fill의 opacity/a가 0이거나, visible=false
+        def _is_transparent(fills):
+            if not fills:
+                return True
+            for f in fills:
+                if f.get("visible") is False:
+                    continue
+                opacity = f.get("opacity", 1)
+                color = f.get("color", {})
+                a = color.get("a", 1)
+                if opacity > 0 and a > 0:
+                    return False
+            return True
+
+        if _is_transparent(prev_fills) and _is_transparent(curr_fills):
+            prev_bottom = (prev.get("y") or 0) + (prev.get("height") or 0)
+            curr_y = curr.get("y") or 0
+            if curr_y > prev_bottom:
+                try:
+                    call_tool("move_node", {
+                        "nodeId": curr.get("id"),
+                        "x": curr.get("x", 0),
+                        "y": prev_bottom
+                    })
+                    print(f"  갭 제거: {curr.get('name')} y={curr_y} → {prev_bottom}")
+                    curr["y"] = prev_bottom
+                except Exception as e:
+                    print(f"  갭 제거 실패: {curr.get('name')}: {e}")
+
+    # content_bottom 계산 (갭 제거 후 재계산)
+    content_bottom = 0
+    for node in content_nodes:
+        bottom = (node.get("y") or 0) + (node.get("height") or 0)
+        if bottom > content_bottom:
+            content_bottom = bottom
+
+    result = {"content_bottom": content_bottom, "fab_y": None, "tab_y": None, "root_height": None}
+
+    # FAB 배치
+    fab_y = content_bottom + 24
+    if fab:
+        try:
+            call_tool("set_layout_positioning", {
+                "nodeId": fab.get("id"),
+                "positioning": "ABSOLUTE"
+            })
+        except Exception as e:
+            print(f"  FAB ABSOLUTE 설정 실패 (무시): {e}")
+        try:
+            call_tool("move_node", {
+                "nodeId": fab.get("id"),
+                "x": 253,
+                "y": fab_y
+            })
+            print(f"  FAB 배치: y={fab_y}, x=253")
+            result["fab_y"] = fab_y
+        except Exception as e:
+            print(f"  FAB 이동 실패: {e}")
+
+    # Tab Bar 배치
+    if fab:
+        tab_y = fab_y + 44 + 16
+    else:
+        tab_y = content_bottom + 24
+
+    if tab_bar:
+        try:
+            call_tool("set_layout_positioning", {
+                "nodeId": tab_bar.get("id"),
+                "positioning": "ABSOLUTE"
+            })
+        except Exception as e:
+            print(f"  Tab Bar ABSOLUTE 설정 실패 (무시): {e}")
+        try:
+            call_tool("move_node", {
+                "nodeId": tab_bar.get("id"),
+                "x": 0,
+                "y": tab_y
+            })
+            print(f"  Tab Bar 배치: y={tab_y}, x=0")
+            result["tab_y"] = tab_y
+        except Exception as e:
+            print(f"  Tab Bar 이동 실패: {e}")
+
+    # 루트 프레임 높이 조정
+    if tab_bar:
+        root_height = tab_y + 73
+    elif fab:
+        root_height = fab_y + 44 + 24
+    else:
+        root_height = content_bottom + 24
+
+    try:
+        call_tool("resize_node", {
+            "nodeId": root_id,
+            "width": tree.get("width", 393),
+            "height": root_height
+        })
+        print(f"  루트 프레임 높이: {root_height}")
+        result["root_height"] = root_height
+    except Exception as e:
+        print(f"  루트 높이 조정 실패: {e}")
+
+    return result
+
+
+def _fix_zero_width_text(tree: dict) -> int:
+    """width=0인 TEXT 노드를 수정: textAutoResize → WIDTH_AND_HEIGHT, 그 후 FILL."""
+    fix_count = 0
+
+    def _walk(node: dict):
+        nonlocal fix_count
+        node_type = (node.get("type") or "").upper()
+        node_id = node.get("id")
+        width = node.get("width", 1)
+
+        if node_type == "TEXT" and width == 0 and node_id:
+            try:
+                call_tool("set_text_properties", {
+                    "nodeId": node_id,
+                    "textAutoResize": "WIDTH_AND_HEIGHT"
+                })
+                call_tool("set_layout_sizing", {
+                    "nodeId": node_id,
+                    "horizontal": "FILL"
+                })
+                fix_count += 1
+                print(f"  텍스트 수정: {node.get('name', '?')} ({node_id}) [width=0 → FILL]")
+            except Exception as e:
+                print(f"  텍스트 수정 실패: {node.get('name', '?')} ({node_id}): {e}")
+
+        for child in node.get("_children_full", []):
+            _walk(child)
+
+    _walk(tree)
+    return fix_count
+
+
+def cmd_post_fix(root_node_id: str):
+    """빌드 후 자동 후처리: FILL 사이징, Tab Bar/FAB 배치, 섹션 갭, 텍스트 수정.
+
+    Usage:
+        python3 scripts/figma_mcp_client.py post-fix <rootNodeId>
+    """
+    ensure_session()
+
+    print(f"\n{'='*50}")
+    print(f"POST-FIX 자동 후처리 시작 — rootId: {root_node_id}")
+    print(f"{'='*50}")
+    start = time.time()
+
+    # 1. 노드 트리 수집
+    print("\n[1/4] 노드 트리 수집 중...")
+    tree = _collect_tree(root_node_id)
+    children_count = len(tree.get("_children_full", []))
+    print(f"  루트 '{tree.get('name', '?')}' — 직계 자식 {children_count}개")
+
+    # 2. FILL 사이징 수정
+    print("\n[2/4] FILL 사이징 검증/수정 중...")
+    fill_fixes = _fix_fill_sizing(tree)
+    print(f"  → {fill_fixes}건 수정")
+
+    # 3. Tab Bar/FAB 배치 + 섹션 갭 조정
+    print("\n[3/4] Tab Bar/FAB 배치 + 섹션 갭 조정 중...")
+    layout_result = _fix_layout_and_positions(tree)
+    print(f"  → content_bottom={layout_result['content_bottom']}, "
+          f"fab_y={layout_result['fab_y']}, tab_y={layout_result['tab_y']}, "
+          f"root_height={layout_result['root_height']}")
+
+    # 4. Zero-width 텍스트 수정
+    print("\n[4/4] Zero-width 텍스트 수정 중...")
+    text_fixes = _fix_zero_width_text(tree)
+    print(f"  → {text_fixes}건 수정")
+
+    elapsed = time.time() - start
+    print(f"\n{'='*50}")
+    print(f"POST-FIX 완료 — {elapsed:.1f}s")
+    print(f"  FILL 수정: {fill_fixes}건")
+    print(f"  텍스트 수정: {text_fixes}건")
+    print(f"  루트 높이: {layout_result['root_height']}")
+    print(f"{'='*50}\n")
 
 
 def cmd_bind(bindings_file: str):
@@ -467,6 +1025,27 @@ def main():
             print("Usage: figma_mcp_client.py bind-text-styles <styles.json>")
             sys.exit(1)
         cmd_bind_text_styles(sys.argv[2])
+    elif cmd == "post-fix":
+        if len(sys.argv) < 3:
+            print("Usage: figma_mcp_client.py post-fix <rootNodeId>")
+            sys.exit(1)
+        cmd_post_fix(sys.argv[2])
+    elif cmd == "validate":
+        if len(sys.argv) < 3:
+            print("Usage: figma_mcp_client.py validate <blueprint.json>")
+            sys.exit(1)
+        with open(sys.argv[2]) as f:
+            bp = json.load(f)
+        bp = _flatten_padding_objects(bp)
+        issues = validate_blueprint(bp)
+        if not issues:
+            print("✓ Blueprint validation passed — no issues found")
+        else:
+            errors = [i for i in issues if i.startswith("ERROR")]
+            warns = [i for i in issues if i.startswith("WARN")]
+            print(f"{'✗' if errors else '⚠'} {len(errors)} error(s), {len(warns)} warning(s):")
+            for issue in issues:
+                print(f"  {issue}")
     elif cmd == "interactive":
         cmd_interactive()
     else:
