@@ -5678,6 +5678,9 @@ async function batchBuildScreen(params) {
           node.strokeLeftWeight = spec.strokeLeftWeight !== undefined ? parseFloat(spec.strokeLeftWeight) : defaultSW;
           node.strokeRightWeight = spec.strokeRightWeight !== undefined ? parseFloat(spec.strokeRightWeight) : defaultSW;
         }
+      } else {
+        // Clear default strokes (same pattern as fill clearing above)
+        node.strokes = [];
       }
 
       // Corner radius

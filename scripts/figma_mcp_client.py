@@ -1019,15 +1019,22 @@ def _fix_fill_sizing(tree: dict) -> int:
 
         if is_frame and node_id != tree.get("id"):
             skip = False
+            name_lower = node_name.lower()
+            # INSTANCE는 컴포넌트 마스터가 크기를 제어 — FILL 변환 금지
+            if node_type == "INSTANCE":
+                skip = True
+            # 이미 명시적으로 HUG 설정된 노드 (태그, 배지, 인디케이터 등)
+            if sizing_h == "HUG":
+                skip = True
             if width <= 60:
                 skip = True
-            if any(kw in node_name for kw in SKIP_KEYWORDS):
+            # 키워드 매칭 (대소문자 무시)
+            if any(kw.lower() in name_lower for kw in SKIP_KEYWORDS):
                 skip = True
             # HORIZONTAL 부모 안의 Banner Card (캐로셀)
-            if parent_layout_mode == "HORIZONTAL" and "Banner" in node_name:
+            if parent_layout_mode == "HORIZONTAL" and "banner" in name_lower:
                 skip = True
             # FAB / Tab Bar → ABSOLUTE 대상이므로 FILL 금지
-            name_lower = node_name.lower()
             if any(kw in name_lower for kw in ABSOLUTE_NAME_KEYWORDS):
                 skip = True
             # 이미 ABSOLUTE로 설정된 노드

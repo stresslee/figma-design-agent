@@ -945,7 +945,9 @@ async function fetchImageAsBase64(url: string): Promise<string | null> {
 // ============================================================
 
 export async function resolveBlueprint(node: Record<string, unknown>): Promise<Record<string, unknown>> {
-  const resolved = { ...node };
+  // Deep copy to prevent shared references — shallow copy caused SVG icons
+  // to be moved to wrong parents when the same object was mutated in multiple places
+  const resolved = JSON.parse(JSON.stringify(node)) as Record<string, unknown>;
 
   // 1. statusBar: true → pass through to code.js for name-based search across all pages
   //    code.js will find "Status Bar" component/instance and createInstance/clone it.
