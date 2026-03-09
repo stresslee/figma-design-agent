@@ -399,6 +399,9 @@ function collectNodeInfo(node, maxDepth, currentDepth) {
   if ("layoutSizingHorizontal" in node) info.layoutSizingHorizontal = node.layoutSizingHorizontal;
   if ("layoutSizingVertical" in node) info.layoutSizingVertical = node.layoutSizingVertical;
 
+  // Layout positioning (AUTO or ABSOLUTE)
+  if ("layoutPositioning" in node) info.layoutPositioning = node.layoutPositioning;
+
   // Fills & strokes
   if ("fills" in node) {
     try {
@@ -5665,6 +5668,16 @@ async function batchBuildScreen(params) {
           opacity: spec.stroke.a !== undefined ? parseFloat(spec.stroke.a) : 1,
         }];
         if (spec.strokeWeight !== undefined) node.strokeWeight = spec.strokeWeight;
+        if (spec.strokeAlign) node.strokeAlign = spec.strokeAlign;
+        // Individual stroke weights (bottom-only border 등)
+        var hasIndividualStroke = spec.strokeTopWeight !== undefined || spec.strokeBottomWeight !== undefined || spec.strokeLeftWeight !== undefined || spec.strokeRightWeight !== undefined;
+        if (hasIndividualStroke && "strokeTopWeight" in node) {
+          var defaultSW = spec.strokeWeight !== undefined ? spec.strokeWeight : 1;
+          node.strokeTopWeight = spec.strokeTopWeight !== undefined ? parseFloat(spec.strokeTopWeight) : defaultSW;
+          node.strokeBottomWeight = spec.strokeBottomWeight !== undefined ? parseFloat(spec.strokeBottomWeight) : defaultSW;
+          node.strokeLeftWeight = spec.strokeLeftWeight !== undefined ? parseFloat(spec.strokeLeftWeight) : defaultSW;
+          node.strokeRightWeight = spec.strokeRightWeight !== undefined ? parseFloat(spec.strokeRightWeight) : defaultSW;
+        }
       }
 
       // Corner radius

@@ -141,8 +141,10 @@
   - **히어로/배너 이미지**: 배경 유지 (isHero=true, rembg 미적용)
   - **그 외 모든 이미지 (아이콘, 카드 그래픽 등)**: 반드시 **rembg로 배경 제거** → 투명 PNG로 적용. Gemini API 직접 호출 시에도 rembg 파이프라인을 반드시 거칠 것
 - **생성 이미지는 반드시 단일 오브젝트** — Gemini로 생성하는 모든 그래픽(3D, 2D 무관)에는 **오브젝트를 딱 하나만** 배치. 여러 오브젝트가 있으면 프레임에 잘리거나 시각적으로 산만해짐. Gemini 프롬프트에 반드시 `"ONLY ONE single object, nothing else"` 포함. 예: 선물 아이콘 → 선물상자 1개만, 계산기 아이콘 → 계산기 1개만
-- **기본 3D 아이콘 스타일 = 여기어때/야놀자 스타일 (비비드 글로시)** — 3D 아이콘/일러스트 생성 시 기본 스타일. 소프트 매트 대신 이 스타일을 우선 적용
-  - **Gemini 프롬프트 키워드**: `"3D rendered icon in the style of Korean travel apps like Yeogieoddae and Yanolja. Vibrant saturated colors, glossy plastic finish, rounded toy-like proportions, playful and fun. Slightly glossy highlight on top. Single centered object. Pure white background. No text. No shadow."`
+- **기본 3D 아이콘 스타일 = 카카오/쏘카 스타일 (소프트 매트 3D)** — 3D 아이콘/일러스트 생성 시 기본 스타일. `assets/reference-images/icon/` 레퍼런스를 반드시 Gemini API에 함께 전달
+  - **Gemini 프롬프트 키워드**: `"3D rendered icon in the style of Korean apps like KakaoTalk and SOCAR. Soft matte finish, NOT glossy, rounded clay-like proportions, warm and friendly. Subtle soft lighting, minimal highlights, smooth surfaces. Chunky compact form. ONLY ONE single object, nothing else. Pure white background. No text. No shadow."`
+  - **스타일 특징**: 과한 광택 없음(not too glossy), 부드러운 매트/클레이 질감, 따뜻한 색감, 둥근 비율, 미니멀 하이라이트
+  - **레퍼런스**: `assets/reference-images/icon/` 에서 랜덤 2장을 `inlineData`로 전달 필수
   - **후처리**: rembg 배경 제거 → 투명 PNG → `set_image_fill(scaleMode: FIT)` 적용
   - **프레임 설정**: 배경 fill 투명(`a:0`), cornerRadius 0 — 3D 이미지만 보이도록
 - **히어로/배너 배경 스타일 = 3D 소프트 매트 (기존 유지)** — 히어로/배너 배경 이미지는 기존 소프트 매트 스타일(Cinema4D, Octane render, matte finish) 유지. 아이콘/일러스트와 배경 이미지의 스타일을 구분
@@ -175,7 +177,7 @@
 - **히어로/배너 배경 그래픽 스타일:** `Cinema4D, Octane render, soft diffused studio lighting, matte finish, front view, orthographic view` — 히어로/배너 배경 이미지 전용. 아이콘/일러스트는 위의 "여기어때/야놀자 비비드 글로시" 스타일 사용
 - **이미지 사이즈 규칙 (용도별 4단계):**
   - **대형 배너 (히어로, 프로모션 등):** 이미지 사이즈 = 배너 프레임 사이즈 × 3. 텍스트가 좌측에 배치될 경우, Gemini 프롬프트에 "place the 3D object on the **right side** of the image, leave the **left half empty** for text overlay"를 포함하여 그래픽을 우측에 생성
-  - **중형 카드 그래픽 (랜덤박스, 기프트샵 등):** Figma 노드 **50×50px 고정** → 이미지 **150×150px** (3x)로 생성. Gemini 출력 후 PIL로 투명 영역 trim → `150×150`로 리사이즈. 투명 배경 필수 (rembg 적용)
+  - **중형 카드 그래픽 (랜덤박스, 기프트샵 등):** Figma 노드 **32×32px 고정** → 이미지 **96×96px** (3x)로 생성. Gemini 출력 후 PIL로 투명 영역 trim → `96×96`로 리사이즈. 투명 배경 필수 (rembg 적용). **카드 내 텍스트 위에 배치** (아이콘 상단 → 텍스트 하단 VERTICAL 구조)
   - **소형 아이콘 그래픽 (3D):** Figma 노드 32×32px → 이미지 **96×96px**로 생성. 동일하게 trim 후 리사이즈. DS 아이콘으로 대체 불가능한 커스텀 일러스트에만 사용
   - **2D 플랫 그래픽 (리스트 아이콘 등):** Figma 노드 **24×24px 고정**, `cornerRadius: 0` 필수 → 이미지 **72×72px** (3x)로 생성. `assets/reference-images/2d/` 토스페이스 레퍼런스를 `inlineData`로 반드시 함께 전달. 투명 배경 필수 (rembg 적용). 토스페이스 스타일: 완전 플랫 단색, 그라데이션/투명/그림자 금지
 
@@ -244,6 +246,7 @@
 ### R4. FAB는 pill 형태 (120×44) — 원형(56×56)은 텍스트 잘림
 - FAB에 텍스트가 있으면 pill 형태로 충분한 너비 확보
 - 아이콘만 있는 FAB만 원형 허용
+- **FAB 컬러**: PRD에 특정 색상 지정 시 해당 색상 사용, 미지정 시 `$token(bg-brand-solid)` — FAB는 가장 중요한 버튼이므로 브랜드 컬러가 기본
 
 ### R5. 카드 내 레이블 텍스트 가시성
 - 카드 배경이 밝은 색이면 텍스트는 어두운 색(`fg-primary`) + Bold

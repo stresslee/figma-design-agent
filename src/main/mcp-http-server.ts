@@ -291,7 +291,11 @@ export class McpHttpServer {
               },
               {
                 type: 'text' as const,
-                text: `빌드 완료: ${obj.totalNodes || '?'}개 노드 생성. rootId=${obj.rootId}. 자동 스크린샷입니다. Step 3(이미지 생성)과 Step 4(QA 체크리스트)를 반드시 실행하세요.\n${JSON.stringify(rest)}`,
+                text: JSON.stringify(rest),
+              },
+              {
+                type: 'text' as const,
+                text: `빌드 완료: ${obj.totalNodes || '?'}개 노드 생성. rootId=${obj.rootId}. 자동 스크린샷입니다.`,
               },
             ],
           };

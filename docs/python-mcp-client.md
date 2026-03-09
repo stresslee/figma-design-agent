@@ -26,6 +26,9 @@ python3 scripts/figma_mcp_client.py post-fix <rootNodeId>
 # 단일 도구 호출
 python3 scripts/figma_mcp_client.py call <tool_name> '<args_json>'
 
+# 템플릿 기반 Blueprint 조립 (고정 섹션 자동 생성)
+python3 scripts/figma_mcp_client.py assemble <config.json>
+
 # 인터랙티브 모드
 python3 scripts/figma_mcp_client.py interactive
 ```
@@ -63,17 +66,52 @@ python3 scripts/figma_mcp_client.py bind scripts/my_bindings.json
 python3 scripts/figma_mcp_client.py call export_node_as_image '{"nodeId":"ROOT_ID","format":"PNG","scale":1}'
 ```
 
-## 이미지 생성 병렬화 (필수 — 빌드 시간 단축)
-디자인에 Gemini 이미지가 필요한 경우, **빌드와 이미지 생성을 병렬로 실행**하여 약 3분 절약:
+## 이미지 생성 병렬화 (자동 — build 명령에 내장)
+`build` 명령 실행 시 **imageGen 스펙이 있으면 자동으로 빌드와 이미지 생성을 병렬 실행**:
 
 ```
-[Blueprint 작성] → [빌드 시작 (batch_build_screen)]
-                    ↓ 동시에
-                   [Gemini 이미지 생성 (백그라운드)]
-                    ↓
-[빌드 완료] → [후처리] → [이미지 적용 (set_image_fill)] → [QA]
+[Blueprint 작성] → [빌드 시작] ────────────────────→ [빌드 완료] → [post-fix] → [이미지 적용] → [QA]
+                    ↓ 동시에 (백그라운드 스레드)          ↑
+                   [Gemini 이미지 사전 생성 (3병렬)] ────┘ (대기 후 nodeMap으로 적용)
 ```
 
-- **방법**: Agent 도구의 `run_in_background: true`로 이미지 생성 에이전트를 백그라운드 실행
-- **조건**: 이미지가 들어갈 프레임의 nodeId를 빌드 결과 `nodeMap`에서 얻은 후 적용
-- **주의**: 빌드 결과의 `nodeMap`에서 정확한 nodeId를 확인한 뒤 `set_image_fill` 호출
+- **자동 실행**: Blueprint에 `imageGen` 필드가 있으면 `cmd_build`가 자동으로 병렬 처리
+- **별도 설정 불필요**: `build` 한 번으로 빌드 + post-fix + 이미지 생성/적용 모두 완료
+- **병렬도**: Gemini API rate limit 고려하여 최대 3개 동시 생성
+- **파이프라인**: Gemini API → rembg 배경 제거 → 정사각형 크롭 → 120px 리사이즈 → `set_image_fill`
+- **수동 병렬화도 가능**: Agent 도구의 `run_in_background: true`로 추가 이미지 생성 가능
+
+## 템플릿 기반 Blueprint 조립 (`assemble` 명령)
+고정 섹션(NavBar, TabBar, FAB, Hero, Ribbon)을 템플릿에서 자동 조립하여 Blueprint 작성 시간을 대폭 단축.
+
+```bash
+python3 scripts/figma_mcp_client.py assemble scripts/my_config.json
+```
+
+**config.json 형식:**
+```json
+{
+  "rootName": "Screen Name",
+  "width": 393,
+  "height": 1680,
+  "fill": "$token(bg-primary)",
+  "sections": ["NavBar", "TransactionRibbon", "HeroSection", "custom", "FAB", "TabBar"],
+  "variables": {
+    "FAB": {"label": "마이 월렛", "icon": "wallet-02"},
+    "TransactionRibbon": {"text": "누적 거래 5,000,000건"},
+    "HeroSection": {
+      "banners": [
+        {"tag": "HOT", "title": "이벤트 제목", "imagePrompt": "3D coins..."},
+        {"tag": "NEW", "title": "두번째 배너", "imagePrompt": "3D gift..."}
+      ]
+    },
+    "TabBar": {"activeTab": "홈"}
+  },
+  "customSections": [ ... PRD 고유 섹션들 ... ]
+}
+```
+
+- **템플릿 파일**: `scripts/blueprint_templates.json` (5개 섹션 정의)
+- **custom 섹션**: `sections` 배열에 `"custom"` 지정 → `customSections`에서 순서대로 삽입
+- **출력**: `scripts/blueprint_assembled_<name>.json` → `build` 명령으로 빌드
+- **효과**: NavBar+TabBar+FAB+Hero+Ribbon = ~400줄 자동 생성 → Claude는 custom 섹션만 작성

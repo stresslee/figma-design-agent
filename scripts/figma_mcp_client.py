@@ -25,6 +25,9 @@ import sys
 import os
 import time
 import requests
+import base64
+import io
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Optional, List, Dict
 
 MCP_URL = "http://localhost:8769/mcp"
@@ -226,22 +229,65 @@ def validate_blueprint(blueprint: dict) -> list:
     return issues
 
 
-def resolve_tokens_in_blueprint(node: Any) -> Any:
+_resolved_color_log: List[Dict[str, str]] = []
+
+def resolve_tokens_in_blueprint(node: Any, _parent_key: str = "", _node_name: str = "") -> Any:
     """Recursively resolve all $token() references in a blueprint JSON."""
+    global _resolved_color_log
     if isinstance(node, str):
         resolved = resolve_token_ref(node)
         if resolved is not None:
+            # Log color tokens used in fill/color fields for verification
+            color_fields = ("fill", "fontColor", "iconColor", "stroke")
+            if _parent_key in color_fields:
+                token_name = node[7:-1]
+                token_map = load_token_map()
+                info = token_map.get(token_name)
+                hex_val = info["value"] if info else "?"
+                if not info:
+                    for path, info_item in token_map.items():
+                        fp = info_item.get("figmaPath", path)
+                        seg = fp.rsplit("/", 1)[-1] if "/" in fp else fp
+                        if seg == token_name or seg.startswith(token_name + " ") or seg.startswith(token_name + "_"):
+                            hex_val = info_item["value"]
+                            break
+                _resolved_color_log.append({
+                    "token": token_name, "hex": hex_val,
+                    "field": _parent_key, "node": _node_name
+                })
             return resolved
         return node
     elif isinstance(node, dict):
         result = {}
+        name = node.get("name", _node_name)
         for k, v in node.items():
-            resolved = resolve_tokens_in_blueprint(v)
+            resolved = resolve_tokens_in_blueprint(v, _parent_key=k, _node_name=name)
             result[k] = resolved
         return result
     elif isinstance(node, list):
-        return [resolve_tokens_in_blueprint(item) for item in node]
+        return [resolve_tokens_in_blueprint(item, _parent_key=_parent_key, _node_name=_node_name) for item in node]
     return node
+
+
+def print_resolved_color_summary():
+    """Print a summary of resolved color tokens for visual verification."""
+    global _resolved_color_log
+    if not _resolved_color_log:
+        return
+    # Deduplicate by token name + field
+    seen = set()
+    unique = []
+    for entry in _resolved_color_log:
+        key = (entry["token"], entry["field"])
+        if key not in seen:
+            seen.add(key)
+            unique.append(entry)
+
+    print(f"\n  🎨 사용된 색상 토큰 ({len(unique)}개) — 의도한 색상이 맞는지 확인하세요:")
+    for e in unique:
+        print(f"     {e['field']:12} {e['token']:30} → {e['hex']}")
+    print()
+    _resolved_color_log = []
 
 
 def _count_token_refs(node: Any) -> int:
@@ -322,6 +368,40 @@ def call_tool(name: str, args: dict, msg_id: int = 1) -> List[dict]:
     return content
 
 
+def _try_extract_json(text: str):
+    """텍스트에서 JSON 객체/배열을 추출. 전체 파싱 → 줄 단위 → 중괄호 추출 순서로 시도."""
+    # 1) 전체 문자열이 JSON인 경우
+    try:
+        return json.loads(text)
+    except (json.JSONDecodeError, TypeError):
+        pass
+
+    # 2) 줄 단위로 JSON 시도 (MCP 응답: "한글 설명\n{JSON}" 형태)
+    for line in text.split('\n'):
+        line = line.strip()
+        if line.startswith('{') or line.startswith('['):
+            try:
+                return json.loads(line)
+            except (json.JSONDecodeError, TypeError):
+                pass
+
+    # 3) 텍스트 내 첫 번째 { ... } 블록 추출
+    start = text.find('{')
+    if start >= 0:
+        depth = 0
+        for i in range(start, len(text)):
+            if text[i] == '{':
+                depth += 1
+            elif text[i] == '}':
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(text[start:i+1])
+                    except (json.JSONDecodeError, TypeError):
+                        break
+    return None
+
+
 def parse_content(content: List[dict]) -> dict:
     """Parse MCP response content — handles text, image, and mixed types."""
     texts = []
@@ -333,11 +413,10 @@ def parse_content(content: List[dict]) -> dict:
         if ctype == "text":
             text = item.get("text", "")
             texts.append(text)
-            # Try to parse as JSON
-            try:
-                parsed_json = json.loads(text)
-            except (json.JSONDecodeError, TypeError):
-                pass
+            # Try to extract JSON from text
+            result = _try_extract_json(text)
+            if result is not None:
+                parsed_json = result
         elif ctype == "image":
             images.append({
                 "mimeType": item.get("mimeType", "image/png"),
@@ -432,18 +511,46 @@ def cmd_build(blueprint_file: str):
     if token_count > 0:
         print(f"Resolving {token_count} $token() references from TOKEN_MAP.json...")
         blueprint = resolve_tokens_in_blueprint(blueprint)
+        print_resolved_color_summary()
 
     children_count = len(blueprint.get('children', []))
     root_name = blueprint.get('name', 'unnamed')
     print(f"Building '{root_name}' with {children_count} top-level children...")
-    start = time.time()
 
+    # ──── 병렬 실행: 이미지 사전 생성 + 빌드 동시 시작 ────
+    # Step A: Blueprint에서 imageGen 스펙을 빌드 전에 추출 (nodeId 불필요)
+    image_specs_raw = []
+
+    def _walk_for_image_specs(node: dict):
+        image_gen = node.get("imageGen")
+        if image_gen and isinstance(image_gen, dict):
+            image_specs_raw.append({
+                "nodeName": node.get("name", ""),
+                "prompt": image_gen.get("prompt", ""),
+                "isHero": image_gen.get("isHero", False),
+                "width": image_gen.get("width"),
+                "height": image_gen.get("height"),
+                "style": image_gen.get("style"),
+            })
+        for child in node.get("children", []):
+            _walk_for_image_specs(child)
+
+    _walk_for_image_specs(blueprint)
+
+    # Step B: 이미지 사전 생성을 백그라운드 스레드로 시작
+    pre_gen_future = None
+    if image_specs_raw:
+        print(f"\n🎨 이미지 사전 생성 시작 ({len(image_specs_raw)}건 — 빌드와 병렬 실행)")
+        executor = ThreadPoolExecutor(max_workers=1)
+        pre_gen_future = executor.submit(_pre_generate_images_parallel, image_specs_raw)
+
+    # Step C: 빌드 실행 (이미지 생성과 동시)
+    start = time.time()
     content = call_tool("batch_build_screen", {"blueprint": blueprint})
     result = parse_content(content)
+    build_elapsed = time.time() - start
 
-    elapsed = time.time() - start
-
-    # Step 4: Extract and display rootId prominently
+    # Step D: 빌드 결과 추출
     root_id = None
     total_nodes = None
     node_map = None
@@ -453,14 +560,15 @@ def cmd_build(blueprint_file: str):
         node_map = result["json"].get("nodeMap")
 
     print(f"\n{'='*50}")
-    print(f"BUILD COMPLETE in {elapsed:.1f}s")
+    print(f"BUILD COMPLETE in {build_elapsed:.1f}s")
     if root_id:
         print(f"  rootId: {root_id}")
     if total_nodes:
         print(f"  totalNodes: {total_nodes}")
-    if node_map:
+    if node_map is not None:
         print(f"  nodeMap keys: {len(node_map)}")
-        # Print first 10 node mappings for reference
+        if len(node_map) == 0:
+            print(f"  ⚠️ nodeMap이 비어있음 — 이미지 이름 매칭 불가할 수 있음")
         for i, (name, nid) in enumerate(node_map.items()):
             if i >= 10:
                 print(f"  ... and {len(node_map) - 10} more")
@@ -471,21 +579,61 @@ def cmd_build(blueprint_file: str):
     if result["images"]:
         print(f"[Screenshot returned: {result['images'][0]['data_length']} bytes]")
 
-    # Auto post-fix
+    # Step E-0: 루트 auto-layout 보장 (batch_build_screen이 미적용할 수 있음)
+    if root_id:
+        try:
+            call_tool("set_auto_layout", {
+                "nodeId": root_id,
+                "layoutMode": "VERTICAL",
+                "itemSpacing": 0,
+                "paddingTop": 0,
+                "paddingBottom": 0,
+                "paddingLeft": 0,
+                "paddingRight": 0,
+                "clipsContent": True
+            })
+            # ★ 핵심: set_auto_layout(VERTICAL) 후 기본 layoutSizingVertical이 HUG가 됨
+            # ABSOLUTE 자식(FAB/Tab Bar)이 흐름에서 빠지면 HUG가 높이를 축소시키므로
+            # FIXED로 강제 설정하여 post-fix의 resize_node가 작동하도록 보장
+            call_tool("set_layout_sizing", {
+                "nodeId": root_id,
+                "vertical": "FIXED"
+            })
+            print("\n✅ 루트 auto-layout VERTICAL + FIXED 설정 완료")
+        except Exception as e:
+            print(f"\n⚠️ 루트 auto-layout 설정 실패 (무시): {e}")
+
+    # Step E: post-fix
     if root_id:
         print("\n🔧 자동 후처리 실행 중...")
         cmd_post_fix(root_id)
     else:
         print("⚠️  rootId를 찾을 수 없어 post-fix를 건너뜁니다.")
 
-    # Auto image generation
-    if node_map:
-        image_specs = _extract_image_specs(blueprint, node_map)
-        if image_specs:
-            print(f"\n🎨 이미지 자동 생성 ({len(image_specs)}건)...")
-            _generate_images(image_specs)
+    # Step F: 이미지 사전 생성 완료 대기 + Figma 적용
+    if pre_gen_future and node_map is not None:
+        print("\n⏳ 이미지 사전 생성 완료 대기 중...")
+        pre_results = pre_gen_future.result()  # 이미 완료됐으면 즉시 반환
+        executor.shutdown(wait=False)
+
+        ok_results = [r for r in pre_results if "imagePath" in r]
+        if ok_results:
+            print(f"\n🖼️  이미지 Figma 적용 ({len(ok_results)}건)...")
+            _apply_pre_generated_images(pre_results, node_map)
         else:
-            print("\n(imageGen 스펙 없음 — 이미지 생성 건너뜀)")
+            print("\n  이미지 사전 생성 결과 없음")
+    elif pre_gen_future:
+        # node_map이 None (빌드 실패)이어서 적용 불가
+        pre_gen_future.cancel()
+        executor.shutdown(wait=False)
+        print("\n⚠️  nodeMap이 None — 빌드 실패로 사전 생성 이미지 적용 불가")
+    elif not image_specs_raw:
+        print("\n(imageGen 스펙 없음 — 이미지 생성 건너뜀)")
+
+    total_elapsed = time.time() - start
+    print(f"\n{'='*50}")
+    print(f"전체 완료: {total_elapsed:.1f}s (빌드 {build_elapsed:.1f}s + 후처리 + 이미지)")
+    print(f"{'='*50}")
 
 
 def _extract_image_specs(blueprint: dict, node_map: dict) -> list:
@@ -533,13 +681,7 @@ def _extract_image_specs(blueprint: dict, node_map: dict) -> list:
 
 
 def _generate_images(specs: list):
-    """generate_image MCP 도구로 이미지 생성 + Figma 노드에 적용.
-
-    generate_image 도구는 내부적으로:
-    1. Gemini API 호출 (이미지 생성)
-    2. 아이콘은 rembg 배경 제거
-    3. set_image_fill로 Figma 노드에 적용
-    """
+    """generate_image MCP 도구로 이미지 생성 + Figma 노드에 적용. (기존 순차 방식)"""
     start = time.time()
     success = 0
     fail = 0
@@ -581,17 +723,257 @@ def _generate_images(specs: list):
     print(f"\n  이미지 생성 완료 — {success} 성공, {fail} 실패 ({elapsed:.1f}s)")
 
 
-def _collect_tree(node_id: str, depth: int = 0, max_depth: int = 3) -> dict:
-    """노드 트리를 재귀적으로 수집 (최대 depth 3).
+# ─── 병렬 이미지 사전 생성 (빌드와 동시 실행) ───────────────────────────
+
+GEMINI_MODEL = "gemini-3-pro-image-preview"
+GEMINI_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+
+DEFAULT_3D_STYLE = "Cinema4D, Octane render, soft diffused studio lighting, front view, orthographic projection, matte clay-like material with subtle specular, warm gentle shadows, simple symbolic forms, rounded friendly shapes, transparent background, clean minimal, high quality"
+TOSSFACE_2D_STYLE = "Tossface emoji style: completely flat 2D, NO gradients, NO shadows, NO outlines, NO 3D effects, NO perspective, simple geometric rounded shapes, 2-3 solid bright colors only, minimal detail, like a simplified emoji icon, clean vector look, transparent background"
+
+def _get_gemini_api_key() -> str:
+    """Electron 앱 설정에서 Gemini API 키를 로드."""
+    settings_path = os.path.expanduser(
+        "~/Library/Application Support/figma-design-agent/settings.json"
+    )
+    try:
+        with open(settings_path) as f:
+            return json.load(f).get("geminiApiKey", "")
+    except FileNotFoundError:
+        return ""
+
+
+def _find_reference_images(prompt: str, is_2d: bool) -> list:
+    """프롬프트와 스타일에 맞는 레퍼런스 이미지를 자동 탐색."""
+    ref_dir = os.path.join(os.path.dirname(__file__), "..", "assets", "reference-images")
+    refs = []
+    subdir = "2d" if is_2d else "icon"
+    target_dir = os.path.join(ref_dir, subdir)
+    if os.path.isdir(target_dir):
+        for fname in os.listdir(target_dir):
+            if fname.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+                refs.append(os.path.join(target_dir, fname))
+                if len(refs) >= 2:
+                    break
+    return refs
+
+
+def _pre_generate_single(spec: dict, api_key: str, output_dir: str) -> dict:
+    """단일 이미지를 Gemini API로 사전 생성 (nodeId 불필요).
+
+    Returns: {"nodeName": str, "imagePath": str, "isHero": bool} or {"nodeName": str, "error": str}
+    """
+    node_name = spec["nodeName"]
+    prompt = spec["prompt"]
+    is_hero = spec.get("isHero", False)
+    is_2d = (spec.get("style") or "").lower() in ("2d", "tossface")
+    style = TOSSFACE_2D_STYLE if is_2d else (spec.get("style") or DEFAULT_3D_STYLE)
+
+    # 프롬프트 구성
+    if is_hero:
+        mode_instructions = (
+            "IMPORTANT: Keep the background. "
+            "All graphic elements MUST be on the RIGHT SIDE. "
+            "The LEFT 60% must be empty for text overlay. "
+            "NO MORE THAN 2-3 simple objects total."
+        )
+    else:
+        mode_instructions = "IMPORTANT: transparent background (PNG with alpha)."
+
+    full_prompt = f"{prompt}. Style: {style}. {mode_instructions} High quality."
+
+    # 레퍼런스 이미지
+    parts = []
+    for ref_path in _find_reference_images(prompt, is_2d):
+        try:
+            with open(ref_path, "rb") as f:
+                ref_b64 = base64.b64encode(f.read()).decode()
+            parts.append({"inlineData": {"mimeType": "image/png", "data": ref_b64}})
+        except Exception:
+            pass
+
+    parts.append({"text": full_prompt})
+
+    # Gemini API 호출
+    try:
+        resp = requests.post(
+            f"{GEMINI_ENDPOINT}?key={api_key}",
+            json={
+                "contents": [{"parts": parts}],
+                "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]},
+            },
+            timeout=90,
+        )
+        data = resp.json()
+
+        if "candidates" not in data:
+            return {"nodeName": node_name, "error": f"Gemini 응답 없음: {str(data)[:200]}"}
+
+        # 이미지 추출
+        img_b64 = None
+        for part in data["candidates"][0]["content"]["parts"]:
+            if "inlineData" in part:
+                img_b64 = part["inlineData"]["data"]
+                break
+
+        if not img_b64:
+            return {"nodeName": node_name, "error": "응답에 이미지 없음"}
+
+        raw_data = base64.b64decode(img_b64)
+        safe_name = node_name.replace(" ", "_").replace("/", "_")
+        raw_path = os.path.join(output_dir, f"{safe_name}_raw.png")
+        with open(raw_path, "wb") as f:
+            f.write(raw_data)
+
+        if is_hero:
+            # 히어로: 배경 유지, 리사이즈만
+            final_path = os.path.join(output_dir, f"{safe_name}.png")
+            from PIL import Image as PILImage
+            img = PILImage.open(io.BytesIO(raw_data))
+            img.save(final_path)
+            return {"nodeName": node_name, "imagePath": final_path, "isHero": True}
+        else:
+            # 아이콘: rembg 배경 제거 + 정사각형 크롭
+            from rembg import remove
+            from PIL import Image as PILImage
+            input_img = PILImage.open(io.BytesIO(raw_data))
+            output_img = remove(input_img)
+
+            # 정사각형 중앙 크롭
+            w, h = output_img.size
+            s = min(w, h)
+            left = (w - s) // 2
+            top = (h - s) // 2
+            output_img = output_img.crop((left, top, left + s, top + s))
+            output_img = output_img.resize((120, 120), PILImage.LANCZOS)
+
+            final_path = os.path.join(output_dir, f"{safe_name}.png")
+            output_img.save(final_path)
+            return {"nodeName": node_name, "imagePath": final_path, "isHero": False}
+
+    except Exception as e:
+        return {"nodeName": node_name, "error": str(e)}
+
+
+def _pre_generate_images_parallel(specs: list) -> list:
+    """Blueprint의 imageGen 스펙들을 병렬로 사전 생성.
+
+    빌드 전에 호출되어 빌드와 동시에 실행됨.
+    nodeId 없이 이미지만 생성하여 로컬 파일로 저장.
+
+    Returns: [{"nodeName": str, "imagePath": str, "isHero": bool}, ...]
+    """
+    api_key = _get_gemini_api_key()
+    if not api_key:
+        print("  ⚠️ Gemini API 키 미설정 — 이미지 사전 생성 건너뜀")
+        return []
+
+    output_dir = os.path.join(os.path.dirname(__file__), "..", "assets", "generated")
+    os.makedirs(output_dir, exist_ok=True)
+
+    results = []
+    start = time.time()
+
+    # 최대 3개 병렬 (Gemini API rate limit 고려)
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = {
+            executor.submit(_pre_generate_single, spec, api_key, output_dir): spec
+            for spec in specs
+        }
+        for future in as_completed(futures):
+            spec = futures[future]
+            result = future.result()
+            if "error" in result:
+                print(f"  ❌ {result['nodeName']}: {result['error'][:100]}")
+            else:
+                print(f"  ✅ {result['nodeName']}: {result['imagePath']}")
+            results.append(result)
+
+    elapsed = time.time() - start
+    ok = sum(1 for r in results if "imagePath" in r)
+    fail = sum(1 for r in results if "error" in r)
+    print(f"  이미지 사전 생성 — {ok} 성공, {fail} 실패 ({elapsed:.1f}s)")
+    return results
+
+
+def _apply_pre_generated_images(pre_results: list, node_map: dict):
+    """사전 생성된 이미지를 nodeMap 기반으로 Figma에 적용.
+
+    pre_results: _pre_generate_images_parallel의 결과
+    node_map: batch_build_screen이 반환한 {name: nodeId} 매핑
+    """
+    success = 0
+    fail = 0
+
+    for result in pre_results:
+        if "error" in result:
+            continue
+
+        node_name = result["nodeName"]
+        image_path = result["imagePath"]
+        is_hero = result.get("isHero", False)
+        node_id = node_map.get(node_name)
+
+        if not node_id:
+            print(f"  ⚠️ '{node_name}' nodeMap에 없음 — 적용 건너뜀")
+            fail += 1
+            continue
+
+        try:
+            with open(image_path, "rb") as f:
+                img_b64 = base64.b64encode(f.read()).decode()
+
+            scale_mode = "FILL" if is_hero else "FIT"
+            content = call_tool("set_image_fill", {
+                "nodeId": node_id,
+                "imageData": img_b64,
+                "scaleMode": scale_mode,
+            })
+            result_parsed = parse_content(content)
+            if result_parsed.get("json"):
+                print(f"  ✅ {node_name} → {node_id} ({scale_mode})")
+                success += 1
+            else:
+                print(f"  ❌ {node_name} 적용 실패: {result_parsed.get('texts', [])}")
+                fail += 1
+        except Exception as e:
+            print(f"  ❌ {node_name} 에러: {e}")
+            fail += 1
+
+    print(f"  이미지 적용 — {success} 성공, {fail} 실패")
+
+
+def _collect_tree(node_id: str, depth: int = 0, max_depth: int = 6) -> dict:
+    """노드 트리를 재귀적으로 수집 (최대 depth 6).
 
     get_node_info로 노드 정보를 가져오고, children의 각 id에 대해 재귀 호출.
+    get_node_info 실패 시 get_nodes_info를 fallback으로 사용.
     결과 노드에 _children_full 키로 완전한 자식 정보를 포함.
     """
-    content = call_tool("get_node_info", {"nodeId": node_id})
-    result = parse_content(content)
-    node = result.get("json") or {}
+    node = None
 
-    if not node:
+    # 1차: get_node_info
+    try:
+        content = call_tool("get_node_info", {"nodeId": node_id})
+        result = parse_content(content)
+        node = result.get("json") or {}
+    except Exception:
+        node = {}
+
+    # 2차 fallback: get_nodes_info (get_node_info 실패 시)
+    if not node or not node.get("id"):
+        try:
+            content2 = call_tool("get_nodes_info", {"nodeIds": [node_id]})
+            result2 = parse_content(content2)
+            items = result2.get("json") or []
+            if isinstance(items, list) and items:
+                doc = items[0].get("document") or items[0]
+                if doc.get("id"):
+                    node = doc
+        except Exception:
+            pass
+
+    if not node or not node.get("id"):
         return {"id": node_id, "type": "UNKNOWN", "_children_full": []}
 
     children_full = []
@@ -614,12 +996,18 @@ def _fix_fill_sizing(tree: dict) -> int:
     - width <= 60 (아이콘 등 고정 크기)
     - 이름에 icon/chevron/dot/Tag/Badge/Indicator/Nav Right/Vector 포함
     - HORIZONTAL 부모 안의 Banner Card (캐로셀 배너는 FIXED 유지)
+    - FAB / Tab Bar (ABSOLUTE 배치 대상 — FILL로 바꾸면 width가 전체로 늘어남)
+    - SPACE_BETWEEN 부모에서 이미 ABSOLUTE인 노드
+    - SPACE_BETWEEN 부모의 마지막 자식이 HUG이면 보존 (우측 정렬 유틸리티)
     """
     SKIP_KEYWORDS = ("icon", "chevron", "dot", "Tag", "Badge", "Indicator",
                      "Nav Right", "Vector", "Icon", "Chevron", "Dot")
+    # FAB/Tab Bar는 ABSOLUTE로 배치되므로 FILL 변환하면 안 됨
+    ABSOLUTE_NAME_KEYWORDS = ("fab", "tab bar", "tabbar")
     fix_count = 0
 
-    def _walk(node: dict, parent_layout_mode: str = ""):
+    def _walk(node: dict, parent_layout_mode: str = "",
+              parent_align: str = "", is_last_child: bool = False):
         nonlocal fix_count
         node_type = (node.get("type") or "").upper()
         node_name = node.get("name") or ""
@@ -630,7 +1018,6 @@ def _fix_fill_sizing(tree: dict) -> int:
         is_frame = node_type in ("FRAME", "COMPONENT", "INSTANCE")
 
         if is_frame and node_id != tree.get("id"):
-            # 스킵 조건 확인
             skip = False
             if width <= 60:
                 skip = True
@@ -638,6 +1025,17 @@ def _fix_fill_sizing(tree: dict) -> int:
                 skip = True
             # HORIZONTAL 부모 안의 Banner Card (캐로셀)
             if parent_layout_mode == "HORIZONTAL" and "Banner" in node_name:
+                skip = True
+            # FAB / Tab Bar → ABSOLUTE 대상이므로 FILL 금지
+            name_lower = node_name.lower()
+            if any(kw in name_lower for kw in ABSOLUTE_NAME_KEYWORDS):
+                skip = True
+            # 이미 ABSOLUTE로 설정된 노드
+            if node.get("layoutPositioning") == "ABSOLUTE":
+                skip = True
+            # SPACE_BETWEEN 부모의 마지막 자식(HUG) → 우측 정렬 유지
+            if (parent_align == "SPACE_BETWEEN" and is_last_child
+                    and sizing_h in ("HUG", "")):
                 skip = True
 
             if not skip and sizing_h != "FILL":
@@ -653,8 +1051,11 @@ def _fix_fill_sizing(tree: dict) -> int:
 
         # 자식 노드 재귀
         current_layout = node.get("layoutMode", "")
-        for child in node.get("_children_full", []):
-            _walk(child, current_layout)
+        current_align = node.get("primaryAxisAlignItems", "")
+        children = node.get("_children_full", [])
+        for i, child in enumerate(children):
+            _walk(child, current_layout, current_align,
+                  is_last_child=(i == len(children) - 1))
 
     _walk(tree)
     return fix_count
@@ -682,6 +1083,46 @@ def _fix_layout_and_positions(tree: dict) -> dict:
             fab = child
         else:
             content_nodes.append(child)
+
+    # ★ FILL 수정 후 Figma에서 최신 y/height 다시 조회
+    #   (_collect_tree는 FILL 수정 전에 실행되므로 캐시된 y/height가 stale)
+    all_nodes = content_nodes + ([fab] if fab else []) + ([tab_bar] if tab_bar else [])
+    refresh_ids = [n.get("id") for n in all_nodes if n.get("id")]
+    if refresh_ids:
+        try:
+            refresh_content = call_tool("get_nodes_info", {"nodeIds": refresh_ids})
+            refresh_result = parse_content(refresh_content)
+            refresh_items = refresh_result.get("json") or []
+            if isinstance(refresh_items, list):
+                id_to_fresh = {}
+                for item in refresh_items:
+                    doc = item.get("document") or item
+                    bb = doc.get("absoluteBoundingBox") or {}
+                    nid = doc.get("id")
+                    if nid and bb:
+                        # absoluteBoundingBox를 부모(루트) 기준 로컬 좌표로 변환
+                        root_bb = tree.get("absoluteBoundingBox") or {}
+                        root_y = root_bb.get("y", 0)
+                        id_to_fresh[nid] = {
+                            "y": bb.get("y", 0) - root_y,
+                            "height": bb.get("height", 0),
+                            "width": bb.get("width", 0),
+                        }
+                refreshed = 0
+                for node in all_nodes:
+                    nid = node.get("id")
+                    if nid in id_to_fresh:
+                        fresh = id_to_fresh[nid]
+                        old_h = node.get("height", 0)
+                        node["y"] = fresh["y"]
+                        node["height"] = fresh["height"]
+                        node["width"] = fresh["width"]
+                        if abs(old_h - fresh["height"]) > 1:
+                            refreshed += 1
+                if refreshed:
+                    print(f"  위치 갱신: {refreshed}건 (FILL 수정 후 높이 변경 반영)")
+        except Exception as e:
+            print(f"  ⚠️ 위치 갱신 실패 (기존 값 사용): {e}")
 
     # 인접 섹션 간 갭 제거 (둘 다 투명 배경이면)
     for i in range(1, len(content_nodes)):
@@ -735,10 +1176,21 @@ def _fix_layout_and_positions(tree: dict) -> dict:
         try:
             call_tool("set_layout_positioning", {
                 "nodeId": fab.get("id"),
-                "positioning": "ABSOLUTE"
+                "layoutPositioning": "ABSOLUTE"
             })
         except Exception as e:
             print(f"  FAB ABSOLUTE 설정 실패 (무시): {e}")
+        # FAB 크기 복원 (pill 형태 120×44) — FILL 변환으로 width가 늘어났을 수 있음
+        fab_width = fab.get("width", 120)
+        if fab_width > 200:  # FILL로 늘어난 경우
+            try:
+                call_tool("set_layout_sizing", {
+                    "nodeId": fab.get("id"),
+                    "horizontal": "HUG"
+                })
+                print(f"  FAB 크기 복원: width {fab_width} → HUG")
+            except Exception as e:
+                print(f"  FAB 크기 복원 실패: {e}")
         try:
             call_tool("move_node", {
                 "nodeId": fab.get("id"),
@@ -760,10 +1212,25 @@ def _fix_layout_and_positions(tree: dict) -> dict:
         try:
             call_tool("set_layout_positioning", {
                 "nodeId": tab_bar.get("id"),
-                "positioning": "ABSOLUTE"
+                "layoutPositioning": "ABSOLUTE"
             })
         except Exception as e:
             print(f"  Tab Bar ABSOLUTE 설정 실패 (무시): {e}")
+        # ABSOLUTE 전환 시 Figma가 FILL→HUG로 자동 변경하여 width가 축소됨
+        # → width=393 강제 + FIXED로 설정하여 전체 너비 유지
+        try:
+            call_tool("resize_node", {
+                "nodeId": tab_bar.get("id"),
+                "width": tree.get("width", 393),
+                "height": 73
+            })
+            call_tool("set_layout_sizing", {
+                "nodeId": tab_bar.get("id"),
+                "horizontal": "FIXED"
+            })
+            print(f"  Tab Bar 크기 복원: width={tree.get('width', 393)}, FIXED")
+        except Exception as e:
+            print(f"  Tab Bar 크기 복원 실패: {e}")
         try:
             call_tool("move_node", {
                 "nodeId": tab_bar.get("id"),
@@ -783,18 +1250,92 @@ def _fix_layout_and_positions(tree: dict) -> dict:
     else:
         root_height = content_bottom + 24
 
+    # 안전장치: 계산 높이가 비정상적으로 낮으면 원본 유지
+    original_height = tree.get("height") or tree.get("absoluteBoundingBox", {}).get("height", 0)
+    if original_height > 100 and root_height < original_height * 0.3:
+        print(f"  ⚠️ 높이 급감 감지: {original_height} → {root_height}. 원본 유지.")
+        root_height = original_height
+
     try:
+        # ★ 핵심 수정: resize 전에 layoutSizingVertical을 FIXED로 설정
+        # set_auto_layout(VERTICAL)이 기본적으로 HUG를 설정하므로,
+        # ABSOLUTE 자식이 흐름에서 빠지면 HUG가 높이를 content_bottom으로 축소시킴.
+        # FIXED로 설정해야 resize_node로 지정한 높이가 유지됨.
+        call_tool("set_layout_sizing", {
+            "nodeId": root_id,
+            "vertical": "FIXED"
+        })
         call_tool("resize_node", {
             "nodeId": root_id,
             "width": tree.get("width", 393),
             "height": root_height
         })
-        print(f"  루트 프레임 높이: {root_height}")
+        print(f"  루트 프레임 높이: {root_height} (FIXED)")
         result["root_height"] = root_height
     except Exception as e:
         print(f"  루트 높이 조정 실패: {e}")
 
     return result
+
+
+def _fix_tab_bar_items(tree: dict) -> int:
+    """Tab Bar 내부 아이템을 FILL로 통일하고, Tab Row에 individual stroke 적용."""
+    fix_count = 0
+    children = tree.get("_children_full", [])
+
+    for child in children:
+        name_lower = (child.get("name") or "").lower()
+
+        # Tab Bar item FILL 통일
+        if "tab bar" in name_lower or "tabbar" in name_lower:
+            tab_items = child.get("_children_full", [])
+            for item in tab_items:
+                item_type = (item.get("type") or "").upper()
+                item_sizing = item.get("layoutSizingHorizontal", "")
+                if item_type == "FRAME" and item_sizing != "FILL":
+                    try:
+                        call_tool("set_layout_sizing", {
+                            "nodeId": item.get("id"),
+                            "horizontal": "FILL"
+                        })
+                        fix_count += 1
+                        print(f"  Tab item FILL: {item.get('name')} ({item.get('id')})")
+                    except Exception as e:
+                        print(f"  Tab item FILL 실패: {item.get('name')}: {e}")
+
+        # Tab Row (underline tab) — individual stroke bottom only
+        _apply_individual_strokes(child)
+
+    return fix_count
+
+
+def _apply_individual_strokes(node: dict):
+    """Tab Row 등 이름에 'Tab Row'가 포함된 노드에 bottom-only stroke 적용."""
+    name = node.get("name") or ""
+    if "Tab Row" in name:
+        strokes = node.get("strokes", [])
+        if strokes:
+            stroke_color = strokes[0].get("color", {})
+            try:
+                call_tool("set_stroke_color", {
+                    "nodeId": node.get("id"),
+                    "r": stroke_color.get("r", 0.914),
+                    "g": stroke_color.get("g", 0.918),
+                    "b": stroke_color.get("b", 0.922),
+                    "a": 1,
+                    "strokeWeight": 1,
+                    "strokeTopWeight": 0,
+                    "strokeBottomWeight": 1,
+                    "strokeLeftWeight": 0,
+                    "strokeRightWeight": 0
+                })
+                print(f"  Individual stroke: {name} ({node.get('id')}) → bottom only")
+            except Exception as e:
+                print(f"  Individual stroke 실패: {name}: {e}")
+
+    # 자식도 재귀 탐색
+    for child in node.get("_children_full", []):
+        _apply_individual_strokes(child)
 
 
 def _fix_zero_width_text(tree: dict) -> int:
@@ -807,7 +1348,7 @@ def _fix_zero_width_text(tree: dict) -> int:
         node_id = node.get("id")
         width = node.get("width", 1)
 
-        if node_type == "TEXT" and width == 0 and node_id:
+        if node_type == "TEXT" and width <= 1 and node_id:
             try:
                 call_tool("set_text_properties", {
                     "nodeId": node_id,
@@ -843,25 +1384,35 @@ def cmd_post_fix(root_node_id: str):
     start = time.time()
 
     # 1. 노드 트리 수집
-    print("\n[1/4] 노드 트리 수집 중...")
+    print("\n[1/5] 노드 트리 수집 중...")
     tree = _collect_tree(root_node_id)
     children_count = len(tree.get("_children_full", []))
     print(f"  루트 '{tree.get('name', '?')}' — 직계 자식 {children_count}개")
 
-    # 2. FILL 사이징 수정
-    print("\n[2/4] FILL 사이징 검증/수정 중...")
+    # ★ 안전장치: 자식이 없으면 데이터 수집 실패로 판단
+    if children_count == 0:
+        print(f"  ⚠️ 직계 자식이 0개 — 데이터 수집 실패. post-fix 중단 (루트 보호)")
+        return
+
+    # 2. FILL 사이징 수정 (FAB/Tab Bar 제외, SPACE_BETWEEN HUG 보존)
+    print("\n[2/5] FILL 사이징 검증/수정 중...")
     fill_fixes = _fix_fill_sizing(tree)
     print(f"  → {fill_fixes}건 수정")
 
     # 3. Tab Bar/FAB 배치 + 섹션 갭 조정
-    print("\n[3/4] Tab Bar/FAB 배치 + 섹션 갭 조정 중...")
+    print("\n[3/5] Tab Bar/FAB 배치 + 섹션 갭 조정 중...")
     layout_result = _fix_layout_and_positions(tree)
     print(f"  → content_bottom={layout_result['content_bottom']}, "
           f"fab_y={layout_result['fab_y']}, tab_y={layout_result['tab_y']}, "
           f"root_height={layout_result['root_height']}")
 
-    # 4. Zero-width 텍스트 수정
-    print("\n[4/4] Zero-width 텍스트 수정 중...")
+    # 4. Tab Bar item FILL + individual stroke
+    print("\n[4/5] Tab Bar item FILL + individual stroke 수정 중...")
+    tab_fixes = _fix_tab_bar_items(tree)
+    print(f"  → {tab_fixes}건 수정")
+
+    # 5. Zero-width 텍스트 수정
+    print("\n[5/5] Zero-width 텍스트 수정 중...")
     text_fixes = _fix_zero_width_text(tree)
     print(f"  → {text_fixes}건 수정")
 
@@ -869,6 +1420,7 @@ def cmd_post_fix(root_node_id: str):
     print(f"\n{'='*50}")
     print(f"POST-FIX 완료 — {elapsed:.1f}s")
     print(f"  FILL 수정: {fill_fixes}건")
+    print(f"  Tab Bar/Stroke 수정: {tab_fixes}건")
     print(f"  텍스트 수정: {text_fixes}건")
     print(f"  루트 높이: {layout_result['root_height']}")
     print(f"{'='*50}\n")
@@ -996,6 +1548,219 @@ def cmd_interactive():
             print(f"Error: {e}")
 
 
+def cmd_assemble(config_file: str):
+    """섹션 템플릿을 조립하여 완전한 Blueprint JSON을 생성.
+
+    config_file: 템플릿 조립 설정 JSON
+    형식:
+    {
+      "rootName": "Screen Name",
+      "width": 393,
+      "height": 1680,
+      "fill": "$token(bg-primary)",
+      "sections": ["NavBar", "Ribbon", "Hero", ...custom..., "FAB", "TabBar"],
+      "variables": {
+        "FAB": {"label": "마이 월렛", "icon": "wallet-02"},
+        "Ribbon": {"text": "누적 거래 5,000,000건"},
+        "Hero": {"banners": [{"fill": "...", "imagePrompt": "...", ...}]}
+      },
+      "customSections": [ ... raw blueprint nodes ... ]
+    }
+
+    출력: scripts/blueprint_assembled_<rootName>.json → build 실행 가능
+    """
+    TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "blueprint_templates.json")
+    if not os.path.exists(TEMPLATES_PATH):
+        print(f"❌ 템플릿 파일 없음: {TEMPLATES_PATH}")
+        return
+
+    with open(TEMPLATES_PATH) as f:
+        templates = json.load(f)
+    sections_db = templates.get("sections", {})
+
+    with open(config_file) as f:
+        config = json.load(f)
+
+    root_name = config.get("rootName", "Assembled Screen")
+    width = config.get("width", 393)
+    height = config.get("height", 1680)
+    fill = config.get("fill", "$token(bg-primary)")
+    section_order = config.get("sections", [])
+    variables = config.get("variables", {})
+    custom_sections = config.get("customSections", [])
+
+    # alias 매핑: 짧은 이름 → 템플릿 DB 키
+    SECTION_ALIASES = {
+        "Ribbon": "TransactionRibbon",
+        "Hero": "HeroSection",
+        "Tab": "TabBar",
+    }
+
+    children = []
+    custom_idx = 0
+    import copy
+
+    for section_name in section_order:
+        # alias 해석
+        resolved_name = SECTION_ALIASES.get(section_name, section_name)
+
+        if section_name == "custom" or section_name.startswith("custom:"):
+            # customSections 배열에서 순서대로 가져옴
+            if custom_idx < len(custom_sections):
+                node = custom_sections[custom_idx]
+                custom_idx += 1
+                children.append(node)
+            else:
+                print(f"  ⚠️ custom section #{custom_idx} 없음 — 건너뜀")
+        elif resolved_name in sections_db:
+            template_node = copy.deepcopy(sections_db[resolved_name]["template"])
+
+            # 변수 치환 — 원본 이름과 alias 둘 다 확인
+            section_vars = variables.get(section_name, variables.get(resolved_name, {}))
+            template_node = _apply_template_vars(template_node, section_vars, resolved_name)
+
+            children.append(template_node)
+            print(f"  ✅ 템플릿 적용: {section_name}" + (f" → {resolved_name}" if section_name != resolved_name else ""))
+        else:
+            print(f"  ⚠️ 알 수 없는 섹션: {section_name} — 건너뜀")
+
+    blueprint = {
+        "rootName": root_name,
+        "name": root_name,
+        "width": width,
+        "height": height,
+        "fill": fill,
+        "children": children,
+    }
+
+    # 미치환 placeholder 경고
+    bp_str = json.dumps(blueprint, ensure_ascii=False)
+    placeholder_count = bp_str.count("{{VARIABLE:")
+    if placeholder_count > 0:
+        print(f"\n⚠️ 미치환 placeholder {placeholder_count}개 발견 — variables에서 해당 값을 지정하세요")
+
+    # 출력 파일명 생성
+    safe_name = root_name.replace(" ", "_").replace("/", "_")[:30]
+    out_path = os.path.join(os.path.dirname(__file__), f"blueprint_assembled_{safe_name}.json")
+    with open(out_path, "w") as f:
+        json.dump(blueprint, f, indent=2, ensure_ascii=False)
+
+    resolved_count = len([s for s in section_order if SECTION_ALIASES.get(s, s) in sections_db])
+    print(f"\n✅ Blueprint 조립 완료: {out_path}")
+    print(f"  섹션 {len(children)}개, 템플릿 {resolved_count}개 사용")
+    print(f"  → python3 scripts/figma_mcp_client.py build {out_path}")
+    return out_path
+
+
+def _apply_template_vars(node: dict, vars_dict: dict, section_name: str) -> dict:
+    """템플릿 노드에 변수를 적용.
+
+    지원 변수:
+    - FAB: label, icon, fill, textColor
+    - Ribbon/TransactionRibbon: text, fill, textColor
+    - Hero: banners[{fill, tag, title, subText, desc, imagePrompt}]
+    - NavBar: (현재 변수 없음 — 로고는 빌드 후 교체)
+    - TabBar: activeTab
+    """
+    if not vars_dict:
+        return node
+
+    if section_name == "FAB":
+        label = vars_dict.get("label")
+        icon = vars_dict.get("icon")
+        fill = vars_dict.get("fill")
+        text_color = vars_dict.get("textColor")
+        if fill:
+            node["fill"] = fill
+        for child in node.get("children", []):
+            if child.get("type") == "icon" and icon:
+                child["iconName"] = icon
+                if text_color:
+                    child["iconColor"] = text_color
+            elif child.get("type") == "text" and label:
+                child["text"] = label
+                if text_color:
+                    child["fontColor"] = text_color
+
+    elif section_name in ("TransactionRibbon", "Ribbon"):
+        text = vars_dict.get("text")
+        fill = vars_dict.get("fill")
+        text_color = vars_dict.get("textColor")
+        if fill:
+            node["fill"] = fill
+        for child in node.get("children", []):
+            if child.get("type") == "text" and text:
+                child["text"] = text
+                if text_color:
+                    child["fontColor"] = text_color
+
+    elif section_name in ("HeroSection", "Hero"):
+        banners = vars_dict.get("banners", [])
+        carousel = None
+        for child in node.get("children", []):
+            if "carousel" in (child.get("name") or "").lower():
+                carousel = child
+                break
+        if carousel and banners:
+            cards = [c for c in carousel.get("children", []) if "banner card" in (c.get("name") or "").lower()]
+            for i, banner_vars in enumerate(banners):
+                if i < len(cards):
+                    card = cards[i]
+                    if banner_vars.get("fill"):
+                        card["fill"] = banner_vars["fill"]
+                    if banner_vars.get("imagePrompt"):
+                        card["imageGen"] = {
+                            "prompt": banner_vars["imagePrompt"],
+                            "isHero": True
+                        }
+                    # 카드 내부 텍스트 치환
+                    for text_node in card.get("children", []):
+                        children_of = text_node.get("children", [])
+                        if children_of:
+                            for sub in children_of:
+                                if sub.get("type") == "text":
+                                    name_lower = sub.get("name", "").lower()
+                                    if "tag" in name_lower and banner_vars.get("tag"):
+                                        sub["text"] = banner_vars["tag"]
+                                    elif "title" in name_lower and banner_vars.get("title"):
+                                        sub["text"] = banner_vars["title"]
+                                    elif "sub" in name_lower and banner_vars.get("subText"):
+                                        sub["text"] = banner_vars["subText"]
+                        elif text_node.get("type") == "text":
+                            name_lower = text_node.get("name", "").lower()
+                            if "title" in name_lower and banner_vars.get("title"):
+                                text_node["text"] = banner_vars["title"]
+                            elif "sub" in name_lower and banner_vars.get("subText"):
+                                text_node["text"] = banner_vars["subText"]
+                            elif "desc" in name_lower and banner_vars.get("desc"):
+                                text_node["text"] = banner_vars["desc"]
+
+    elif section_name == "TabBar":
+        active_tab = vars_dict.get("activeTab", "홈")
+        for tab_child in node.get("children", []):
+            tab_children = tab_child.get("children", [])
+            is_active = False
+            for sub in tab_children:
+                if sub.get("type") == "text" and sub.get("text") == active_tab:
+                    is_active = True
+                    break
+            for sub in tab_children:
+                if is_active:
+                    if sub.get("type") == "icon":
+                        sub["iconColor"] = "$token(fg-brand-primary)"
+                    elif sub.get("type") == "text":
+                        sub["fontColor"] = "$token(fg-brand-primary)"
+                        sub["fontName"] = {"family": "Pretendard", "style": "SemiBold"}
+                else:
+                    if sub.get("type") == "icon":
+                        sub["iconColor"] = "$token(fg-quaternary)"
+                    elif sub.get("type") == "text":
+                        sub["fontColor"] = "$token(fg-quaternary)"
+                        sub["fontName"] = {"family": "Pretendard", "style": "Medium"}
+
+    return node
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
@@ -1046,6 +1811,11 @@ def main():
             print(f"{'✗' if errors else '⚠'} {len(errors)} error(s), {len(warns)} warning(s):")
             for issue in issues:
                 print(f"  {issue}")
+    elif cmd == "assemble":
+        if len(sys.argv) < 3:
+            print("Usage: figma_mcp_client.py assemble <config.json>")
+            sys.exit(1)
+        cmd_assemble(sys.argv[2])
     elif cmd == "interactive":
         cmd_interactive()
     else:

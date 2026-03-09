@@ -63,6 +63,31 @@ npm start       # electron . (이미 빌드된 상태에서)
 
 ---
 
+## 디자인 빌드 빠른 워크플로우 (템플릿 기반)
+
+> **새 화면 디자인 시 이 워크플로우를 우선 사용** — Blueprint 전체를 수작업으로 작성하지 말 것
+
+```bash
+# 1. 조립 설정 JSON 작성 (고정 섹션은 템플릿, PRD 고유 섹션만 직접 작성)
+# → 템플릿: NavBar, TransactionRibbon, HeroSection, FAB, TabBar
+# → custom: PRD에 따라 달라지는 섹션들
+
+# 2. Blueprint 조립
+python3 scripts/figma_mcp_client.py assemble scripts/my_config.json
+
+# 3. 빌드 (+ 자동 post-fix + 자동 이미지 생성)
+python3 scripts/figma_mcp_client.py build scripts/blueprint_assembled_XXX.json
+
+# 4. 로고 인스턴스 교체 (NavBar Logo Placeholder → 실제 로고)
+# 5. 스크린샷 QA
+```
+
+- **템플릿 파일**: `scripts/blueprint_templates.json` (5개 섹션, ~600줄)
+- **효과**: NavBar+TabBar+FAB+Hero+Ribbon ~400줄 자동 생성 → Claude는 custom 섹션만 작성
+- **변수 치환**: FAB(label/icon), Ribbon(text), Hero(banners[tag/title/imagePrompt]), TabBar(activeTab)
+
+---
+
 ## 디자인 생성 필수 규칙
 
 ### 1. NavBar 로고는 반드시 컴포넌트 인스턴스로 생성
@@ -128,6 +153,7 @@ npm start       # electron . (이미 빌드된 상태에서)
 - Tab Bar: `set_layout_positioning(positioning: "ABSOLUTE")` → `move_node(x: 0, y: 계산값)`
 - FAB: `set_layout_positioning(positioning: "ABSOLUTE")` → `move_node(x: 253, y: 계산값)`
 - **FAB 크기**: pill 형태 `120×44`, `cornerRadius: 22` — 56×56 원형은 텍스트가 잘림
+- **FAB 컬러**: PRD에 특정 색상이 지정되어 있으면 해당 색상 사용 (config에서 fill 오버라이드). 미지정 시 브랜드 컬러 `$token(bg-brand-solid)` 사용 — FAB는 화면에서 가장 중요한 버튼이므로 브랜드 컬러가 기본
 - **빌드 후 검증**: `get_node_info`로 Tab Bar/FAB가 루트 프레임 하단에 있는지, 콘텐츠와 겹치지 않는지 확인
 
 ### 10. ⚠️ 히어로 배너는 반드시 가로 캐로셀 구조
@@ -160,7 +186,42 @@ npm start       # electron . (이미 빌드된 상태에서)
 - 인접한 섹션의 배경색이 동일(둘 다 투명/white)이고 사이에 divider가 없으면 **gap 0px** — 섹션 내부 padding이 여백 역할
 - 배경색이 다르거나(컬러 → white 등) 사이에 divider가 있으면 gap 유지
 
-### 13. 이미지 자동 생성 — Blueprint `imageGen` 필드
+### 14. ⚠️ 스테이지 카드 — 아이콘/이미지 삽입 금지
+- Stage Card 안에 아이콘, 이미지, imageGen 노드를 **절대 넣지 말 것**
+- Stage Card 구성: 태그(포인트/기프티콘) + 금액 텍스트 + 이율/기간 정보 + 북마크 — **이것만**
+- 아이콘/이미지를 넣으면 카드가 복잡해지고 PRD 의도에서 벗어남
+
+### 15. ⚠️ 혜택 리스트 썸네일 — 2D 스타일, 24px, radius 0
+- "매일매일 혜택받기" 등 리스트형 섹션의 썸네일 아이콘:
+  - **크기: 24×24px** (32px, 40px 아님)
+  - **cornerRadius: 0** (둥근 모서리 금지)
+  - **스타일: 2D flat** (3D 금지) — Tossface 이모지 스타일 또는 단순 2D 일러스트
+  - imageGen 프롬프트: `"2D flat illustration of [subject], simple clean lines, minimal detail, solid colors, Tossface emoji style. Single centered object. Pure white background. No text. No shadow."`
+- 3D 아이콘은 히어로 배너, Fun 섹션 등 **큰 카드 전용** — 리스트 썸네일에는 2D만 사용
+
+### 17. ⚠️ Fun 카드 (랜덤박스/기프트샵) — 32px 썸네일, 텍스트 위에 배치
+- "놓칠 수 없는 즐거움" 등 Fun 섹션의 카드 아이콘:
+  - **크기: 32×32px** (50px 아님)
+  - **위치: 텍스트 위에 배치** — 아이콘이 카드 상단, 텍스트(제목+설명)가 아래
+  - **스타일: 3D 비비드 글로시** (여기어때/야놀자 스타일)
+  - **카드 레이아웃**: VERTICAL auto-layout, `[32px 아이콘] → [제목 텍스트] → [설명 텍스트]`
+  - cornerRadius: 0 (아이콘 프레임)
+- **절대 금지**: 아이콘을 텍스트 옆(HORIZONTAL)에 배치하거나 50px 이상으로 키우는 것
+
+### 18. ⚠️ 루트 프레임 높이 = 전체 콘텐츠 높이 (852px로 줄이지 말 것)
+- **post-fix가 설정한 루트 높이를 임의로 줄이지 말 것**
+- 852px(iPhone 16 뷰포트)는 **프로토타입 전용** — 디자인 프레임 크기가 아님
+- 루트 프레임은 **모든 콘텐츠(+ CTA Bar/Tab Bar)가 다 보이는 높이**여야 함
+- CTA Bar/Tab Bar를 ABSOLUTE로 배치할 때도 루트 높이는 콘텐츠 전체를 포함해야 함
+- 루트를 852px로 줄이면 하단 섹션이 잘려서 안 보임 → **절대 금지**
+
+### 19. ⚠️ 스크린샷 QA — PRD 모든 섹션 보이는지 확인 필수
+- 스크린샷 촬영 후 **PRD에 명시된 모든 섹션이 화면에 보이는지** 1:1 대조
+- "스크롤 영역이라 정상"으로 넘기지 말 것 — 디자인 프레임에 전체 콘텐츠가 보여야 완료
+- 하나라도 안 보이면 **완료 선언 금지** — 원인 파악 후 수정
+- 체크 순서: PRD 섹션 목록 나열 → 스크린샷에서 각 섹션 존재 확인 → 누락 시 수정
+
+### 16. 이미지 자동 생성 — Blueprint `imageGen` 필드
 - Blueprint 노드에 `imageGen` 필드를 추가하면 **디자인 빌드 후 자동으로 Gemini 이미지 생성 + 적용**
 - 디자인 빌드 한 번으로 **빌드 → post-fix → 이미지 생성/적용**까지 전부 자동 실행
 - **Blueprint 예시**:
@@ -181,6 +242,7 @@ npm start       # electron . (이미 빌드된 상태에서)
   - `width`/`height` (선택): 아이콘 크기 (isHero=false일 때, 기본 120)
   - `style` (선택): 스타일 오버라이드
 - **주의**: `imageGen.prompt`에 3D 스타일 키워드는 자동 적용되지 않음 — 프롬프트에 직접 포함할 것
+- **⚠️ MCP generate_image(isHero=true) 수동 호출 시 주의**: Banner Card nodeId를 전달해야 하며, Hero Section이나 Carousel nodeId를 전달하면 안 됨. `isHero=true`는 전달된 nodeId의 크기를 자동 감지하여 이미지를 적용하므로, 부모 프레임을 전달하면 부모에 이미지가 적용됨. Blueprint의 `imageGen` 필드를 사용하면 nodeMap으로 정확한 nodeId가 매핑되어 이 문제가 발생하지 않음.
 
 ---
 
@@ -191,19 +253,19 @@ npm start       # electron . (이미 빌드된 상태에서)
 > python3 scripts/figma_mcp_client.py post-fix <rootNodeId>
 > ```
 
-**post-fix가 자동 수정하는 항목:**
+**post-fix가 자동 수정하는 항목 (5단계):**
 ```
-1. FILL 검증/수정: 모든 FRAME 자식 → layoutSizingHorizontal="FILL" (아이콘/태그 등 고정 크기 제외)
+1. FILL 검증/수정: 모든 FRAME 자식 → FILL (FAB/Tab Bar 제외, SPACE_BETWEEN 마지막 HUG 자식 보존)
 2. 섹션 간격: 배경색 동일 + divider 없는 인접 섹션 → gap 0
-3. Tab Bar/FAB: ABSOLUTE 배치 + 루트 하단 위치 (content_bottom → FAB → Tab Bar → root height)
-4. zero-width 텍스트: width=0 TEXT → textAutoResize="WIDTH_AND_HEIGHT" + FILL
+3. Tab Bar/FAB: ABSOLUTE 배치 + 루트 하단 위치 + FAB width 복원 (HUG)
+4. Tab Bar item FILL 통일 + Tab Row individual stroke (bottom-only)
+5. zero-width 텍스트: width=0 TEXT → textAutoResize="WIDTH_AND_HEIGHT" + FILL
 ```
 
 **post-fix가 수정하지 않는 항목 (수동 확인 필요):**
 ```
 1. 캐로셀 구조: HORIZONTAL 래퍼 + clipsContent (Blueprint에서 올바르게 설정해야 함)
-2. FAB 크기: pill 형태 120×44 (Blueprint에서 설정)
-3. 텍스트 가시성: 색상 대비 (스크린샷으로 확인)
+2. 텍스트 가시성: 색상 대비 (스크린샷으로 확인)
 ```
 
 ---

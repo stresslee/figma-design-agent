@@ -1,0 +1,618 @@
+{
+  "_description": "디자인 빌드 섹션 템플릿. Claude가 Blueprint 작성 시 이 템플릿의 섹션을 그대로 사용하고, _variables로 표시된 부분만 교체한다. 기존 blueprint_*.json 파일들의 공통 패턴을 추출하여 정규화한 것.",
+  "_usage": "Blueprint JSON 작성 시 해당 섹션 템플릿을 복사 → _variables 항목만 PRD에 맞게 교체 → children[]에 삽입",
+  "sections": {
+
+    "NavBar": {
+      "_description": "상단 네비게이션 바. 로고 플레이스홀더 + 우측 아이콘 그룹. 빌드 후 create_component_instance로 로고 교체.",
+      "_variables": [
+        "navRightIcons: 우측 아이콘 배열 (기본: bell-01, message-chat-circle)",
+        "logoType: 로고 플레이스홀더 크기 (기본: 80×32)"
+      ],
+      "template": {
+        "name": "NavBar",
+        "type": "frame",
+        "width": 393,
+        "height": 56,
+        "layoutSizingHorizontal": "FILL",
+        "autoLayout": {
+          "layoutMode": "HORIZONTAL",
+          "primaryAxisAlignItems": "SPACE_BETWEEN",
+          "counterAxisAlignItems": "CENTER",
+          "paddingLeft": 20,
+          "paddingRight": 20,
+          "paddingTop": 12,
+          "paddingBottom": 12
+        },
+        "children": [
+          {
+            "name": "Logo Placeholder",
+            "type": "frame",
+            "width": 80,
+            "height": 32,
+            "_comment": "빌드 후 create_component_instance(componentKey='957912b03baf924a48ef83424ed66f22a4a386a8') → insert_child로 교체"
+          },
+          {
+            "name": "Nav Right",
+            "type": "frame",
+            "autoLayout": {
+              "layoutMode": "HORIZONTAL",
+              "itemSpacing": 16,
+              "counterAxisAlignItems": "CENTER"
+            },
+            "children": [
+              {
+                "name": "icon-bell",
+                "type": "icon",
+                "iconName": "bell-01",
+                "size": 24,
+                "iconColor": "$token(fg-primary)"
+              },
+              {
+                "name": "icon-chat",
+                "type": "icon",
+                "iconName": "message-chat-circle",
+                "size": 24,
+                "iconColor": "$token(fg-primary)"
+              }
+            ]
+          }
+        ]
+      }
+    },
+
+    "TabBar": {
+      "_description": "하단 탭 바. 5개 탭(홈/커뮤니티/스테이지/라운지/나). post-fix에서 ABSOLUTE 배치 + individual stroke 자동 적용.",
+      "_variables": [
+        "activeTab: 활성 탭 이름 (활성 탭은 fg-brand-primary + SemiBold, 비활성은 fg-quaternary + Medium)",
+        "tabIcons: 각 탭의 아이콘 이름 (기본: home-line, users-01, coins-stacked-01, building-08, user-01)",
+        "tabLabels: 각 탭의 라벨 텍스트 (기본: 홈, 커뮤니티, 스테이지, 라운지, 나)"
+      ],
+      "_notes": [
+        "post-fix가 자동 처리: ABSOLUTE 배치, 루트 하단 위치, individual stroke (bottom-only)",
+        "모든 탭 아이템은 layoutSizingHorizontal: FILL, layoutSizingVertical: FILL 필수",
+        "탭 라벨은 textAlignHorizontal: CENTER, layoutSizingHorizontal: FILL 필수"
+      ],
+      "template": {
+        "name": "Tab Bar",
+        "type": "frame",
+        "width": 393,
+        "height": 73,
+        "layoutSizingHorizontal": "FILL",
+        "fill": "$token(bg-primary)",
+        "autoLayout": {
+          "layoutMode": "HORIZONTAL",
+          "primaryAxisAlignItems": "SPACE_BETWEEN",
+          "counterAxisAlignItems": "CENTER",
+          "paddingTop": 8,
+          "paddingBottom": 24,
+          "paddingLeft": 0,
+          "paddingRight": 0
+        },
+        "children": [
+          {
+            "name": "Tab Home",
+            "type": "frame",
+            "layoutSizingHorizontal": "FILL",
+            "layoutSizingVertical": "FILL",
+            "autoLayout": {
+              "layoutMode": "VERTICAL",
+              "primaryAxisAlignItems": "CENTER",
+              "counterAxisAlignItems": "CENTER",
+              "itemSpacing": 4
+            },
+            "children": [
+              {
+                "name": "tab-home-icon",
+                "type": "icon",
+                "iconName": "home-line",
+                "size": 24,
+                "iconColor": "$token(fg-brand-primary)"
+              },
+              {
+                "name": "tab-home-label",
+                "type": "text",
+                "text": "홈",
+                "fontSize": 11,
+                "fontName": { "family": "Pretendard", "style": "SemiBold" },
+                "fontColor": "$token(fg-brand-primary)",
+                "textAlignHorizontal": "CENTER",
+                "layoutSizingHorizontal": "FILL"
+              }
+            ]
+          },
+          {
+            "name": "Tab Community",
+            "type": "frame",
+            "layoutSizingHorizontal": "FILL",
+            "layoutSizingVertical": "FILL",
+            "autoLayout": {
+              "layoutMode": "VERTICAL",
+              "primaryAxisAlignItems": "CENTER",
+              "counterAxisAlignItems": "CENTER",
+              "itemSpacing": 4
+            },
+            "children": [
+              {
+                "name": "tab-comm-icon",
+                "type": "icon",
+                "iconName": "users-01",
+                "size": 24,
+                "iconColor": "$token(fg-quaternary)"
+              },
+              {
+                "name": "tab-comm-label",
+                "type": "text",
+                "text": "커뮤니티",
+                "fontSize": 11,
+                "fontName": { "family": "Pretendard", "style": "Medium" },
+                "fontColor": "$token(fg-quaternary)",
+                "textAlignHorizontal": "CENTER",
+                "layoutSizingHorizontal": "FILL"
+              }
+            ]
+          },
+          {
+            "name": "Tab Stage",
+            "type": "frame",
+            "layoutSizingHorizontal": "FILL",
+            "layoutSizingVertical": "FILL",
+            "autoLayout": {
+              "layoutMode": "VERTICAL",
+              "primaryAxisAlignItems": "CENTER",
+              "counterAxisAlignItems": "CENTER",
+              "itemSpacing": 4
+            },
+            "children": [
+              {
+                "name": "tab-stage-icon",
+                "type": "icon",
+                "iconName": "coins-stacked-01",
+                "size": 24,
+                "iconColor": "$token(fg-quaternary)"
+              },
+              {
+                "name": "tab-stage-label",
+                "type": "text",
+                "text": "스테이지",
+                "fontSize": 11,
+                "fontName": { "family": "Pretendard", "style": "Medium" },
+                "fontColor": "$token(fg-quaternary)",
+                "textAlignHorizontal": "CENTER",
+                "layoutSizingHorizontal": "FILL"
+              }
+            ]
+          },
+          {
+            "name": "Tab Lounge",
+            "type": "frame",
+            "layoutSizingHorizontal": "FILL",
+            "layoutSizingVertical": "FILL",
+            "autoLayout": {
+              "layoutMode": "VERTICAL",
+              "primaryAxisAlignItems": "CENTER",
+              "counterAxisAlignItems": "CENTER",
+              "itemSpacing": 4
+            },
+            "children": [
+              {
+                "name": "tab-lounge-icon",
+                "type": "icon",
+                "iconName": "building-08",
+                "size": 24,
+                "iconColor": "$token(fg-quaternary)"
+              },
+              {
+                "name": "tab-lounge-label",
+                "type": "text",
+                "text": "라운지",
+                "fontSize": 11,
+                "fontName": { "family": "Pretendard", "style": "Medium" },
+                "fontColor": "$token(fg-quaternary)",
+                "textAlignHorizontal": "CENTER",
+                "layoutSizingHorizontal": "FILL"
+              }
+            ]
+          },
+          {
+            "name": "Tab Me",
+            "type": "frame",
+            "layoutSizingHorizontal": "FILL",
+            "layoutSizingVertical": "FILL",
+            "autoLayout": {
+              "layoutMode": "VERTICAL",
+              "primaryAxisAlignItems": "CENTER",
+              "counterAxisAlignItems": "CENTER",
+              "itemSpacing": 4
+            },
+            "children": [
+              {
+                "name": "tab-me-icon",
+                "type": "icon",
+                "iconName": "user-01",
+                "size": 24,
+                "iconColor": "$token(fg-quaternary)"
+              },
+              {
+                "name": "tab-me-label",
+                "type": "text",
+                "text": "나",
+                "fontSize": 11,
+                "fontName": { "family": "Pretendard", "style": "Medium" },
+                "fontColor": "$token(fg-quaternary)",
+                "textAlignHorizontal": "CENTER",
+                "layoutSizingHorizontal": "FILL"
+              }
+            ]
+          }
+        ]
+      }
+    },
+
+    "FAB": {
+      "_description": "플로팅 액션 버튼. pill 형태 (120x44, cornerRadius 22). post-fix에서 ABSOLUTE 배치 자동 적용.",
+      "_variables": [
+        "iconName: FAB 아이콘 (기본: wallet-02)",
+        "label: FAB 텍스트 (기본: 마이 월렛)",
+        "fill: 배경색 (기본: $token(bg-brand-solid) — PRD에 특정 색상 지정 시 오버라이드)",
+        "textColor: 텍스트/아이콘 색상 (기본: $token(fg-white))"
+      ],
+      "_notes": [
+        "post-fix가 자동 처리: ABSOLUTE 배치, x=253, 루트 하단 Tab Bar 위에 위치",
+        "56x56 원형 사용 금지 — 텍스트가 잘림. 반드시 pill 형태 120x44 사용",
+        "layoutSizingHorizontal은 HUG 유지 (post-fix가 width 복원)"
+      ],
+      "template": {
+        "name": "FAB",
+        "type": "frame",
+        "width": 120,
+        "height": 44,
+        "cornerRadius": 22,
+        "fill": "$token(bg-brand-solid)",
+        "autoLayout": {
+          "layoutMode": "HORIZONTAL",
+          "primaryAxisAlignItems": "CENTER",
+          "counterAxisAlignItems": "CENTER",
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "itemSpacing": 6
+        },
+        "children": [
+          {
+            "name": "fab-icon",
+            "type": "icon",
+            "iconName": "wallet-02",
+            "size": 18,
+            "iconColor": "$token(fg-white)"
+          },
+          {
+            "name": "fab-text",
+            "type": "text",
+            "text": "마이 월렛",
+            "fontSize": 14,
+            "fontName": { "family": "Pretendard", "style": "Bold" },
+            "fontColor": "$token(fg-white)"
+          }
+        ]
+      }
+    },
+
+    "HeroSection": {
+      "_description": "히어로 배너 캐로셀. VERTICAL 래퍼 안에 HORIZONTAL Banner Carousel + Indicator Row. 캐로셀은 clipsContent: true 필수.",
+      "_variables": [
+        "bannerCount: 배너 카드 수 (기본: 3)",
+        "bannerHeight: 배너 높이 (기본: 180, 범위 162~200)",
+        "bannerCards[].fill: 각 배너 배경색 (서로 다른 색상 사용)",
+        "bannerCards[].imageGen: 각 배너 이미지 프롬프트",
+        "bannerCards[].tag: 태그 텍스트 (EVENT, HOT, NEW 등)",
+        "bannerCards[].subText: 서브 텍스트",
+        "bannerCards[].title: 메인 제목",
+        "bannerCards[].desc: 설명 텍스트 (선택)",
+        "dotCount: 인디케이터 도트 수 (배너 수와 동일)"
+      ],
+      "_notes": [
+        "Hero Section paddingLeft/Right=0 — 좌우 패딩은 Carousel의 paddingLeft=20으로 대체",
+        "Banner Carousel clipsContent: true 필수 — 2번째 배너가 우측에 8px peek",
+        "배너 카드는 FIXED 사이징 (353xbannerHeight) — FILL 사용 금지",
+        "배너 텍스트 width: 160 — 우측 이미지 영역과 겹침 방지",
+        "imageGen.isHero: true — 반드시 Banner Card에 적용, Section이나 Carousel에 적용 금지"
+      ],
+      "template": {
+        "name": "Hero Section",
+        "type": "frame",
+        "width": 393,
+        "layoutSizingHorizontal": "FILL",
+        "autoLayout": {
+          "layoutMode": "VERTICAL",
+          "paddingTop": 20,
+          "paddingBottom": 16,
+          "paddingLeft": 0,
+          "paddingRight": 0,
+          "itemSpacing": 12,
+          "counterAxisAlignItems": "CENTER"
+        },
+        "clipsContent": true,
+        "children": [
+          {
+            "name": "Banner Carousel",
+            "type": "frame",
+            "width": 393,
+            "height": 180,
+            "autoLayout": {
+              "layoutMode": "HORIZONTAL",
+              "paddingLeft": 20,
+              "paddingRight": 0,
+              "paddingTop": 0,
+              "paddingBottom": 0,
+              "itemSpacing": 12,
+              "counterAxisAlignItems": "CENTER"
+            },
+            "clipsContent": true,
+            "layoutSizingHorizontal": "FILL",
+            "children": [
+              {
+                "name": "Banner Card 1",
+                "type": "frame",
+                "width": 353,
+                "height": 180,
+                "cornerRadius": 16,
+                "fill": "$token(bg-brand-solid)",
+                "autoLayout": {
+                  "layoutMode": "VERTICAL",
+                  "paddingTop": 24,
+                  "paddingBottom": 24,
+                  "paddingLeft": 24,
+                  "paddingRight": 24,
+                  "itemSpacing": 6,
+                  "primaryAxisAlignItems": "MIN",
+                  "counterAxisAlignItems": "MIN"
+                },
+                "imageGen": {
+                  "prompt": "{{VARIABLE: 히어로 이미지 프롬프트. right side composition, left half empty 포함 필수}}",
+                  "isHero": true
+                },
+                "children": [
+                  {
+                    "name": "b1-tag",
+                    "type": "frame",
+                    "autoLayout": {
+                      "layoutMode": "HORIZONTAL",
+                      "paddingLeft": 10,
+                      "paddingRight": 10,
+                      "paddingTop": 4,
+                      "paddingBottom": 4
+                    },
+                    "cornerRadius": 4,
+                    "fill": { "r": 1, "g": 1, "b": 1, "a": 0.2 },
+                    "layoutSizingHorizontal": "HUG",
+                    "children": [
+                      {
+                        "name": "b1-tag-text",
+                        "type": "text",
+                        "text": "EVENT",
+                        "fontSize": 11,
+                        "fontName": { "family": "Pretendard", "style": "Bold" },
+                        "fontColor": "$token(fg-white)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "b1-sub",
+                    "type": "text",
+                    "text": "{{VARIABLE: 서브 텍스트}}",
+                    "fontSize": 14,
+                    "fontName": { "family": "Pretendard", "style": "Medium" },
+                    "fontColor": { "r": 1, "g": 1, "b": 1, "a": 0.8 },
+                    "width": 160
+                  },
+                  {
+                    "name": "b1-title",
+                    "type": "text",
+                    "text": "{{VARIABLE: 메인 제목}}",
+                    "fontSize": 22,
+                    "fontName": { "family": "Pretendard", "style": "Bold" },
+                    "fontColor": "$token(fg-white)",
+                    "width": 160
+                  }
+                ]
+              },
+              {
+                "name": "Banner Card 2",
+                "type": "frame",
+                "width": 353,
+                "height": 180,
+                "cornerRadius": 16,
+                "fill": "$token(bg-success-solid)",
+                "autoLayout": {
+                  "layoutMode": "VERTICAL",
+                  "paddingTop": 24,
+                  "paddingBottom": 24,
+                  "paddingLeft": 24,
+                  "paddingRight": 24,
+                  "itemSpacing": 6,
+                  "primaryAxisAlignItems": "MIN",
+                  "counterAxisAlignItems": "MIN"
+                },
+                "imageGen": {
+                  "prompt": "{{VARIABLE: 히어로 이미지 프롬프트}}",
+                  "isHero": true
+                },
+                "children": [
+                  {
+                    "name": "b2-tag",
+                    "type": "frame",
+                    "autoLayout": {
+                      "layoutMode": "HORIZONTAL",
+                      "paddingLeft": 10,
+                      "paddingRight": 10,
+                      "paddingTop": 4,
+                      "paddingBottom": 4
+                    },
+                    "cornerRadius": 4,
+                    "fill": { "r": 1, "g": 1, "b": 1, "a": 0.2 },
+                    "layoutSizingHorizontal": "HUG",
+                    "children": [
+                      {
+                        "name": "b2-tag-text",
+                        "type": "text",
+                        "text": "HOT",
+                        "fontSize": 11,
+                        "fontName": { "family": "Pretendard", "style": "Bold" },
+                        "fontColor": "$token(fg-white)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "b2-sub",
+                    "type": "text",
+                    "text": "{{VARIABLE: 서브 텍스트}}",
+                    "fontSize": 14,
+                    "fontName": { "family": "Pretendard", "style": "Medium" },
+                    "fontColor": { "r": 1, "g": 1, "b": 1, "a": 0.8 },
+                    "width": 160
+                  },
+                  {
+                    "name": "b2-title",
+                    "type": "text",
+                    "text": "{{VARIABLE: 메인 제목}}",
+                    "fontSize": 22,
+                    "fontName": { "family": "Pretendard", "style": "Bold" },
+                    "fontColor": "$token(fg-white)",
+                    "width": 160
+                  }
+                ]
+              },
+              {
+                "name": "Banner Card 3",
+                "type": "frame",
+                "width": 353,
+                "height": 180,
+                "cornerRadius": 16,
+                "fill": "$token(bg-warning-solid)",
+                "autoLayout": {
+                  "layoutMode": "VERTICAL",
+                  "paddingTop": 24,
+                  "paddingBottom": 24,
+                  "paddingLeft": 24,
+                  "paddingRight": 24,
+                  "itemSpacing": 6,
+                  "primaryAxisAlignItems": "MIN",
+                  "counterAxisAlignItems": "MIN"
+                },
+                "imageGen": {
+                  "prompt": "{{VARIABLE: 히어로 이미지 프롬프트}}",
+                  "isHero": true
+                },
+                "children": [
+                  {
+                    "name": "b3-tag",
+                    "type": "frame",
+                    "autoLayout": {
+                      "layoutMode": "HORIZONTAL",
+                      "paddingLeft": 10,
+                      "paddingRight": 10,
+                      "paddingTop": 4,
+                      "paddingBottom": 4
+                    },
+                    "cornerRadius": 4,
+                    "fill": { "r": 1, "g": 1, "b": 1, "a": 0.2 },
+                    "layoutSizingHorizontal": "HUG",
+                    "children": [
+                      {
+                        "name": "b3-tag-text",
+                        "type": "text",
+                        "text": "NEW",
+                        "fontSize": 11,
+                        "fontName": { "family": "Pretendard", "style": "Bold" },
+                        "fontColor": "$token(fg-white)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "b3-sub",
+                    "type": "text",
+                    "text": "{{VARIABLE: 서브 텍스트}}",
+                    "fontSize": 14,
+                    "fontName": { "family": "Pretendard", "style": "Medium" },
+                    "fontColor": { "r": 1, "g": 1, "b": 1, "a": 0.8 },
+                    "width": 160
+                  },
+                  {
+                    "name": "b3-title",
+                    "type": "text",
+                    "text": "{{VARIABLE: 메인 제목}}",
+                    "fontSize": 22,
+                    "fontName": { "family": "Pretendard", "style": "Bold" },
+                    "fontColor": "$token(fg-white)",
+                    "width": 160
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Indicator Row",
+            "type": "frame",
+            "autoLayout": {
+              "layoutMode": "HORIZONTAL",
+              "itemSpacing": 6,
+              "primaryAxisAlignItems": "CENTER",
+              "counterAxisAlignItems": "CENTER"
+            },
+            "layoutSizingHorizontal": "HUG",
+            "children": [
+              { "name": "dot-active", "type": "frame", "width": 8, "height": 8, "cornerRadius": 4, "fill": "$token(fg-brand-primary)" },
+              { "name": "dot-2", "type": "frame", "width": 6, "height": 6, "cornerRadius": 3, "fill": "$token(border-secondary)" },
+              { "name": "dot-3", "type": "frame", "width": 6, "height": 6, "cornerRadius": 3, "fill": "$token(border-secondary)" }
+            ]
+          }
+        ]
+      }
+    },
+
+    "TransactionRibbon": {
+      "_description": "거래 실적 리본. 화면 상단 NavBar 아래에 위치. 브랜드 컬러 배경의 한 줄 정보 띠.",
+      "_variables": [
+        "iconName: 좌측 아이콘 (기본: bar-chart-square-02)",
+        "text: 리본 텍스트 (예: '누적 거래 3,191,399건')",
+        "fill: 배경색 (기본: $token(bg-brand-primary))",
+        "textColor: 텍스트 색상 (기본: $token(fg-brand-primary))",
+        "iconColor: 아이콘 색상 (기본: $token(fg-brand-primary))"
+      ],
+      "template": {
+        "name": "Transaction Ribbon",
+        "type": "frame",
+        "width": 393,
+        "height": 36,
+        "layoutSizingHorizontal": "FILL",
+        "autoLayout": {
+          "layoutMode": "HORIZONTAL",
+          "primaryAxisAlignItems": "CENTER",
+          "counterAxisAlignItems": "CENTER",
+          "itemSpacing": 6,
+          "paddingLeft": 16,
+          "paddingRight": 16
+        },
+        "fill": "$token(bg-brand-primary)",
+        "children": [
+          {
+            "name": "ribbon-icon",
+            "type": "icon",
+            "iconName": "bar-chart-square-02",
+            "size": 16,
+            "iconColor": "$token(fg-brand-primary)"
+          },
+          {
+            "name": "tx-count",
+            "type": "text",
+            "text": "{{VARIABLE: 리본 텍스트}}",
+            "fontSize": 13,
+            "fontName": { "family": "Pretendard", "style": "Medium" },
+            "fontColor": "$token(fg-brand-primary)"
+          }
+        ]
+      }
+    }
+
+  }
+}
