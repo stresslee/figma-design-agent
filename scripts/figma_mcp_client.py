@@ -1023,8 +1023,10 @@ def _fix_fill_sizing(tree: dict) -> int:
             # INSTANCE는 컴포넌트 마스터가 크기를 제어 — FILL 변환 금지
             if node_type == "INSTANCE":
                 skip = True
-            # 이미 명시적으로 HUG 설정된 노드 (태그, 배지, 인디케이터 등)
-            if sizing_h == "HUG":
+            # HUG 보존 규칙:
+            #   VERTICAL 부모의 HUG FRAME → FILL로 수정 (가로 채움 필수)
+            #   HORIZONTAL/기타 부모의 HUG FRAME → 유지 (FILL이면 tab/tag 레이아웃 깨짐)
+            if sizing_h == "HUG" and parent_layout_mode != "VERTICAL":
                 skip = True
             if width <= 60:
                 skip = True
@@ -1634,9 +1636,18 @@ def cmd_assemble(config_file: str):
     blueprint = {
         "rootName": root_name,
         "name": root_name,
+        "type": "frame",
         "width": width,
         "height": height,
         "fill": fill,
+        "autoLayout": {
+            "layoutMode": "VERTICAL",
+            "itemSpacing": 0,
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+        },
         "children": children,
     }
 

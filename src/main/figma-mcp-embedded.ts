@@ -1706,15 +1706,27 @@ export function enhanceBlueprint(root: Record<string, unknown>): Record<string, 
     // ── 5c. 규칙 C — 색상 정규화 ──
     normalizeNodeColors(n);
 
-    // ── 5d. 규칙 D — 루트 직계 children FILL width ──
-    if (isRootChild && n.type === 'frame' && !n.layoutSizingHorizontal) {
-      // Status Bar clone이나 이미 처리된 것은 제외
-      const name = ((n.name as string) || '').toLowerCase();
-      const isStatusBar = name.includes('status bar') || name.includes('statusbar');
-      if (!isStatusBar) {
-        n.layoutSizingHorizontal = 'FILL';
-        console.log(`[enforce] Root child "${n.name}" layoutSizingHorizontal forced: FILL`);
-        stats.sizing++;
+    // ── 5d. 규칙 D — VERTICAL 부모의 모든 FRAME 자식 FILL width ──
+    // 루트 직계뿐 아니라 모든 depth에서 VERTICAL 부모의 FRAME 자식은 FILL 필수
+    // code.js에도 auto-FILL이 있지만 enhanceBlueprint에서 미리 설정하면 더 안정적
+    if (_parent && n.type === 'frame' && !n.layoutSizingHorizontal) {
+      const parentAl = _parent.autoLayout as Record<string, unknown> | undefined;
+      const parentMode = (parentAl?.layoutMode as string) || (_parent.layoutMode as string);
+      if (parentMode === 'VERTICAL') {
+        const name = ((n.name as string) || '').toLowerCase();
+        const isStatusBar = name.includes('status bar') || name.includes('statusbar');
+        const isSkip = /icon|chevron|dot|badge|tag|chip|indicator|fab|tab.?bar/i.test(name);
+        const w = n.width as number | undefined;
+        const isSmallFixed = typeof w === 'number' && w <= 60;
+        if (!isStatusBar && !isSkip && !isSmallFixed) {
+          n.layoutSizingHorizontal = 'FILL';
+          if (isRootChild) {
+            console.log(`[enforce] Root child "${n.name}" layoutSizingHorizontal forced: FILL`);
+          } else {
+            console.log(`[enforce] VERTICAL parent child "${n.name}" layoutSizingHorizontal forced: FILL`);
+          }
+          stats.sizing++;
+        }
       }
     }
 
